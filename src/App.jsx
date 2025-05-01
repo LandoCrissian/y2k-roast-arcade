@@ -1,10 +1,10 @@
 import { useAccount, useConnectModal } from '@reown/appkit/react';
-import { appKit } from './services/reown';
-import './App.css';
+import { appKit } from './reown';
+import './styles/App.css';
 
 function App() {
   const { connect } = useConnectModal();
-  const { address, chain, solanaAddress } = useAccount();
+  const { address, solanaAddress } = useAccount();
 
   const checkAccess = () => {
     const cro = address?.toLowerCase();
