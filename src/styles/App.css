@@ -1,55 +1,45 @@
-body {
-  background-color: #000;
-  margin: 0;
-  font-family: 'Courier New', Courier, monospace;
-  color: #0ff;
-}
-
 .crt {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  background: black;
+  color: #00ffea;
+  font-family: 'Courier New', Courier, monospace;
   text-align: center;
-  text-shadow: 0 0 5px #0ff;
+  padding-top: 10vh;
+  height: 100vh;
 }
 
-.screen h1 {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  animation: flicker 1.5s infinite;
+.glitch-overlay {
+  background: repeating-linear-gradient(
+    to bottom,
+    #000,
+    #000 2px,
+    #111 2px,
+    #111 4px
+  );
+  mix-blend-mode: overlay;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  z-index: -1;
 }
 
-.buttons button,
-.granted {
-  background: #0ff;
-  color: #000;
-  font-weight: bold;
-  padding: 12px 24px;
+.screen {
+  position: relative;
+  z-index: 1;
+}
+
+button {
+  background: #00ffea;
   border: none;
+  color: black;
+  padding: 1em 2em;
+  font-size: 1.2em;
   cursor: pointer;
-  font-size: 1rem;
-  text-decoration: none;
+  margin-top: 2em;
 }
 
-.buttons button:hover,
-.granted:hover {
-  background: #00f0f0;
-}
-
-#status {
-  margin-top: 20px;
-  color: #f00;
+.granted {
+  color: #00ffea;
   font-weight: bold;
-  text-shadow: 0 0 5px #f00;
-}
-
-@keyframes flicker {
-  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
-    opacity: 1;
-  }
-  20%, 24%, 55% {
-    opacity: 0;
-  }
+  font-size: 1.3em;
+  text-decoration: none;
 }
