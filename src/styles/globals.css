@@ -1,1 +1,23 @@
-
+body {
+  background-color: #000;
+  color: #0ff;
+  font-family: monospace;
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.crt-screen {
+  text-align: center;
+  text-shadow: 0 0 5px #0ff;
+}
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-weight: bold;
+  background: #0ff;
+  border: none;
+  color: #000;
+  cursor: pointer;
+}
