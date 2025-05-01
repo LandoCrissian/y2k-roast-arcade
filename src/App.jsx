@@ -1,9 +1,9 @@
-import { useAccount, useConnectModal } from '@reown/appkit/react';
+import { useAccount } from '@reown/appkit/react';
 import { appKit } from './reown';
 import './styles/App.css';
 
 function App() {
-  const { connect } = useConnectModal();
+  const connect = appKit.connect;
   const { address, solanaAddress } = useAccount();
 
   const checkAccess = () => {
