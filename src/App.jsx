@@ -3,8 +3,8 @@ import { appKit } from './reown';
 import './styles/App.css';
 
 function App() {
-  const connect = appKit.connect;
   const { address, solanaAddress } = useAccount();
+  const connect = appKit.connect;
 
   const checkAccess = () => {
     const cro = address?.toLowerCase();
@@ -26,7 +26,7 @@ function App() {
           {access ? (
             <a href="/lobby.html" className="granted">Access Granted: Enter Arcade</a>
           ) : (
-            <button onClick={connect}>Connect Wallet</button>
+            <button onClick={() => connect()}>Connect Wallet</button>
           )}
         </div>
         <p id="status">
