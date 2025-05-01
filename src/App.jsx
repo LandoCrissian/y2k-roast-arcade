@@ -28,8 +28,18 @@ function App() {
           )}
         </div>
         <p id="status">
-          {access ? '' : (cro || sol) ? 'ACCESS DENIED: No Y2K or ROAST detected.' : ''}
+          {access
+            ? ''
+            : cro || sol
+            ? 'ACCESS DENIED: No Y2K or ROAST detected.'
+            : 'No wallet connected. Please tap Connect Wallet above.'}
         </p>
+
+        <div style={{ marginTop: '2rem', fontSize: '0.8rem', color: '#0ff' }}>
+          <p><strong>Debug:</strong></p>
+          <p>CRO: {cro || '—'}</p>
+          <p>SOL: {sol || '—'}</p>
+        </div>
       </div>
     </div>
   );
