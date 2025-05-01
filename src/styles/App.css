@@ -1,49 +1,35 @@
 body {
-  margin: 0;
-  font-family: 'Courier New', Courier, monospace;
-  background: #000;
+  background: black;
   color: #0ff;
+  font-family: monospace;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  margin: 0;
 }
 
 .crt {
   text-align: center;
 }
 
-.glitch-overlay {
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 255, 255, 0.1),
-    rgba(0, 255, 255, 0.1) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  height: 100%;
-  pointer-events: none;
+.screen {
+  z-index: 1;
 }
 
-.screen h1 {
-  font-size: 1.5em;
-  margin-bottom: 2rem;
-}
-
-.buttons button,
-.buttons a {
-  background-color: #0ff;
+button,
+.granted {
+  background: #0ff;
+  color: black;
   border: none;
-  padding: 1em 2em;
-  color: #000;
-  text-decoration: none;
   font-weight: bold;
-  font-size: 1em;
+  padding: 1rem 2rem;
+  font-size: 1rem;
   cursor: pointer;
+  margin-top: 2rem;
 }
 
 #status {
   margin-top: 1rem;
-  font-size: 1em;
-  color: red;
+  font-size: 1rem;
 }
