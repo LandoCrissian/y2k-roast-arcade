@@ -2,29 +2,34 @@ const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
 const ROAST_MINT = "A6db9o4y5phC5ncSdM8pQKmWanodxLyXgwxuVCuA4ray";
 const SOLANA_RPC = "https://thrilling-old-sailboat.solana-mainnet.quiknode.pro/7eeaf93b8ff0a17a6172d1a57f8bf43c81d164a0";
 
-document.getElementById("connectBtn").addEventListener("click", async () => {
-  const modal = new window.Web3Modal.default({
-    projectId: "36c402e4989b8426f99d329788a526fc", // Official WC Project ID
-    chains: ["eip155:25", "solana:mainnet"],
-    themeMode: "dark",
-    explorerExcluded: true,
-    standaloneChains: ["solana:mainnet"],
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  const connectButton = document.getElementById("connectBtn");
+  if (connectButton) {
+    connectButton.addEventListener("click", async () => {
+      const modal = new window.Web3Modal.default({
+        projectId: "36c402e4989b8426f99d329788a526fc", // Verified ID
+        chains: ["eip155:25", "solana:mainnet"],
+        themeMode: "dark",
+        explorerExcluded: true,
+        standaloneChains: ["solana:mainnet"],
+      });
 
-  const provider = await modal.connect();
+      const provider = await modal.connect();
 
-  if (provider.accounts && provider.accounts.length > 0) {
-    const [namespace, , account] = provider.accounts[0].split(":");
+      if (provider.accounts && provider.accounts.length > 0) {
+        const [namespace, , account] = provider.accounts[0].split(":");
 
-    if (namespace === "eip155") {
-      checkY2KBalance(account);
-    } else if (namespace === "solana") {
-      checkROASTBalance(account);
-    } else {
-      setStatus("Unsupported chain.");
-    }
-  } else {
-    setStatus("No wallet selected.");
+        if (namespace === "eip155") {
+          checkY2KBalance(account);
+        } else if (namespace === "solana") {
+          checkROASTBalance(account);
+        } else {
+          setStatus("Unsupported chain.");
+        }
+      } else {
+        setStatus("No wallet selected.");
+      }
+    });
   }
 });
 
