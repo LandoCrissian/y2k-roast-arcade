@@ -4,25 +4,50 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Y2K Roast Arcade</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://unpkg.com/@walletconnect/modal@2.4.2/dist/style.css" rel="stylesheet" />
+  <style>
+    body {
+      background: black;
+      color: cyan;
+      font-family: monospace;
+      text-align: center;
+      padding-top: 100px;
+    }
+    button {
+      background: cyan;
+      color: black;
+      padding: 15px 30px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <div class="crt">
-    <div class="glitch-overlay"></div>
-    <div class="screen">
-      <h1>INSERT TOKEN TO ENTER THE ARCADE</h1>
-      <div class="buttons">
-        <button id="connectBtn">Connect Wallet</button>
-      </div>
-      <p id="status"></p>
-    </div>
-  </div>
+  <h1>INSERT TOKEN TO ENTER THE ARCADE</h1>
+  <button id="connectBtn">Connect Wallet</button>
+  <p id="status"></p>
 
-  <!-- Scripts placed at the very end -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.80.1/lib/index.iife.min.js"></script>
+  <!-- Load modal and test script -->
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
-  <script src="wallet.js"></script>
+  <script>
+    document.getElementById("connectBtn").addEventListener("click", async () => {
+      try {
+        const modal = new window.Web3Modal.default({
+          projectId: "36c402e4989b8426f99d329788a526fc",
+          themeMode: "dark",
+          chains: ["eip155:25", "solana:mainnet"],
+          standaloneChains: ["solana:mainnet"]
+        });
+
+        const provider = await modal.connect();
+        document.getElementById("status").innerText = "Wallet Connected!";
+        console.log("Connected account:", provider.accounts[0]);
+
+      } catch (err) {
+        console.error("WalletConnect Error:", err);
+        document.getElementById("status").innerText = "WalletConnect error.";
+      }
+    });
+  </script>
 </body>
 </html>
