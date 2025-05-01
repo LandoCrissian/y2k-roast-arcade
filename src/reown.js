@@ -1,8 +1,25 @@
 import { createAppKit } from '@reown/appkit';
-import { wagmiAdapter } from '@reown/appkit-adapter-wagmi';
-import { solanaAdapter } from '@reown/appkit-adapter-solana';
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
+import { SolanaAdapter } from '@reown/appkit-adapter-solana';
+import { mainnet, solana } from '@reown/appkit/networks';
+import { cronos } from 'viem/chains';
+
+const projectId = import.meta.env.VITE_REOWN_PROJECT_ID;
+
+const wagmiAdapter = new WagmiAdapter({
+  projectId,
+  metadata: {
+    name: 'Y2K Roast Arcade',
+    description: 'Cross-chain token-gated arcade access',
+    url: 'https://arcade.y2kcoin.org',
+    icons: ['https://y2kcoin.org/favicon.ico']
+  },
+  chains: [mainnet, cronos]
+});
+
+const solanaAdapter = new SolanaAdapter();
 
 export const appKit = createAppKit({
-  projectId: "36c402e4989b8426f99d329788a526fc",
-  wallets: [wagmiAdapter(), solanaAdapter()],
+  adapters: [wagmiAdapter, solanaAdapter],
+  networks: [mainnet, cronos, solana]
 });
