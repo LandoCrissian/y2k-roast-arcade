@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Y2K Roast Arcade</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="crt">
+    <div class="glitch-overlay"></div>
+    <div class="screen">
+      <h1>INSERT TOKEN TO ENTER THE ARCADE</h1>
+      <div class="buttons">
+        <button onclick="connectMetaMask()">Connect MetaMask</button>
+        <button onclick="connectPhantom()">Connect Phantom</button>
+      </div>
+      <p id="status"></p>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.80.1/lib/index.iife.min.js"></script>
+  <script src="wallet.js"></script>
+</body>
+</html>
