@@ -30,7 +30,7 @@ function App() {
           )}
         </div>
         <p id="status">
-          {access ? '' : address || solanaAddress ? 'ACCESS DENIED: No Y2K or ROAST detected.' : ''}
+          {access ? '' : (address || solanaAddress) ? 'ACCESS DENIED: No Y2K or ROAST detected.' : ''}
         </p>
       </div>
     </div>
