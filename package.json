@@ -1,7 +1,6 @@
 {
   "name": "y2k-roast-arcade",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -13,11 +12,10 @@
     "@reown/appkit-adapter-wagmi": "1.7.3",
     "@solana/web3.js": "^1.95.8",
     "@wagmi/core": "^2.16.3",
-    "firebase": "^10.7.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
     "viem": "^2.22.8",
-    "wagmi": "^2.13.3"
+    "wagmi": "^2.13.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "vite": "^4.0.0"
