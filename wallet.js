@@ -4,7 +4,7 @@ const SOLANA_RPC = "https://thrilling-old-sailboat.solana-mainnet.quiknode.pro/7
 
 document.getElementById("connectBtn").addEventListener("click", async () => {
   const modal = new window.Web3Modal.default({
-    projectId: "y2k-temp", // Replace with real WC project ID
+    projectId: "36c402e4989b8426f99d329788a526fc", // Official WC Project ID
     chains: ["eip155:25", "solana:mainnet"],
     themeMode: "dark",
     explorerExcluded: true,
@@ -15,6 +15,7 @@ document.getElementById("connectBtn").addEventListener("click", async () => {
 
   if (provider.accounts && provider.accounts.length > 0) {
     const [namespace, , account] = provider.accounts[0].split(":");
+
     if (namespace === "eip155") {
       checkY2KBalance(account);
     } else if (namespace === "solana") {
@@ -40,6 +41,7 @@ async function checkY2KBalance(address) {
 
     const balance = await token.balanceOf(address);
     const readable = parseFloat(ethers.formatUnits(balance, 18));
+
     if (readable > 0) {
       grantAccess("Y2K");
     } else {
