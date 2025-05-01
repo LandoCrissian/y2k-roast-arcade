@@ -1,15 +1,13 @@
-import { useAccount } from '@reown/appkit/react';
 import { appKit } from './reown';
 import './styles/App.css';
 
 function App() {
-  const { address, solanaAddress } = useAccount();
   const connect = appKit.connect;
+  const account = appKit.getAccount();
+  const cro = account?.address?.toLowerCase();
+  const sol = account?.solanaAddress;
 
   const checkAccess = () => {
-    const cro = address?.toLowerCase();
-    const sol = solanaAddress;
-
     if (cro === '0x99fd6daaa57ebe7f10ee94e6c1b7522fa2b0d100') return 'Y2K';
     if (sol === 'HQcgVnNacvvjK4ToX8Pcq2bKmD5s32XR6AarQ2EVrrpq') return 'ROAST';
     return null;
@@ -30,7 +28,7 @@ function App() {
           )}
         </div>
         <p id="status">
-          {access ? '' : (address || solanaAddress) ? 'ACCESS DENIED: No Y2K or ROAST detected.' : ''}
+          {access ? '' : (cro || sol) ? 'ACCESS DENIED: No Y2K or ROAST detected.' : ''}
         </p>
       </div>
     </div>
