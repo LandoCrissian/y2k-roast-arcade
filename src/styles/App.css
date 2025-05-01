@@ -1,45 +1,49 @@
-.crt {
-  background: black;
-  color: #00ffea;
+body {
+  margin: 0;
   font-family: 'Courier New', Courier, monospace;
-  text-align: center;
-  padding-top: 10vh;
+  background: #000;
+  color: #0ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 100vh;
+}
+
+.crt {
+  text-align: center;
 }
 
 .glitch-overlay {
   background: repeating-linear-gradient(
-    to bottom,
-    #000,
-    #000 2px,
-    #111 2px,
-    #111 4px
+    0deg,
+    rgba(0, 255, 255, 0.1),
+    rgba(0, 255, 255, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
   );
-  mix-blend-mode: overlay;
   height: 100%;
-  position: absolute;
-  width: 100%;
-  z-index: -1;
+  pointer-events: none;
 }
 
-.screen {
-  position: relative;
-  z-index: 1;
+.screen h1 {
+  font-size: 1.5em;
+  margin-bottom: 2rem;
 }
 
-button {
-  background: #00ffea;
+.buttons button,
+.buttons a {
+  background-color: #0ff;
   border: none;
-  color: black;
   padding: 1em 2em;
-  font-size: 1.2em;
+  color: #000;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1em;
   cursor: pointer;
-  margin-top: 2em;
 }
 
-.granted {
-  color: #00ffea;
-  font-weight: bold;
-  font-size: 1.3em;
-  text-decoration: none;
+#status {
+  margin-top: 1rem;
+  font-size: 1em;
+  color: red;
 }
