@@ -11,6 +11,21 @@
     <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
 </head>
 <body>
+    <!-- Vault Loading Screen -->
+    <div id="vaultLoader" class="vault-loader hidden">
+        <div class="vault-door-container">
+            <div class="vault-door">
+                <div class="door-frame"></div>
+                <div class="door-wheel">
+                    <div class="wheel-spoke"></div>
+                    <div class="wheel-spoke"></div>
+                    <div class="wheel-spoke"></div>
+                </div>
+            </div>
+        </div>
+        <div class="loader-text">ACCESS GRANTED - OPENING VAULT</div>
+    </div>
+
     <div class="background">
         <div class="gradient-sphere"></div>
     </div>
@@ -18,7 +33,7 @@
     <div class="container">
         <div class="glass-card">
             <div class="header">
-                <div class="logo">Y2K</div>
+                <div class="logo" id="logoTrigger">Y2K</div>
                 <div class="subtitle">VAULT ACCESS</div>
             </div>
 
@@ -63,6 +78,14 @@
             <div id="status" class="status-message"></div>
         </div>
     </div>
+
+    <!-- Audio elements with base64 encoded sounds -->
+    <audio id="vaultOpen" preload="auto">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjIwLjEwMAAAAAAAAAAAAAAAAP/7kGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEluZm8AAAAPAAAABAAABPgANDQ0NDQ0NDQ0NDRubm5ubm5ubm5uboyMjIyMjIyMjIyMqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==" type="audio/mpeg">
+    </audio>
+    <audio id="vaultUnlock" preload="auto">
+        <source src="data:audio/mpeg;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjIwLjEwMAAAAAAAAAAAAAAAAP/7kGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEluZm8AAAAPAAAABAAABPgANDQ0NDQ0NDQ0NDRubm5ubm5ubm5uboyMjIyMjIyMjIyMqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//uQZAAP8AAAaQAAAAgAAA0gAAABAAABpAAAACAAADSAAAAEqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==" type="audio/mpeg">
+    </audio>
 
     <style>
         * {
@@ -150,6 +173,8 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
         }
 
         .subtitle {
@@ -301,14 +326,137 @@
             color: rgba(255, 255, 255, 0.8);
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Vault Loader Styles */
+        .vault-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
         }
 
-        .loading .verification-status {
-            animation: pulse 1.5s infinite;
+        .vault-loader.hidden {
+            display: none;
+        }
+
+        .vault-door-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin-bottom: 20px;
+            perspective: 1000px;
+        }
+
+        .vault-door {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #2a2a2a, #444444);
+            border-radius: 10px;
+            position: relative;
+            border: 8px solid #1a1a1a;
+            transform-origin: left;
+            animation: doorOpen 3s ease-in-out forwards;
+            transform-style: preserve-3d;
+        }
+
+        .door-wheel {
+            width: 80px;
+            height: 80px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 6px solid #1a1a1a;
+            animation: wheelTurn 3s ease-in-out forwards;
+        }
+
+        .wheel-spoke {
+            position: absolute;
+            width: 8px;
+            height: 100%;
+            background: #1a1a1a;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .wheel-spoke:nth-child(2) {
+            transform: translateX(-50%) rotate(60deg);
+        }
+
+        .wheel-spoke:nth-child(3) {
+            transform: translateX(-50%) rotate(-60deg);
+        }
+
+        .loader-text {
+            color: #6366f1;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            animation: textPulse 1.5s infinite;
+        }
+
+        @keyframes doorOpen {
+            0% { transform: perspective(1000px) rotateY(0deg); }
+            100% { transform: perspective(1000px) rotateY(-85deg); }
+        }
+
+        @keyframes wheelTurn {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(720deg); }
+        }
+
+        @keyframes textPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Twitter Easter Egg */
+        .twitter-easter-egg {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(29, 161, 242, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1001;
+            animation: popIn 0.3s ease-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .twitter-easter-egg a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 18px;
+            display: block;
+        }
+
+        .twitter-easter-egg .close-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 5px;
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
         }
 
         @media (max-width: 480px) {
@@ -327,6 +475,11 @@
             .amount {
                 font-size: 28px;
             }
+
+            .vault-door-container {
+                width: 160px;
+                height: 160px;
+            }
         }
     </style>
 
@@ -338,124 +491,62 @@
         
         let provider;
         let web3;
+        let logoClickCount = 0;
+        let lastClickTime = 0;
 
-        async function connectWallet() {
-            try {
-                setLoading(true);
-                updateStatus("Initializing secure connection...");
-                updateVerificationProgress(0);
-                setStatusActive('connection-status');
-
-                // Check if MetaMask or other web3 provider is available
-                if (typeof window.ethereum !== 'undefined') {
-                    provider = window.ethereum;
-                    web3 = new Web3(provider);
-
-                    // Request account access
-                    const accounts = await provider.request({ method: 'eth_requestAccounts' });
-                    const account = accounts[0];
-
-                    // Check and switch to Cronos network
-                    await switchToCronosNetwork();
-
-                    updateVerificationProgress(33);
-                    setStatusActive('verification-status');
-                    updateStatus("Verifying wallet credentials...");
-
-                    // Create contract instance
-                    const tokenContract = new web3.eth.Contract([
-                        {
-                            "constant": true,
-                            "inputs": [{"name": "_owner", "type": "address"}],
-                            "name": "balanceOf",
-                            "outputs": [{"name": "balance", "type": "uint256"}],
-                            "type": "function"
-                        }
-                    ], Y2K_TOKEN);
-
-                    updateVerificationProgress(66);
-                    setStatusActive('token-status');
-                    updateStatus("Checking Y2K balance...");
-
-                    // Get token balance
-                    const balance = await tokenContract.methods.balanceOf(account).call();
-                    const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
-
-                    updateVerificationProgress(100);
-
-                    if (readable >= REQUIRED_TOKENS) {
-                        updateStatus("Access granted - Preparing secure environment");
-                        setTimeout(() => {
-                            window.location.href = "vault.html";
-                        }, 2000);
-                    } else {
-                        updateStatus(`Access denied: Insufficient Y2K (${formatNumber(REQUIRED_TOKENS)} required)`);
-                        setStatusActive('token-status', false);
-                        updateVerificationProgress(66);
-                    }
-                } else {
-                    throw new Error('No wallet detected. Please install MetaMask or use a Web3 enabled browser.');
-                }
-            } catch (err) {
-                console.error('Connection error:', err);
-                handleError(err);
-            } finally {
-                setLoading(false);
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            if (sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Audio playback failed:', e));
             }
         }
 
-        async function switchToCronosNetwork() {
-            try {
-                await provider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: '0x19' }], // Cronos Chain ID in hex
-                });
-            } catch (switchError) {
-                // This error code indicates that the chain has not been added to MetaMask
-                if (switchError.code === 4902) {
-                    try {
-                        await provider.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: '0x19',
-                                chainName: 'Cronos Mainnet',
-                                nativeCurrency: {
-                                    name: 'Cronos',
-                                    symbol: 'CRO',
-                                    decimals: 18
-                                },
-                                rpcUrls: ['https://evm.cronos.org'],
-                                blockExplorerUrls: ['https://cronoscan.com/']
-                            }]
-                        });
-                    } catch (addError) {
-                        throw new Error('Failed to add Cronos network to your wallet.');
-                    }
-                } else {
-                    throw new Error('Failed to switch to Cronos network. Please switch manually.');
-                }
+        function showVaultLoader() {
+            const loader = document.getElementById('vaultLoader');
+            loader.classList.remove('hidden');
+            playSound('vaultUnlock');
+        }
+
+        function handleLogoClick() {
+            const currentTime = new Date().getTime();
+            
+            if (currentTime - lastClickTime > 3000) {
+                logoClickCount = 1;
+            } else {
+                logoClickCount++;
+            }
+            
+            lastClickTime = currentTime;
+
+            if (logoClickCount === 5) {
+                showTwitterEasterEgg();
+                logoClickCount = 0;
             }
         }
 
-        function handleError(error) {
-            let errorMessage = "Connection failed. Please try again.";
-            
-            if (error.message.includes('rejected')) {
-                errorMessage = "Connection rejected. Please try again.";
-            } else if (error.message.includes('network')) {
-                errorMessage = "Please switch to Cronos network and try again.";
-            } else if (error.message.includes('wallet')) {
-                errorMessage = error.message;
-            } else if (error.code === 4001) {
-                errorMessage = "Connection rejected. Please try again.";
-            } else if (error.code === -32002) {
-                errorMessage = "Please check your wallet for pending connection request.";
+        function showTwitterEasterEgg() {
+            // Remove existing easter egg if present
+            const existingEasterEgg = document.querySelector('.twitter-easter-egg');
+            if (existingEasterEgg) {
+                existingEasterEgg.remove();
             }
+
+            const easterEgg = document.createElement('div');
+            easterEgg.className = 'twitter-easter-egg';
+            easterEgg.innerHTML = `
+                <button class="close-button">×</button>
+                <a href="https://twitter.com/Y2K_Finance" target="_blank">
+                    🔥 Sneak Peek: Follow Y2K on 𝕏
+                </a>
+            `;
             
-            updateStatus(errorMessage);
-            setStatusActive('connection-status', false);
-            updateVerificationProgress(0);
-            console.error('Detailed error:', error);
+            document.body.appendChild(easterEgg);
+
+            const closeButton = easterEgg.querySelector('.close-button');
+            closeButton.onclick = () => {
+                easterEgg.remove();
+            };
         }
 
         function updateStatus(message, type = 'info') {
@@ -492,14 +583,127 @@
             }
         }
 
-        function formatNumber(num) {
-            return new Intl.NumberFormat().format(num);
+        async function switchToCronosNetwork() {
+            try {
+                await provider.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x19' }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    try {
+                        await provider.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x19',
+                                chainName: 'Cronos Mainnet',
+                                nativeCurrency: {
+                                    name: 'Cronos',
+                                    symbol: 'CRO',
+                                    decimals: 18
+                                },
+                                rpcUrls: ['https://evm.cronos.org'],
+                                blockExplorerUrls: ['https://cronoscan.com/']
+                            }]
+                        });
+                    } catch (addError) {
+                        throw new Error('Failed to add Cronos network to your wallet.');
+                    }
+                } else {
+                    throw new Error('Failed to switch to Cronos network. Please switch manually.');
+                }
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                playSound('vaultOpen');
+                setLoading(true);
+                updateStatus("Initializing secure connection...");
+                updateVerificationProgress(0);
+                setStatusActive('connection-status');
+
+                if (typeof window.ethereum !== 'undefined') {
+                    provider = window.ethereum;
+                    web3 = new Web3(provider);
+
+                    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    await switchToCronosNetwork();
+
+                    updateVerificationProgress(33);
+                    setStatusActive('verification-status');
+                    updateStatus("Verifying wallet credentials...");
+
+                    const tokenContract = new web3.eth.Contract([
+                        {
+                            "constant": true,
+                            "inputs": [{"name": "_owner", "type": "address"}],
+                            "name": "balanceOf",
+                            "outputs": [{"name": "balance", "type": "uint256"}],
+                            "type": "function"
+                        }
+                    ], Y2K_TOKEN);
+
+                    updateVerificationProgress(66);
+                    setStatusActive('token-status');
+                    updateStatus("Checking Y2K balance...");
+
+                    const balance = await tokenContract.methods.balanceOf(account).call();
+                    const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
+
+                    updateVerificationProgress(100);
+
+                    if (readable >= REQUIRED_TOKENS) {
+                        updateStatus("Access granted - Preparing secure environment");
+                        showVaultLoader();
+                        setTimeout(() => {
+                            window.location.href = "vault.html";
+                        }, 3000);
+                    } else {
+                        updateStatus(`Access denied: Insufficient Y2K (${new Intl.NumberFormat().format(REQUIRED_TOKENS)} required)`);
+                        setStatusActive('token-status', false);
+                        updateVerificationProgress(66);
+                    }
+                } else {
+                    throw new Error('No wallet detected. Please install MetaMask or use a Web3 enabled browser.');
+                }
+            } catch (err) {
+                console.error('Connection error:', err);
+                handleError(err);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function handleError(error) {
+            let errorMessage = "Connection failed. Please try again.";
+            
+            if (error.message.includes('rejected')) {
+                errorMessage = "Connection rejected. Please try again.";
+            } else if (error.message.includes('network')) {
+                errorMessage = "Please switch to Cronos network and try again.";
+            } else if (error.message.includes('wallet')) {
+                errorMessage = error.message;
+            } else if (error.code === 4001) {
+                errorMessage = "Connection rejected. Please try again.";
+            } else if (error.code === -32002) {
+                errorMessage = "Please check your wallet for pending connection request.";
+            }
+            
+            updateStatus(errorMessage);
+            setStatusActive('connection-status', false);
+            updateVerificationProgress(0);
         }
 
         // Initialize when the page loads
         document.addEventListener("DOMContentLoaded", () => {
-            const btn = document.getElementById("connectBtn");
-            btn.addEventListener("click", connectWallet);
+            const connectBtn = document.getElementById("connectBtn");
+            const logoTrigger = document.getElementById("logoTrigger");
+            
+            connectBtn.addEventListener("click", connectWallet);
+            logoTrigger.addEventListener("click", handleLogoClick);
         });
     </script>
 </body>
