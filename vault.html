@@ -1,335 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-  <title>The Vault – Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Y2K Vault - Sports Squares</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
+
+<div class="admin-controls">
+    <button id="adminButton" class="admin-button" onclick="showAdminPanel()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 4L20 8.00004L12 12L4 8.00004L12 4Z"/>
+            <path d="M20 12L12 16L4 12"/>
+            <path d="M20 16L12 20L4 16"/>
+        </svg>
+    </button>
+</div>
+
+<div id="walletPanel" class="wallet-panel">
+    <button id="connectWalletBtn" onclick="connectWallet()">Connect Wallet</button>
+    <div id="walletInfo" class="wallet-info" style="display: none;">
+        <span id="walletAddress"></span>
+        <span id="tokenBalance"></span>
+    </div>
+</div>
 
 <h1>The Vault Matchups</h1>
 
 <div class="filters">
-  <button class="active" data-filter="active">Active</button>
-  <button data-filter="past">Past</button>
-  <button data-filter="all">All</button>
+    <button class="active" data-filter="active">Active</button>
+    <button data-filter="upcoming">Upcoming</button>
+    <button data-filter="past">Past</button>
+    <button data-filter="all">All</button>
 </div>
 
-<div class="date-filter">
-  <input type="date" id="dateFilter">
+<div class="league-filters">
+    <button class="active" data-league="all">All Games</button>
+    <button data-league="NBA">NBA</button>
+    <button data-league="NHL">NHL</button>
 </div>
 
 <div class="game-list" id="gameList">
-  <!-- Games will be dynamically inserted here -->
-  <div class="loading">Loading matches...</div>
+    <div class="loading">
+        <div class="spinner"></div>
+        Loading matches...
+    </div>
+</div>
+
+<div id="adminModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Admin Panel</h2>
+            <button onclick="closeAdminPanel()" class="close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Verify admin access with your wallet</p>
+            <button onclick="verifyAdmin()" class="admin-verify-btn">Verify Admin</button>
+            <a href="admin.html" class="admin-link" style="display: none;">
+                Go to Admin Dashboard
+            </a>
+        </div>
+    </div>
 </div>
 
 <style>
     html {
-      background-color: #000;
+        background-color: #000;
     }
     
     body {
-      background: #000;
-      color: #fff;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
+        background: #000;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .wallet-panel {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+    }
+
+    .wallet-info {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #walletAddress {
+        color: #6366f1;
+    }
+
+    #tokenBalance {
+        color: #10B981;
+    }
+
+    #connectWalletBtn {
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .admin-controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+    }
+
+    .admin-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #6366f1;
+        transition: all 0.2s ease;
+    }
+
+    .admin-button:hover {
+        background: rgba(255, 255, 255, 0.1);
     }
 
     h1 {
-      text-align: center;
-      font-size: 24px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 30px;
+        text-align: center;
+        font-size: 24px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 60px 0 30px;
     }
 
-    .filters {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 20px;
+    .filters, .league-filters {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
     }
 
-    .filters button {
-      padding: 8px 14px;
-      border: none;
-      border-radius: 8px;
-      background: #1a1a1a;
-      color: #ccc;
-      cursor: pointer;
-      transition: all 0.2s ease;
+    .filters button, .league-filters button {
+        padding: 8px 14px;
+        border: none;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+        color: #888;
+        cursor: pointer;
+        transition: all 0.2s ease;
     }
 
-    .filters button:active {
-      transform: scale(0.95);
-    }
-
-    .filters button.active {
-      background: #6366f1;
-      color: #fff;
-    }
-
-    .date-filter {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
-    }
-
-    .date-filter input {
-      background: #1a1a1a;
-      border: 1px solid #333;
-      color: #fff;
-      padding: 8px;
-      border-radius: 8px;
-      font-family: 'Inter', sans-serif;
+    .filters button.active, .league-filters button.active {
+        background: #6366f1;
+        color: #fff;
     }
 
     .game-list {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     .game-card {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      transition: transform 0.2s ease;
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px;
+        transition: transform 0.2s ease;
     }
 
-    .game-card:active {
-      transform: scale(0.98);
+    .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .game-league {
+        color: #6366f1;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .game-status {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 6px;
+    }
+
+    .status-live {
+        background: rgba(16, 185, 129, 0.1);
+        color: #10B981;
+    }
+
+    .status-upcoming {
+        background: rgba(99, 102, 241, 0.1);
+        color: #6366f1;
+    }
+
+    .status-finished {
+        background: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
     }
 
     .teams {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
     }
 
-    .teams span {
-      font-weight: 600;
-      font-size: 14px;
+    .team {
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
-    .match-info {
-      font-size: 12px;
-      color: #888;
+    .team-logo {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
     }
 
-    .pot {
-      font-size: 14px;
-      color: #a5b4fc;
-      display: flex;
-      gap: 8px;
-      align-items: center;
+    .team-name {
+        font-weight: 600;
     }
 
-    .participation {
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: #666;
+    .vs {
+        color: #666;
+        align-self: center;
     }
 
-    .participation .team {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .game-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .participation .progress {
-      color: #a5b4fc;
+    .squares-info {
+        font-size: 14px;
+        color: #10B981;
     }
 
-    .action {
-      margin-top: 10px;
+    .action-button {
+        background: #6366f1;
+        color: white;
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
     }
 
-    .action a {
-      background: #8b5cf6;
-      color: white;
-      padding: 10px 14px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.2s ease;
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
     }
 
-    .action a:active {
-      transform: scale(0.95);
-      background: #7c3aed;
+    .modal-content {
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+        margin: 0;
+        color: #6366f1;
+    }
+
+    .close-button {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 24px;
+        cursor: pointer;
+    }
+
+    .admin-verify-btn {
+        width: 100%;
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    .admin-link {
+        display: block;
+        text-align: center;
+        color: #6366f1;
+        text-decoration: none;
+        margin-top: 15px;
+        padding: 12px;
+        border: 1px solid #6366f1;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+
+    .admin-link:hover {
+        background: rgba(99, 102, 241, 0.1);
     }
 
     .loading {
-      text-align: center;
-      color: #666;
-      padding: 20px;
-      font-style: italic;
+        text-align: center;
+        color: #666;
+        padding: 40px;
+    }
+
+    .spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #333;
+        border-top: 3px solid #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
 
     @media (max-width: 600px) {
-      .game-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-      }
-      
-      .filters {
-        flex-wrap: wrap;
-      }
-      
-      .filters button {
-        flex: 1;
-        min-width: 80px;
-      }
-    }
+        .wallet-panel {
+            position: static;
+            margin-bottom: 20px;
+            text-align: center;
+        }
 
-    .past-match {
-      opacity: 0.5;
-    }
+        h1 {
+            margin-top: 20px;
+        }
 
-    .past-match .action a {
-      background: #4b5563;
-      pointer-events: none;
+        .teams {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .vs {
+            margin: 10px 0;
+        }
+
+        .game-info {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .action-button {
+            display: block;
+            text-align: center;
+        }
     }
 </style>
 
 <script>
-// Sample match data structure
-const SAMPLE_MATCHES = [
-    {
-        id: 'hou-gsw',
-        team1: 'Houston Rockets',
-        team2: 'Golden State Warriors',
-        league: 'NBA',
-        datetime: '2024-05-02T19:00:00',
-        squares: {
-            team1: 23,
-            team2: 12
-        },
-        status: 'active'
-    },
-    {
-        id: 'wpg-stl',
-        team1: 'Winnipeg Jets',
-        team2: 'St. Louis Blues',
-        league: 'NHL',
-        datetime: '2024-05-02T18:00:00',
-        squares: {
-            team1: 35,
-            team2: 28
-        },
-        status: 'active'
-    },
-    {
-        id: 'bos-mia',
-        team1: 'Boston Celtics',
-        team2: 'Miami Heat',
-        league: 'NBA',
-        datetime: '2024-05-01T20:00:00',
-        squares: {
-            team1: 50,
-            team2: 50
-        },
-        status: 'past'
-    }
-];
+// Game Data Management
+const GAMES_KEY = 'vaultGames';
+const ADMIN_WALLETS = ['0x1234...5678']; // Add actual admin wallets
 
-// Initialize matches in localStorage if not exists
-if (!localStorage.getItem('vaultMatches')) {
-    localStorage.setItem('vaultMatches', JSON.stringify(SAMPLE_MATCHES));
+let currentFilter = 'active';
+let currentLeague = 'all';
+let connectedWallet = null;
+
+// Initialize games if empty
+if (!localStorage.getItem(GAMES_KEY)) {
+    const sampleGames = [
+        {
+            id: 'nba-gsw-hou-1',
+            league: 'NBA',
+            team1: {
+                code: 'GSW',
+                name: 'Golden State Warriors',
+                score: 89,
+                squares: 23
+            },
+            team2: {
+                code: 'HOU',
+                name: 'Houston Rockets',
+                score: 92,
+                squares: 12
+            },
+            datetime: '2024-05-02T19:00:00',
+            status: {
+                type: 'live',
+                detail: 'Q3 2:45'
+            },
+            squarePrice: 200000,
+            maxSquares: 50
+        }
+    ];
+    localStorage.setItem(GAMES_KEY, JSON.stringify(sampleGames));
 }
 
-// Utility functions
+// Utility Functions
 const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString('en-US', {
+        weekday: 'short',
         month: 'short',
-        day: '2-digit',
+        day: 'numeric',
         hour: 'numeric',
         minute: '2-digit'
     });
 };
 
-const calculatePot = (match) => {
-    const totalSquares = match.squares.team1 + match.squares.team2;
-    return totalSquares * 200000; // 200K Y2K per square
+const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 };
 
-// Main rendering function
-const renderMatches = (filter = 'active') => {
-    const matches = JSON.parse(localStorage.getItem('vaultMatches'));
+// Game Rendering
+const renderGames = () => {
+    const games = JSON.parse(localStorage.getItem(GAMES_KEY));
     const gameList = document.getElementById('gameList');
-    const dateFilter = document.getElementById('dateFilter').value;
     
-    gameList.innerHTML = '';
+    let filteredGames = games;
     
-    let filteredMatches = matches;
-    
-    // Apply date filter if selected
-    if (dateFilter) {
-        filteredMatches = matches.filter(match => 
-            match.datetime.startsWith(dateFilter)
-        );
+    if (currentLeague !== 'all') {
+        filteredGames = filteredGames.filter(game => game.league === currentLeague);
     }
     
-    // Apply status filter
-    if (filter !== 'all') {
-        filteredMatches = filteredMatches.filter(match => 
-            match.status === filter
-        );
+    if (currentFilter !== 'all') {
+        filteredGames = filteredGames.filter(game => game.status.type === currentFilter);
     }
     
-    if (filteredMatches.length === 0) {
-        gameList.innerHTML = '<div class="loading">No matches found</div>';
+    if (filteredGames.length === 0) {
+        gameList.innerHTML = '<div class="loading">No games found</div>';
         return;
     }
     
-    filteredMatches.forEach(match => {
-        const pot = calculatePot(match);
-        const isPast = match.status === 'past';
-        
-        const card = document.createElement('div');
-        card.className = `game-card ${isPast ? 'past-match' : ''}`;
-        
-        card.innerHTML = `
+    gameList.innerHTML = filteredGames.map(game => `
+        <div class="game-card">
+            <div class="game-header">
+                <div class="game-league">${game.league}</div>
+                <div class="game-status status-${game.status.type}">
+                    ${game.status.detail}
+                </div>
+            </div>
+            
             <div class="teams">
-                <span>${match.team1} vs ${match.team2}</span>
-                <div class="match-info">${match.league} – ${formatDate(match.datetime)}</div>
-                <div class="pot">
-                    <span>Pot: ${pot.toLocaleString()} Y2K</span>
-                </div>
-                <div class="participation">
-                    <div class="team">
-                        ${match.team1.split(' ')[0]}: 
-                        <span class="progress">${match.squares.team1}/50</span>
+                <div class="team">
+                    <div class="team-logo">${game.team1.code}</div>
+                    <div class="team-info">
+                        <div class="team-name">${game.team1.name}</div>
+                        ${game.status.type !== 'upcoming' ? 
+                            `<div class="team-score">${game.team1.score}</div>` : 
+                            ''}
                     </div>
-                    <div class="team">
-                        ${match.team2.split(' ')[0]}: 
-                        <span class="progress">${match.squares.team2}/50</span>
+                </div>
+                
+                <div class="vs">VS</div>
+                
+                <div class="team">
+                    <div class="team-logo">${game.team2.code}</div>
+                    <div class="team-info">
+                        <div class="team-name">${game.team2.name}</div>
+                        ${game.status.type !== 'upcoming' ? 
+                            `<div class="team-score">${game.team2.score}</div>` : 
+                            ''}
                     </div>
                 </div>
             </div>
-            <div class="action">
-                <a href="game.html?match=${match.id}">${isPast ? 'Completed' : 'Buy Squares'}</a>
+            
+            <div class="game-info">
+                <div class="squares-info">
+                    ${game.team1.squares}/${game.maxSquares} vs ${game.team2.squares}/${game.maxSquares} squares taken
+                </div>
+                
+                <a href="game.html?id=${game.id}" class="action-button">
+                    ${game.status.type === 'finished' ? 'View Result' : 'Buy Squares'}
+                </a>
             </div>
-        `;
+        </div>
+    `).join('');
+};
+
+// Wallet Connection
+const connectWallet = async () => {
+    try {
+        // This would be replaced with actual wallet connection
+        const btn = document.getElementById('connectWalletBtn');
+        btn.textContent = 'Connecting...';
         
-        gameList.appendChild(card);
-    });
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simulate successful connection
+        connectedWallet = '0x1234...5678';
+        
+        document.getElementById('connectWalletBtn').style.display = 'none';
+        document.getElementById('walletInfo').style.display = 'block';
+        document.getElementById('walletAddress').textContent = connectedWallet;
+        document.getElementById('tokenBalance').textContent = '1,000,000 Y2K';
+        
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        alert('Failed to connect wallet');
+    }
+};
+
+// Admin Functions
+const showAdminPanel = () => {
+    document.getElementById('adminModal').style.display = 'flex';
+};
+
+const closeAdminPanel = () => {
+    document.getElementById('adminModal').style.display = 'none';
+};
+
+const verifyAdmin = async () => {
+    if (!connectedWallet) {
+        alert('Please connect your wallet first');
+        return;
+    }
+    
+    try {
+        // This would be replaced with actual admin verification
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (ADMIN_WALLETS.includes(connectedWallet)) {
+            document.querySelector('.admin-verify-btn').style.display = 'none';
+            document.querySelector('.admin-link').style.display = 'block';
+        } else {
+            alert('Not authorized as admin');
+        }
+    } catch (error) {
+        console.error('Admin verification error:', error);
+        alert('Failed to verify admin status');
+    }
 };
 
 // Event Listeners
@@ -337,23 +584,27 @@ document.querySelectorAll('.filters button').forEach(button => {
     button.addEventListener('click', (e) => {
         document.querySelector('.filters button.active').classList.remove('active');
         e.target.classList.add('active');
-        renderMatches(e.target.dataset.filter);
+        currentFilter = e.target.dataset.filter;
+        renderGames();
     });
 });
 
-document.getElementById('dateFilter').addEventListener('change', () => {
-    const activeFilter = document.querySelector('.filters button.active').dataset.filter;
-    renderMatches(activeFilter);
+document.querySelectorAll('.league-filters button').forEach(button => {
+    button.addEventListener('click', (e) => {
+        document.querySelector('.league-filters button.active').classList.remove('active');
+        e.target.classList.add('active');
+        currentLeague = e.target.dataset.league;
+        renderGames();
+    });
 });
 
-// Initial render
-renderMatches('active');
-
-// Auto-refresh every 30 seconds to keep pot amounts current
-setInterval(() => {
-    const activeFilter = document.querySelector('.filters button.active').dataset.filter;
-    renderMatches(activeFilter);
-}, 30000);
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+    renderGames();
+    
+    // Auto-refresh games every 30 seconds
+    setInterval(renderGames, 30000);
+});
 </script>
 
 </body>
