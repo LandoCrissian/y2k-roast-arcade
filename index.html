@@ -17,6 +17,7 @@
     html, body {
       background-color: #000;
       min-height: 100vh;
+      width: 100%;
       overflow: hidden;
       display: flex;
       justify-content: center;
@@ -162,7 +163,6 @@
       padding: 12px;
       background: rgba(255,255,255,0.03);
       border-radius: 12px;
-      transition: all 0.3s ease;
     }
 
     .status-dot {
@@ -225,7 +225,6 @@
     }
   </style>
 </head>
-
 <body>
   <div class="background">
     <div class="gradient-sphere"></div>
@@ -270,37 +269,30 @@
     </div>
   </div>
 
-    <!-- Required WalletConnect + Ethers -->
+  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
-
   <script>
     const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const Y2K_DECIMALS = 18;
     const REQUIRED_TOKENS = 4000000;
 
     const updateStatus = (msg) => {
       document.getElementById("status").innerText = msg;
     };
-
-    const setStatusActive = (id, state = true) => {
+    const setStatusActive = (id, active) => {
       const el = document.getElementById(id);
-      el.classList.toggle("active", state);
+      el.classList.toggle("active", active);
     };
-
     const updateProgress = (percent) => {
       const circle = document.querySelector(".progress-ring-path");
       const radius = circle.r.baseVal.value;
       const circumference = 2 * Math.PI * radius;
-      const offset = circumference - (percent / 100) * circumference;
-      circle.style.strokeDashoffset = offset;
+      circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
     };
-
+    const setLoading = (on) => {
+      document.querySelector(".verification-container").classList.toggle("loading", on);
+    };
     const formatNumber = (n) => new Intl.NumberFormat().format(n);
-
-    const setLoading = (loading) => {
-      document.querySelector(".verification-container").classList.toggle("loading", loading);
-    };
 
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectBtn").addEventListener("click", async () => {
@@ -310,21 +302,21 @@
         setStatusActive("connection-status", true);
 
         try {
+          if (!window.Web3Modal) {
+            updateStatus("WalletConnect not loaded.");
+            return;
+          }
+
           const modal = new window.Web3Modal.default({
             projectId: "36c402e4989b8426f99d329788a526fc",
-            themeMode: "dark",
             chains: ["eip155:25"],
+            themeMode: "dark",
             standaloneChains: ["eip155:25"],
-            explorer: {
-              name: "Y2K Vault",
-              url: "https://y2kcoin.org",
-              description: "The official sportsbook of the Crofam",
-              recommend: true
-            }
+            explorer: { name: "Y2K Vault", url: "https://y2kcoin.org", description: "Crofam Sportsbook" }
           });
 
           const provider = await modal.connect();
-          const [namespace, , account] = provider.accounts[0].split(":");
+          const [namespace, , address] = provider.accounts[0].split(":");
 
           if (namespace !== "eip155") {
             updateStatus("Unsupported chain.");
@@ -333,15 +325,12 @@
 
           updateProgress(33);
           setStatusActive("verification-status", true);
-          updateStatus("Verifying wallet credentials...");
+          updateStatus("Verifying wallet...");
 
           const ethersProvider = new ethers.JsonRpcProvider("https://evm.cronos.org");
-          const token = new ethers.Contract(Y2K_TOKEN, [
-            "function balanceOf(address) view returns (uint256)"
-          ], ethersProvider);
-
-          const balance = await token.balanceOf(account);
-          const y2k = parseFloat(ethers.formatUnits(balance, Y2K_DECIMALS));
+          const token = new ethers.Contract(Y2K_TOKEN, ["function balanceOf(address) view returns (uint256)"], ethersProvider);
+          const balance = await token.balanceOf(address);
+          const y2k = parseFloat(ethers.formatUnits(balance, 18));
 
           updateProgress(66);
           setStatusActive("token-status", true);
@@ -349,18 +338,16 @@
 
           if (y2k >= REQUIRED_TOKENS) {
             updateProgress(100);
-            updateStatus("Access granted. Welcome to The Vault...");
-            setTimeout(() => {
-              window.location.href = "vault.html";
-            }, 1500);
+            updateStatus("Access granted. Entering Vault...");
+            setTimeout(() => window.location.href = "vault.html", 1500);
           } else {
-            updateStatus(`Access denied: You need ${formatNumber(REQUIRED_TOKENS)} Y2K`);
+            updateStatus(`Access denied – ${formatNumber(REQUIRED_TOKENS)} Y2K required.`);
             setStatusActive("token-status", false);
             updateProgress(66);
           }
         } catch (err) {
           console.error(err);
-          updateStatus("Connection failed. Please try again.");
+          updateStatus("Wallet connection failed.");
           setStatusActive("connection-status", false);
           updateProgress(0);
         } finally {
