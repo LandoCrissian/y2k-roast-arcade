@@ -1,0 +1,123 @@
+body {
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #0b0b0f;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+.vault-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.vault-header h1 {
+  font-size: 3rem;
+  letter-spacing: 2px;
+  color: #73ffdf;
+  text-shadow: 0 0 8px #00ffe7;
+}
+
+.pot-display {
+  background-color: #121216;
+  padding: 1rem;
+  border: 2px solid #00ffe7;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+#potY2K, #potCRO {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0.3rem 0;
+}
+
+.squares-board {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  width: 100%;
+  max-width: 600px;
+  margin: 1rem auto;
+}
+
+.square {
+  background-color: #1f1f26;
+  border: 2px solid #00ffe7;
+  border-radius: 6px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.square:hover {
+  transform: scale(1.05);
+  background-color: #292932;
+}
+
+.actions {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 400px;
+}
+
+.actions input,
+.actions button {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: none;
+}
+
+.actions input {
+  background-color: #121216;
+  color: #00ffe7;
+  border: 1px solid #00ffe7;
+}
+
+.actions button {
+  background-color: #00ffe7;
+  color: #0b0b0f;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.leaderboard {
+  background-color: #121216;
+  border: 1px solid #333;
+  padding: 1rem;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 100%;
+  margin-top: 2rem;
+}
+
+.leaderboard h3 {
+  margin-bottom: 0.5rem;
+  color: #73ffdf;
+}
+
+#leaderList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+#leaderList li {
+  margin: 0.25rem 0;
+  padding: 0.25rem;
+  border-bottom: 1px solid #2a2a2a;
+  font-size: 0.9rem;
+}
