@@ -353,9 +353,10 @@
             min-height: 20px;
             font-size: 14px;
             color: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+            margin-top: 8px;
         }
 
-        /* Vault Loader */
         .vault-loader {
             position: fixed;
             top: 0;
@@ -448,7 +449,6 @@
             50% { opacity: 0.5; }
         }
 
-        /* Twitter Easter Egg */
         .twitter-easter-egg {
             position: fixed;
             top: 50%;
@@ -539,7 +539,6 @@
                 sound.volume = 0.5;
                 sound.play().catch(e => {
                     console.log('Audio playback failed:', e);
-                    // Retry playback with user interaction
                     document.addEventListener('click', () => {
                         sound.play().catch(e => console.log('Audio retry failed:', e));
                     }, { once: true });
@@ -595,7 +594,7 @@
 
         function updateStatus(message, type = 'info') {
             const statusEl = document.getElementById('status');
-            statusEl.innerText = message;
+            statusEl.innerHTML = message.replace(/\n/g, '<br>');
             statusEl.className = 'status-message ' + type;
         }
 
@@ -667,18 +666,34 @@
                 updateVerificationProgress(0);
                 setStatusActive('connection-status');
 
+                // First delay before wallet prompt
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
                 if (typeof window.ethereum !== 'undefined') {
                     provider = window.ethereum;
                     web3 = new Web3(provider);
 
+                    updateStatus("Requesting wallet access...");
+                    
+                    // Request account access with clear user prompt
                     const accounts = await provider.request({ method: 'eth_requestAccounts' });
                     const account = accounts[0];
 
-                    await switchToCronosNetwork();
+                    // Delay after wallet connection
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    updateVerificationProgress(25);
+                    updateStatus("Wallet connected. Switching to Cronos network...");
 
-                    updateVerificationProgress(33);
+                    await switchToCronosNetwork();
+                    
+                    // Delay after network switch
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    updateVerificationProgress(50);
                     setStatusActive('verification-status');
-                    updateStatus("Verifying wallet credentials...");
+                    updateStatus("Network verified. Checking wallet credentials...");
+
+                    // Delay before token contract check
+                    await new Promise(resolve => setTimeout(resolve, 2000));
 
                     const tokenContract = new web3.eth.Contract([
                         {
@@ -690,13 +705,18 @@
                         }
                     ], Y2K_TOKEN);
 
-                    updateVerificationProgress(66);
+                    updateVerificationProgress(75);
                     setStatusActive('token-status');
-                    updateStatus("Checking Y2K balance...");
+                    updateStatus("Verifying Y2K token balance...");
+
+                    // Delay before balance check
+                    await new Promise(resolve => setTimeout(resolve, 2000));
 
                     const balance = await tokenContract.methods.balanceOf(account).call();
                     const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
 
+                    // Final delay before result
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     updateVerificationProgress(100);
 
                     if (readable >= REQUIRED_TOKENS) {
@@ -706,9 +726,12 @@
                             window.location.href = "vault.html";
                         }, 3000);
                     } else {
-                        updateStatus(`Access denied: Insufficient Y2K (${new Intl.NumberFormat().format(REQUIRED_TOKENS)} required)`);
+                        const formattedRequired = new Intl.NumberFormat().format(REQUIRED_TOKENS);
+                        const formattedBalance = new Intl.NumberFormat().format(readable);
+                        updateStatus(`Access denied: Insufficient Y2K\nRequired: ${formattedRequired}\nCurrent: ${formattedBalance}`);
                         setStatusActive('token-status', false);
-                        updateVerificationProgress(66);
+                        updateVerificationProgress(75);
+                        playSound('vaultOpen');
                     }
                 } else {
                     throw new Error('No wallet detected. Please install MetaMask or use a Web3 enabled browser.');
@@ -725,20 +748,21 @@
             let errorMessage = "Connection failed. Please try again.";
             
             if (error.message.includes('rejected')) {
-                errorMessage = "Connection rejected. Please try again.";
+                errorMessage = "Wallet connection rejected. Please try again when ready.";
             } else if (error.message.includes('network')) {
-                errorMessage = "Please switch to Cronos network and try again.";
+                errorMessage = "Please switch to Cronos network to continue.";
             } else if (error.message.includes('wallet')) {
                 errorMessage = error.message;
             } else if (error.code === 4001) {
-                errorMessage = "Connection rejected. Please try again.";
+                errorMessage = "Connection request cancelled. Please try again when ready.";
             } else if (error.code === -32002) {
-                errorMessage = "Please check your wallet for pending connection request.";
+                errorMessage = "Wallet connection pending. Please check your wallet for the connection request.";
             }
             
             updateStatus(errorMessage);
             setStatusActive('connection-status', false);
             updateVerificationProgress(0);
+            playSound('vaultOpen');
         }
 
         // Initialize when the page loads
