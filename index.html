@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Vault – Y2K Sportsbook</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://unpkg.com/@walletconnect/modal@2.4.2/dist/style.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="crt">
+    <div class="glitch-overlay"></div>
+    <div class="screen">
+      <h1>CONNECT WALLET TO UNLOCK<br>THE VAULT</h1>
+      <div class="buttons">
+        <button id="connectBtn">Connect Wallet</button>
+      </div>
+      <p id="status"></p>
+    </div>
+  </div>
+
+  <!-- Wallet & Logic -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
+  <script>
+    const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+    const Y2K_DECIMALS = 18;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("connectBtn");
+      btn.addEventListener("click", async () => {
+        const modal = new window.Web3Modal.default({
+          projectId: "36c402e4989b8426f99d329788a526fc",
+          chains: ["eip155:25"],
+          themeMode: "dark"
+        });
+
+        try {
+          const provider = await modal.connect();
+          const [namespace, , account] = provider.accounts[0].split(":");
+
+          if (namespace !== "eip155") {
+            document.getElementById("status").innerText = "Unsupported chain.";
+            return;
+          }
+
+          const ethersProvider = new ethers.JsonRpcProvider("https://evm.cronos.org");
+          const token = new ethers.Contract(Y2K_TOKEN, [
+            "function balanceOf(address) view returns (uint256)"
+          ], ethersProvider);
+
+          const balance = await token.balanceOf(account);
+          const readable = parseFloat(ethers.formatUnits(balance, Y2K_DECIMALS));
+
+          if (readable > 0) {
+            document.getElementById("status").innerText = "Access Granted. Welcome...";
+            setTimeout(() => window.location.href = "vault.html", 1000);
+          } else {
+            document.getElementById("status").innerText = "ACCESS DENIED: No Y2K Detected.";
+          }
+        } catch (err) {
+          console.error(err);
+          document.getElementById("status").innerText = "Connection failed.";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
