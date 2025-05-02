@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <title>Y2K Vault Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: #000; color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
+    header, footer { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); padding: 16px 24px; }
+    .logo { font-size: 20px; font-weight: 600; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .wallet-info { font-size: 14px; color: rgba(255,255,255,0.7); }
+    main { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+    .game-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
+    .game-card h2 { font-size: 18px; margin-bottom: 8px; }
+    .game-info { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
+    .view-grid { background: #6366f1; color: #fff; padding: 8px 16px; text-decoration: none; border-radius: 8px; font-size: 14px; }
+    footer { display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; width: 100%; font-size: 13px; color: rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Y2K VAULT</div>
+    <div class="wallet-info">Connected</div>
+  </header>
+  <main>
+    <div class="game-card">
+      <h2>🏀 Celtics vs. Warriors</h2>
+      <div class="game-info">Tip: 7:00 PM | Pot: 1.2M Y2K</div>
+      <a href="game.html?match=celtics-vs-warriors" class="view-grid">View Grid</a>
+    </div>
+    <div class="game-card">
+      <h2>🏀 Lakers vs. Rockets</h2>
+      <div class="game-info">Tip: 9:30 PM | Pot: 940K Y2K</div>
+      <a href="game.html?match=lakers-vs-rockets" class="view-grid">View Grid</a>
+    </div>
+    <div class="game-card">
+      <h2>🏒 Jets vs. Blues</h2>
+      <div class="game-info">Puck Drop: 6:00 PM | Pot: 1.1M Y2K</div>
+      <a href="game.html?match=jets-vs-blues" class="view-grid">View Grid</a>
+    </div>
+    <div class="game-card">
+      <h2>🏒 Oilers vs. Flames</h2>
+      <div class="game-info">Puck Drop: 8:30 PM | Pot: 780K Y2K</div>
+      <a href="game.html?match=oilers-vs-flames" class="view-grid">View Grid</a>
+    </div>
+  </main>
+  <footer>
+    <div>Home</div>
+    <div>Events</div>
+    <div>My Bets</div>
+    <div>Leaderboard</div>
+  </footer>
+</body>
+</html>
