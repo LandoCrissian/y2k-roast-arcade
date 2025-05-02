@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>Square Selection - The Vault</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="header">
+    <button class="back-button" onclick="window.location.href='index.html'">←</button>
+    <h1>Square Selection</h1>
+    <div class="balance" id="balance">0 Y2K</div>
+</div>
+
+<div class="game-info" id="gameInfo">
+    <div class="teams">
+        <div class="team-row">
+            <div class="team-logo" id="team1Logo">GSW</div>
+            <div class="team-name" id="team1Name">Golden State Warriors</div>
+            <div class="team-score" id="team1Score">89</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="team-row">
+            <div class="team-logo" id="team2Logo">HOU</div>
+            <div class="team-name" id="team2Name">Houston Rockets</div>
+            <div class="team-score" id="team2Score">92</div>
+        </div>
+    </div>
+    
+    <div class="game-meta">
+        <div class="status" id="gameStatus">
+            <span class="status-indicator"></span>
+            Live - Q3 2:45
+        </div>
+        <div class="pot" id="gamePot">Pot: 3,200,000 Y2K</div>
+    </div>
+</div>
+
+<div class="grid-container">
+    <div class="number-row horizontal">
+        <div class="number-cell empty"></div>
+        <div class="number-cell">0</div>
+        <div class="number-cell">1</div>
+        <div class="number-cell">2</div>
+        <div class="number-cell">3</div>
+        <div class="number-cell">4</div>
+        <div class="number-cell">5</div>
+        <div class="number-cell">6</div>
+        <div class="number-cell">7</div>
+        <div class="number-cell">8</div>
+        <div class="number-cell">9</div>
+    </div>
+    
+    <div class="number-column vertical">
+        <div class="number-cell">0</div>
+        <div class="number-cell">1</div>
+        <div class="number-cell">2</div>
+        <div class="number-cell">3</div>
+        <div class="number-cell">4</div>
+        <div class="number-cell">5</div>
+        <div class="number-cell">6</div>
+        <div class="number-cell">7</div>
+        <div class="number-cell">8</div>
+        <div class="number-cell">9</div>
+    </div>
+    
+    <div class="squares-grid" id="squaresGrid">
+        <!-- Grid will be populated by JavaScript -->
+    </div>
+</div>
+
+<div class="selection-info">
+    <div class="selected-count">
+        Selected: <span id="selectedCount">0</span>/10 squares
+    </div>
+    <div class="price-info">
+        Price per square: <span id="squarePrice">200,000</span> Y2K
+    </div>
+</div>
+
+<div class="actions">
+    <button id="buyButton" class="buy-button" disabled>
+        Buy Selected Squares
+    </button>
+</div>
+
+<div class="modal" id="confirmModal">
+    <div class="modal-content">
+        <h3>Confirm Purchase</h3>
+        <div class="modal-info">
+            <p>Selected Squares: <span id="modalSquareCount">0</span></p>
+            <p>Total Cost: <span id="modalTotalCost">0</span> Y2K</p>
+        </div>
+        <div class="modal-actions">
+            <button class="cancel-button" onclick="closeModal()">Cancel</button>
+            <button class="confirm-button" onclick="confirmPurchase()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    html {
+        background-color: #000;
+    }
+    
+    body {
+        background: #000;
+        color: #fff;
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .back-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: none;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 20px;
+        transition: all 0.2s ease;
+    }
+
+    .back-button:active {
+        transform: scale(0.95);
+    }
+
+    h1 {
+        font-size: 24px;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 0;
+        flex: 1;
+    }
+
+    .balance {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        color: #10B981;
+    }
+
+    .game-info {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .teams {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .team-row {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .team-logo {
+        width: 40px;
+        height: 40px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .team-name {
+        flex: 1;
+        font-weight: 600;
+    }
+
+    .team-score {
+        font-size: 24px;
+        font-weight: 600;
+        color: #6366f1;
+    }
+
+    .vs {
+        text-align: center;
+        color: #666;
+        font-weight: 600;
+    }
+
+    .game-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #10B981;
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        background: #10B981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        }
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+        }
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+        }
+    }
+
+    .pot {
+        font-size: 14px;
+        color: #a5b4fc;
+    }
+
+    .grid-container {
+        position: relative;
+        max-width: 600px;
+        margin: 0 auto 30px;
+    }
+
+    .number-row {
+        display: flex;
+        margin-left: 40px;
+    }
+
+    .number-column {
+        position: absolute;
+        top: 40px;
+        left: 0;
+    }
+
+    .number-cell {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        color: #888;
+    }
+
+    .squares-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 2px;
+        margin-left: 40px;
+        margin-top: 2px;
+    }
+
+    .square {
+        aspect-ratio: 1;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .square:hover {
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .square.selected {
+        background: rgba(99, 102, 241, 0.2);
+        border-color: #6366f1;
+    }
+
+    .square.taken {
+        background: rgba(255, 255, 255, 0.05);
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .selection-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding: 0 20px;
+    }
+
+    .selected-count {
+        font-size: 14px;
+        color: #a5b4fc;
+    }
+
+    .price-info {
+        font-size: 14px;
+        color: #10B981;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .buy-button {
+        background: #6366f1;
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 200px;
+    }
+
+    .buy-button:disabled {
+        background: #4b5563;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .buy-button:not(:disabled):active {
+        transform: scale(0.98);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background: #1a1a1a;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        width: 90%;
+        max-width: 400px;
+    }
+
+    .modal h3 {
+        margin: 0 0 20px 0;
+        color: #fff;
+    }
+
+    .modal-info {
+        margin-bottom: 24px;
+    }
+
+    .modal-info p {
+        margin: 8px 0;
+        color: #888;
+    }
+
+    .modal-info span {
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .modal-actions button {
+        flex: 1;
+        padding: 12px;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .cancel-button {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .confirm-button {
+        background: #6366f1;
+        color: #fff;
+    }
+
+    .modal-actions button:active {
+        transform: scale(0.98);
+    }
+
+    @media (max-width: 600px) {
+        .header {
+            flex-wrap: wrap;
+        }
+
+        .balance {
+            order: -1;
+            width: 100%;
+            text-align: center;
+        }
+
+        .grid-container {
+            transform: scale(0.9);
+            transform-origin: top center;
+        }
+
+        .selection-info {
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+    }
+</style>
+
+<script>
+// Game State
+let gameData = null;
+let selectedSquares = new Set();
+const MAX_SQUARES = 10;
+
+// Utility Functions
+const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+const getGameIdFromUrl = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id');
+};
+
+// Game Data Management
+const loadGameData = () => {
+    const gameId = getGameIdFromUrl();
+    const games = JSON.parse(localStorage.getItem('vaultGames') || '[]');
+    gameData = games.find(g => g.id === gameId);
+    
+    if (!gameData) {
+        alert('Game not found');
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    renderGameInfo();
+    renderGrid();
+    updateButtons();
+};
+
+// UI Rendering
+const renderGameInfo = () => {
+    document.getElementById('team1Logo').textContent = gameData.team1.code;
+    document.getElementById('team1Name').textContent = gameData.team1.name;
+    document.getElementById('team2Logo').textContent = gameData.team2.code;
+    document.getElementById('team2Name').textContent = gameData.team2.name;
+    
+    if (gameData.status.type !== 'upcoming') {
+        document.getElementById('team1Score').textContent = gameData.team1.score || 0;
+        document.getElementById('team2Score').textContent = gameData.team2.score || 0;
+    } else {
+        document.getElementById('team1Score').style.display = 'none';
+        document.getElementById('team2Score').style.display = 'none';
+    }
+    
+    const statusEl = document.getElementById('gameStatus');
+    statusEl.innerHTML = `
+        <span class="status-indicator"></span>
+        ${gameData.status.detail}
+    `;
+    
+    const potAmount = gameData.squarePrice * (gameData.team1.squares + gameData.team2.squares);
+    document.getElementById('gamePot').textContent = `Pot: ${formatNumber(potAmount)} Y2K`;
+    document.getElementById('squarePrice').textContent = formatNumber(gameData.squarePrice);
+};
+
+const renderGrid = () => {
+    const grid = document.getElementById('squaresGrid');
+    grid.innerHTML = '';
+    
+    for (let i = 0; i < 100; i++) {
+        const square = document.createElement('div');
+        square.className = 'square';
+        square.dataset.id = i;
+        
+        // Check if square is taken
+        if (gameData.squares && gameData.squares[i]) {
+            square.classList.add('taken');
+            square.title = `Taken by ${gameData.squares[i].slice(0, 6)}...`;
+        } else {
+            square.addEventListener('click', handleSquareClick);
+        }
+        
+        grid.appendChild(square);
+    }
+};
+
+const updateButtons = () => {
+    const buyButton = document.getElementById('buyButton');
+    const selectedCount = selectedSquares.size;
+    
+    document.getElementById('selectedCount').textContent = selectedCount;
+    buyButton.disabled = selectedCount === 0;
+    
+    if (selectedCount > 0) {
+        const totalCost = selectedCount * gameData.squarePrice;
+        buyButton.textContent = `Buy ${selectedCount} Squares (${formatNumber(totalCost)} Y2K)`;
+    } else {
+        buyButton.textContent = 'Select Squares to Buy';
+    }
+};
+
+// Event Handlers
+const handleSquareClick = (e) => {
+    const square = e.target;
+    const squareId = square.dataset.id;
+    
+    if (square.classList.contains('taken')) return;
+    
+    if (square.classList.contains('selected')) {
+        square.classList.remove('selected');
+        selectedSquares.delete(squareId);
+    } else {
+        if (selectedSquares.size >= MAX_SQUARES) {
+            alert(`Maximum ${MAX_SQUARES} squares allowed`);
+            return;
+        }
+        square.classList.add('selected');
+        selectedSquares.add(squareId);
+    }
+    
+    updateButtons();
+};
+
+const showConfirmModal = () => {
+    const modal = document.getElementById('confirmModal');
+    const squareCount = document.getElementById('modalSquareCount');
+    const totalCost = document.getElementById('modalTotalCost');
+    
+    squareCount.textContent = selectedSquares.size;
+    totalCost.textContent = formatNumber(selectedSquares.size * gameData.squarePrice);
+    
+    modal.style.display = 'flex';
+};
+
+const closeModal = () => {
+    document.getElementById('confirmModal').style.display = 'none';
+};
+
+const confirmPurchase = async () => {
+    try {
+        // This would be replaced with actual purchase logic
+        const buyButton = document.getElementById('buyButton');
+        buyButton.textContent = 'Processing...';
+        buyButton.disabled = true;
+        
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Update game data
+        selectedSquares.forEach(squareId => {
+            if (!gameData.squares) gameData.squares = {};
+            gameData.squares[squareId] = '0x1234...5678'; // Would be actual wallet address
+        });
+        
+        gameData.team1.squares += Math.floor(selectedSquares.size / 2);
+        gameData.team2.squares += Math.ceil(selectedSquares.size / 2);
+        
+        // Save to localStorage
+        const games = JSON.parse(localStorage.getItem('vaultGames'));
+        const gameIndex = games.findIndex(g => g.id === gameData.id);
+        games[gameIndex] = gameData;
+        localStorage.setItem('vaultGames', JSON.stringify(games));
+        
+        // Close modal and refresh
+        closeModal();
+        selectedSquares.clear();
+        loadGameData();
+        
+        alert('Squares purchased successfully!');
+    } catch (error) {
+        console.error('Purchase error:', error);
+        alert('Failed to purchase squares');
+    }
+};
+
+// Initialize
+document.getElementById('buyButton').addEventListener('click', showConfirmModal);
+window.addEventListener('DOMContentLoaded', loadGameData);
+</script>
+
+</body>
+</html>
