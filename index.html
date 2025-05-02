@@ -236,11 +236,11 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 100px;
-    height: 100px;
-    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%) scale(1.6); /* scaled up without cropping */
     background-image: url('https://raw.githubusercontent.com/LandoCrissian/y2k-roast-arcade/refs/heads/main/IMG_5445.jpeg');
-    background-size: cover;
+    background-size: contain;  /* full image preserved */
     background-position: center;
     background-repeat: no-repeat;
     opacity: 1;
