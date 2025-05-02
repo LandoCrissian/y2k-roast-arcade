@@ -7,9 +7,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
     <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
-    <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
-    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
 </head>
 <body>
     <div class="background">
@@ -337,41 +336,88 @@
         const REQUIRED_TOKENS = 4000000;
         const CRONOS_CHAIN_ID = 25;
         
-        let web3Modal;
+        let provider;
+        let web3;
 
-        function initWeb3Modal() {
-            const providerOptions = {
-                walletconnect: {
-                    package: WalletConnectProvider,
-                    options: {
-                        rpc: {
-                            25: 'https://evm.cronos.org'
-                        },
-                        chainId: 25
+        async function connectWallet() {
+            try {
+                setLoading(true);
+                updateStatus("Initializing secure connection...");
+                updateVerificationProgress(0);
+                setStatusActive('connection-status');
+
+                // Check if MetaMask or other web3 provider is available
+                if (typeof window.ethereum !== 'undefined') {
+                    provider = window.ethereum;
+                    web3 = new Web3(provider);
+
+                    // Request account access
+                    const accounts = await provider.request({ method: 'eth_requestAccounts' });
+                    const account = accounts[0];
+
+                    // Check and switch to Cronos network
+                    await switchToCronosNetwork();
+
+                    updateVerificationProgress(33);
+                    setStatusActive('verification-status');
+                    updateStatus("Verifying wallet credentials...");
+
+                    // Create contract instance
+                    const tokenContract = new web3.eth.Contract([
+                        {
+                            "constant": true,
+                            "inputs": [{"name": "_owner", "type": "address"}],
+                            "name": "balanceOf",
+                            "outputs": [{"name": "balance", "type": "uint256"}],
+                            "type": "function"
+                        }
+                    ], Y2K_TOKEN);
+
+                    updateVerificationProgress(66);
+                    setStatusActive('token-status');
+                    updateStatus("Checking Y2K balance...");
+
+                    // Get token balance
+                    const balance = await tokenContract.methods.balanceOf(account).call();
+                    const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
+
+                    updateVerificationProgress(100);
+
+                    if (readable >= REQUIRED_TOKENS) {
+                        updateStatus("Access granted - Preparing secure environment");
+                        setTimeout(() => {
+                            window.location.href = "vault.html";
+                        }, 2000);
+                    } else {
+                        updateStatus(`Access denied: Insufficient Y2K (${formatNumber(REQUIRED_TOKENS)} required)`);
+                        setStatusActive('token-status', false);
+                        updateVerificationProgress(66);
                     }
+                } else {
+                    throw new Error('No wallet detected. Please install MetaMask or use a Web3 enabled browser.');
                 }
-            };
-
-            web3Modal = new Web3Modal({
-                cacheProvider: false,
-                providerOptions,
-                theme: "dark"
-            });
+            } catch (err) {
+                console.error('Connection error:', err);
+                handleError(err);
+            } finally {
+                setLoading(false);
+            }
         }
 
-        async function checkAndSwitchChain(provider) {
+        async function switchToCronosNetwork() {
             try {
                 await provider.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: `0x${CRONOS_CHAIN_ID.toString(16)}` }]
+                    params: [{ chainId: '0x19' }], // Cronos Chain ID in hex
                 });
-            } catch (error) {
-                if (error.code === 4902) {
+            } catch (switchError) {
+                // This error code indicates that the chain has not been added to MetaMask
+                if (switchError.code === 4902) {
                     try {
                         await provider.request({
                             method: 'wallet_addEthereumChain',
                             params: [{
-                                chainId: `0x${CRONOS_CHAIN_ID.toString(16)}`,
+                                chainId: '0x19',
                                 chainName: 'Cronos Mainnet',
                                 nativeCurrency: {
                                     name: 'Cronos',
@@ -383,73 +429,33 @@
                             }]
                         });
                     } catch (addError) {
-                        throw new Error('Failed to add Cronos network');
+                        throw new Error('Failed to add Cronos network to your wallet.');
                     }
                 } else {
-                    throw error;
+                    throw new Error('Failed to switch to Cronos network. Please switch manually.');
                 }
             }
         }
 
-        async function connectWallet() {
-            try {
-                setLoading(true);
-                updateStatus("Initializing secure connection...");
-                updateVerificationProgress(0);
-                setStatusActive('connection-status');
-
-                const provider = await web3Modal.connect();
-                const ethersProvider = new ethers.providers.Web3Provider(provider);
-                await checkAndSwitchChain(provider);
-                
-                const signer = ethersProvider.getSigner();
-                const address = await signer.getAddress();
-
-                updateVerificationProgress(33);
-                setStatusActive('verification-status');
-                updateStatus("Verifying wallet credentials...");
-
-                const token = new ethers.Contract(
-                    Y2K_TOKEN,
-                    ["function balanceOf(address) view returns (uint256)"],
-                    ethersProvider
-                );
-
-                updateVerificationProgress(66);
-                setStatusActive('token-status');
-                updateStatus("Checking Y2K balance...");
-
-                const balance = await token.balanceOf(address);
-                const readable = parseFloat(ethers.formatUnits(balance, Y2K_DECIMALS));
-                
-                updateVerificationProgress(100);
-
-                if (readable >= REQUIRED_TOKENS) {
-                    updateStatus("Access granted - Preparing secure environment");
-                    setTimeout(() => {
-                        window.location.href = "vault.html";
-                    }, 2000);
-                } else {
-                    updateStatus(`Access denied: Insufficient Y2K (${formatNumber(REQUIRED_TOKENS)} required)`);
-                    setStatusActive('token-status', false);
-                    updateVerificationProgress(66);
-                }
-            } catch (err) {
-                console.error('Connection error:', err);
-                let errorMessage = "Connection failed. Please try again.";
-                
-                if (err.message.includes('rejected') || err.code === 4001) {
-                    errorMessage = "Connection rejected. Please try again.";
-                } else if (err.message.includes('network') || err.message.includes('chain')) {
-                    errorMessage = "Please switch to Cronos network and try again.";
-                }
-                
-                updateStatus(errorMessage);
-                setStatusActive('connection-status', false);
-                updateVerificationProgress(0);
-            } finally {
-                setLoading(false);
+        function handleError(error) {
+            let errorMessage = "Connection failed. Please try again.";
+            
+            if (error.message.includes('rejected')) {
+                errorMessage = "Connection rejected. Please try again.";
+            } else if (error.message.includes('network')) {
+                errorMessage = "Please switch to Cronos network and try again.";
+            } else if (error.message.includes('wallet')) {
+                errorMessage = error.message;
+            } else if (error.code === 4001) {
+                errorMessage = "Connection rejected. Please try again.";
+            } else if (error.code === -32002) {
+                errorMessage = "Please check your wallet for pending connection request.";
             }
+            
+            updateStatus(errorMessage);
+            setStatusActive('connection-status', false);
+            updateVerificationProgress(0);
+            console.error('Detailed error:', error);
         }
 
         function updateStatus(message, type = 'info') {
@@ -492,7 +498,6 @@
 
         // Initialize when the page loads
         document.addEventListener("DOMContentLoaded", () => {
-            initWeb3Modal();
             const btn = document.getElementById("connectBtn");
             btn.addEventListener("click", connectWallet);
         });
