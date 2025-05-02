@@ -2,55 +2,218 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-  <title>Y2K Vault Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vault Game Board</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: #000; color: #fff; display: flex; flex-direction: column; min-height: 100vh; }
-    header, footer { background: rgba(255,255,255,0.03); backdrop-filter: blur(12px); padding: 16px 24px; }
-    .logo { font-size: 20px; font-weight: 600; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .wallet-info { font-size: 14px; color: rgba(255,255,255,0.7); }
-    main { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
-    .game-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; backdrop-filter: blur(12px); }
-    .game-card h2 { font-size: 18px; margin-bottom: 8px; }
-    .game-info { font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 10px; }
-    .view-grid { background: #6366f1; color: #fff; padding: 8px 16px; text-decoration: none; border-radius: 8px; font-size: 14px; }
-    footer { display: flex; justify-content: space-around; align-items: center; position: fixed; bottom: 0; width: 100%; font-size: 13px; color: rgba(255,255,255,0.7); }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+    .pot {
+      margin-bottom: 20px;
+      font-size: 16px;
+      color: #ccc;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 40px);
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .square {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .claimed {
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid #6366f1;
+    }
+    .nickname {
+      font-size: 9px;
+      margin-top: 2px;
+    }
+    .popup, .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #111;
+      border: 1px solid #444;
+      padding: 20px;
+      border-radius: 10px;
+      z-index: 999;
+      display: none;
+      text-align: center;
+    }
+    .popup button, .modal button {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background: #6366f1;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .status {
+      margin-top: 20px;
+      color: #999;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">Y2K VAULT</div>
-    <div class="wallet-info">Connected</div>
-  </header>
-  <main>
-    <div class="game-card">
-      <h2>🏀 Celtics vs. Warriors</h2>
-      <div class="game-info">Tip: 7:00 PM | Pot: 1.2M Y2K</div>
-      <a href="game.html?match=celtics-vs-warriors" class="view-grid">View Grid</a>
-    </div>
-    <div class="game-card">
-      <h2>🏀 Lakers vs. Rockets</h2>
-      <div class="game-info">Tip: 9:30 PM | Pot: 940K Y2K</div>
-      <a href="game.html?match=lakers-vs-rockets" class="view-grid">View Grid</a>
-    </div>
-    <div class="game-card">
-      <h2>🏒 Jets vs. Blues</h2>
-      <div class="game-info">Puck Drop: 6:00 PM | Pot: 1.1M Y2K</div>
-      <a href="game.html?match=jets-vs-blues" class="view-grid">View Grid</a>
-    </div>
-    <div class="game-card">
-      <h2>🏒 Oilers vs. Flames</h2>
-      <div class="game-info">Puck Drop: 8:30 PM | Pot: 780K Y2K</div>
-      <a href="game.html?match=oilers-vs-flames" class="view-grid">View Grid</a>
-    </div>
-  </main>
-  <footer>
-    <div>Home</div>
-    <div>Events</div>
-    <div>My Bets</div>
-    <div>Leaderboard</div>
-  </footer>
+  <h1 id="matchTitle">Game</h1>
+  <div class="pot" id="potDisplay">Pot: 0 Y2K</div>
+  <div class="grid" id="grid"></div>
+  <div class="status">Squares 1–5 cost 200K Y2K | Squares 6–10 cost 80 CRO each</div>
+
+  <div class="popup" id="popup">
+    <div id="winnerInfo"></div>
+    <button onclick="shareToX()">Share on 𝕏</button>
+    <button onclick="closePopup()">Close</button>
+  </div>
+
+  <div class="modal" id="croModal">
+    <p>This square costs 80 CRO. Confirm to proceed.</p>
+    <button onclick="confirmCRO()">Confirm</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+
+  <script>
+  const grid = document.getElementById("grid");
+  const potDisplay = document.getElementById("potDisplay");
+  const popup = document.getElementById("popup");
+  const winnerInfo = document.getElementById("winnerInfo");
+  const modal = document.getElementById("croModal");
+  const matchKey = new URLSearchParams(window.location.search).get("match") || "default-match";
+  document.getElementById("matchTitle").innerText = matchKey.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+
+  let pendingSquareKey = "";
+  let pendingNickname = "";
+  const wallet = localStorage.getItem("vault-wallet") || genFakeWallet();
+  localStorage.setItem("vault-wallet", wallet);
+
+  function genFakeWallet() {
+    return "0x" + Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 6);
+  }
+
+  function shortAddress(addr) {
+    return addr.substring(0, 4) + "..." + addr.slice(-4);
+  }
+
+  function updatePot() {
+    const claims = Object.keys(localStorage).filter(k => k.startsWith(matchKey + "-")).length;
+    const pot = claims * 200000;
+    potDisplay.innerText = "Pot: " + new Intl.NumberFormat().format(pot) + " Y2K";
+  }
+
+  function walletClaimCount() {
+    return Object.keys(localStorage).filter(k => k.startsWith(matchKey + "-") && localStorage.getItem(k).includes(wallet)).length;
+  }
+
+  function createGrid() {
+    for (let r = 0; r < 10; r++) {
+      for (let c = 0; c < 10; c++) {
+        const key = matchKey + "-" + r + c;
+        const square = document.createElement("div");
+        square.className = "square";
+        square.dataset.key = key;
+
+        const data = localStorage.getItem(key);
+        if (data) {
+          const info = JSON.parse(data);
+          square.classList.add("claimed");
+          square.innerHTML = `<div>${shortAddress(info.wallet)}</div><div class="nickname">${info.nick}</div>`;
+        } else {
+          square.innerText = r + "" + c;
+        }
+
+        square.onclick = () => {
+          const existing = localStorage.getItem(key);
+          if (existing) return showWinnerPopup(key);
+
+          const count = walletClaimCount();
+          if (count >= 10) return alert("Max 10 squares per wallet.");
+
+          const nick = prompt("Enter your nickname or @handle:");
+          if (!nick) return;
+
+          if (count < 5) {
+            localStorage.setItem(key, JSON.stringify({ nick, wallet }));
+            square.classList.add("claimed");
+            square.innerHTML = `<div>${shortAddress(wallet)}</div><div class="nickname">${nick}</div>`;
+            updatePot();
+          } else {
+            pendingSquareKey = key;
+            pendingNickname = nick;
+            modal.style.display = "block";
+          }
+        };
+
+        grid.appendChild(square);
+      }
+    }
+    updatePot();
+  }
+
+  function confirmCRO() {
+    modal.style.display = "none";
+    if (pendingSquareKey && pendingNickname) {
+      localStorage.setItem(pendingSquareKey, JSON.stringify({ nick: pendingNickname, wallet }));
+      const square = document.querySelector(`.square[data-key="${pendingSquareKey}"]`);
+      if (square) {
+        square.classList.add("claimed");
+        square.innerHTML = `<div>${shortAddress(wallet)}</div><div class="nickname">${pendingNickname}</div>`;
+        updatePot();
+      }
+    }
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+  }
+
+  function showWinnerPopup(key) {
+    const data = localStorage.getItem(key);
+    if (!data) return;
+    const info = JSON.parse(data);
+    winnerInfo.innerHTML = `<h3>🏆 WINNER: ${info.nick}</h3><p>${info.wallet}</p><p>${potDisplay.innerText}</p>`;
+    popup.style.display = "block";
+  }
+
+  function closePopup() {
+    popup.style.display = "none";
+  }
+
+  function shareToX() {
+    const text = winnerInfo.innerText.replace(/\\n/g, " ");
+    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text + " — #Y2KVault")}`;
+    window.open(url, "_blank");
+  }
+
+  createGrid();
+</script>
 </body>
 </html>
