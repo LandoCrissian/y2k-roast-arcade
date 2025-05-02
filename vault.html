@@ -2,218 +2,359 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vault Game Board</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <title>The Vault – Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <style>
+</head>
+<body>
+
+<h1>The Vault Matchups</h1>
+
+<div class="filters">
+  <button class="active" data-filter="active">Active</button>
+  <button data-filter="past">Past</button>
+  <button data-filter="all">All</button>
+</div>
+
+<div class="date-filter">
+  <input type="date" id="dateFilter">
+</div>
+
+<div class="game-list" id="gameList">
+  <!-- Games will be dynamically inserted here -->
+  <div class="loading">Loading matches...</div>
+</div>
+
+<style>
+    html {
+      background-color: #000;
+    }
+    
     body {
       background: #000;
       color: #fff;
       font-family: 'Inter', sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0;
       padding: 20px;
+      min-height: 100vh;
     }
+
     h1 {
+      text-align: center;
+      font-size: 24px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
+      margin-bottom: 30px;
     }
-    .pot {
-      margin-bottom: 20px;
-      font-size: 16px;
-      color: #ccc;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(10, 40px);
-      gap: 6px;
-      margin-top: 10px;
-    }
-    .square {
-      width: 40px;
-      height: 40px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      font-size: 10px;
-      color: rgba(255,255,255,0.8);
+
+    .filters {
       display: flex;
-      align-items: center;
       justify-content: center;
-      flex-direction: column;
-      cursor: pointer;
+      gap: 12px;
+      margin-bottom: 20px;
     }
-    .claimed {
-      background: rgba(99, 102, 241, 0.2);
-      border: 1px solid #6366f1;
-    }
-    .nickname {
-      font-size: 9px;
-      margin-top: 2px;
-    }
-    .popup, .modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: #111;
-      border: 1px solid #444;
-      padding: 20px;
-      border-radius: 10px;
-      z-index: 999;
-      display: none;
-      text-align: center;
-    }
-    .popup button, .modal button {
-      margin-top: 10px;
-      padding: 6px 12px;
-      background: #6366f1;
+
+    .filters button {
+      padding: 8px 14px;
       border: none;
-      color: #fff;
-      border-radius: 6px;
+      border-radius: 8px;
+      background: #1a1a1a;
+      color: #ccc;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
-    .status {
-      margin-top: 20px;
-      color: #999;
+
+    .filters button:active {
+      transform: scale(0.95);
+    }
+
+    .filters button.active {
+      background: #6366f1;
+      color: #fff;
+    }
+
+    .date-filter {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .date-filter input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .game-list {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .game-card {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      transition: transform 0.2s ease;
+    }
+
+    .game-card:active {
+      transform: scale(0.98);
+    }
+
+    .teams {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .teams span {
+      font-weight: 600;
       font-size: 14px;
     }
-  </style>
-</head>
-<body>
-  <h1 id="matchTitle">Game</h1>
-  <div class="pot" id="potDisplay">Pot: 0 Y2K</div>
-  <div class="grid" id="grid"></div>
-  <div class="status">Squares 1–5 cost 200K Y2K | Squares 6–10 cost 80 CRO each</div>
 
-  <div class="popup" id="popup">
-    <div id="winnerInfo"></div>
-    <button onclick="shareToX()">Share on 𝕏</button>
-    <button onclick="closePopup()">Close</button>
-  </div>
+    .match-info {
+      font-size: 12px;
+      color: #888;
+    }
 
-  <div class="modal" id="croModal">
-    <p>This square costs 80 CRO. Confirm to proceed.</p>
-    <button onclick="confirmCRO()">Confirm</button>
-    <button onclick="closeModal()">Cancel</button>
-  </div>
+    .pot {
+      font-size: 14px;
+      color: #a5b4fc;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-  <script>
-  const grid = document.getElementById("grid");
-  const potDisplay = document.getElementById("potDisplay");
-  const popup = document.getElementById("popup");
-  const winnerInfo = document.getElementById("winnerInfo");
-  const modal = document.getElementById("croModal");
-  const matchKey = new URLSearchParams(window.location.search).get("match") || "default-match";
-  document.getElementById("matchTitle").innerText = matchKey.split("-").map(w => w[0].toUpperCase() + w.slice(1)).join(" ");
+    .participation {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #666;
+    }
 
-  let pendingSquareKey = "";
-  let pendingNickname = "";
-  const wallet = localStorage.getItem("vault-wallet") || genFakeWallet();
-  localStorage.setItem("vault-wallet", wallet);
+    .participation .team {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-  function genFakeWallet() {
-    return "0x" + Math.random().toString(16).substring(2, 14) + Math.random().toString(16).substring(2, 6);
-  }
+    .participation .progress {
+      color: #a5b4fc;
+    }
 
-  function shortAddress(addr) {
-    return addr.substring(0, 4) + "..." + addr.slice(-4);
-  }
+    .action {
+      margin-top: 10px;
+    }
 
-  function updatePot() {
-    const claims = Object.keys(localStorage).filter(k => k.startsWith(matchKey + "-")).length;
-    const pot = claims * 200000;
-    potDisplay.innerText = "Pot: " + new Intl.NumberFormat().format(pot) + " Y2K";
-  }
+    .action a {
+      background: #8b5cf6;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
 
-  function walletClaimCount() {
-    return Object.keys(localStorage).filter(k => k.startsWith(matchKey + "-") && localStorage.getItem(k).includes(wallet)).length;
-  }
+    .action a:active {
+      transform: scale(0.95);
+      background: #7c3aed;
+    }
 
-  function createGrid() {
-    for (let r = 0; r < 10; r++) {
-      for (let c = 0; c < 10; c++) {
-        const key = matchKey + "-" + r + c;
-        const square = document.createElement("div");
-        square.className = "square";
-        square.dataset.key = key;
+    .loading {
+      text-align: center;
+      color: #666;
+      padding: 20px;
+      font-style: italic;
+    }
 
-        const data = localStorage.getItem(key);
-        if (data) {
-          const info = JSON.parse(data);
-          square.classList.add("claimed");
-          square.innerHTML = `<div>${shortAddress(info.wallet)}</div><div class="nickname">${info.nick}</div>`;
-        } else {
-          square.innerText = r + "" + c;
-        }
-
-        square.onclick = () => {
-          const existing = localStorage.getItem(key);
-          if (existing) return showWinnerPopup(key);
-
-          const count = walletClaimCount();
-          if (count >= 10) return alert("Max 10 squares per wallet.");
-
-          const nick = prompt("Enter your nickname or @handle:");
-          if (!nick) return;
-
-          if (count < 5) {
-            localStorage.setItem(key, JSON.stringify({ nick, wallet }));
-            square.classList.add("claimed");
-            square.innerHTML = `<div>${shortAddress(wallet)}</div><div class="nickname">${nick}</div>`;
-            updatePot();
-          } else {
-            pendingSquareKey = key;
-            pendingNickname = nick;
-            modal.style.display = "block";
-          }
-        };
-
-        grid.appendChild(square);
+    @media (max-width: 600px) {
+      .game-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .filters {
+        flex-wrap: wrap;
+      }
+      
+      .filters button {
+        flex: 1;
+        min-width: 80px;
       }
     }
-    updatePot();
-  }
 
-  function confirmCRO() {
-    modal.style.display = "none";
-    if (pendingSquareKey && pendingNickname) {
-      localStorage.setItem(pendingSquareKey, JSON.stringify({ nick: pendingNickname, wallet }));
-      const square = document.querySelector(`.square[data-key="${pendingSquareKey}"]`);
-      if (square) {
-        square.classList.add("claimed");
-        square.innerHTML = `<div>${shortAddress(wallet)}</div><div class="nickname">${pendingNickname}</div>`;
-        updatePot();
-      }
+    .past-match {
+      opacity: 0.5;
     }
-  }
 
-  function closeModal() {
-    modal.style.display = "none";
-  }
+    .past-match .action a {
+      background: #4b5563;
+      pointer-events: none;
+    }
+</style>
 
-  function showWinnerPopup(key) {
-    const data = localStorage.getItem(key);
-    if (!data) return;
-    const info = JSON.parse(data);
-    winnerInfo.innerHTML = `<h3>🏆 WINNER: ${info.nick}</h3><p>${info.wallet}</p><p>${potDisplay.innerText}</p>`;
-    popup.style.display = "block";
-  }
+<script>
+// Sample match data structure
+const SAMPLE_MATCHES = [
+    {
+        id: 'hou-gsw',
+        team1: 'Houston Rockets',
+        team2: 'Golden State Warriors',
+        league: 'NBA',
+        datetime: '2024-05-02T19:00:00',
+        squares: {
+            team1: 23,
+            team2: 12
+        },
+        status: 'active'
+    },
+    {
+        id: 'wpg-stl',
+        team1: 'Winnipeg Jets',
+        team2: 'St. Louis Blues',
+        league: 'NHL',
+        datetime: '2024-05-02T18:00:00',
+        squares: {
+            team1: 35,
+            team2: 28
+        },
+        status: 'active'
+    },
+    {
+        id: 'bos-mia',
+        team1: 'Boston Celtics',
+        team2: 'Miami Heat',
+        league: 'NBA',
+        datetime: '2024-05-01T20:00:00',
+        squares: {
+            team1: 50,
+            team2: 50
+        },
+        status: 'past'
+    }
+];
 
-  function closePopup() {
-    popup.style.display = "none";
-  }
+// Initialize matches in localStorage if not exists
+if (!localStorage.getItem('vaultMatches')) {
+    localStorage.setItem('vaultMatches', JSON.stringify(SAMPLE_MATCHES));
+}
 
-  function shareToX() {
-    const text = winnerInfo.innerText.replace(/\\n/g, " ");
-    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(text + " — #Y2KVault")}`;
-    window.open(url, "_blank");
-  }
+// Utility functions
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        hour: 'numeric',
+        minute: '2-digit'
+    });
+};
 
-  createGrid();
+const calculatePot = (match) => {
+    const totalSquares = match.squares.team1 + match.squares.team2;
+    return totalSquares * 200000; // 200K Y2K per square
+};
+
+// Main rendering function
+const renderMatches = (filter = 'active') => {
+    const matches = JSON.parse(localStorage.getItem('vaultMatches'));
+    const gameList = document.getElementById('gameList');
+    const dateFilter = document.getElementById('dateFilter').value;
+    
+    gameList.innerHTML = '';
+    
+    let filteredMatches = matches;
+    
+    // Apply date filter if selected
+    if (dateFilter) {
+        filteredMatches = matches.filter(match => 
+            match.datetime.startsWith(dateFilter)
+        );
+    }
+    
+    // Apply status filter
+    if (filter !== 'all') {
+        filteredMatches = filteredMatches.filter(match => 
+            match.status === filter
+        );
+    }
+    
+    if (filteredMatches.length === 0) {
+        gameList.innerHTML = '<div class="loading">No matches found</div>';
+        return;
+    }
+    
+    filteredMatches.forEach(match => {
+        const pot = calculatePot(match);
+        const isPast = match.status === 'past';
+        
+        const card = document.createElement('div');
+        card.className = `game-card ${isPast ? 'past-match' : ''}`;
+        
+        card.innerHTML = `
+            <div class="teams">
+                <span>${match.team1} vs ${match.team2}</span>
+                <div class="match-info">${match.league} – ${formatDate(match.datetime)}</div>
+                <div class="pot">
+                    <span>Pot: ${pot.toLocaleString()} Y2K</span>
+                </div>
+                <div class="participation">
+                    <div class="team">
+                        ${match.team1.split(' ')[0]}: 
+                        <span class="progress">${match.squares.team1}/50</span>
+                    </div>
+                    <div class="team">
+                        ${match.team2.split(' ')[0]}: 
+                        <span class="progress">${match.squares.team2}/50</span>
+                    </div>
+                </div>
+            </div>
+            <div class="action">
+                <a href="game.html?match=${match.id}">${isPast ? 'Completed' : 'Buy Squares'}</a>
+            </div>
+        `;
+        
+        gameList.appendChild(card);
+    });
+};
+
+// Event Listeners
+document.querySelectorAll('.filters button').forEach(button => {
+    button.addEventListener('click', (e) => {
+        document.querySelector('.filters button.active').classList.remove('active');
+        e.target.classList.add('active');
+        renderMatches(e.target.dataset.filter);
+    });
+});
+
+document.getElementById('dateFilter').addEventListener('change', () => {
+    const activeFilter = document.querySelector('.filters button.active').dataset.filter;
+    renderMatches(activeFilter);
+});
+
+// Initial render
+renderMatches('active');
+
+// Auto-refresh every 30 seconds to keep pot amounts current
+setInterval(() => {
+    const activeFilter = document.querySelector('.filters button.active').dataset.filter;
+    renderMatches(activeFilter);
+}, 30000);
 </script>
+
 </body>
 </html>
