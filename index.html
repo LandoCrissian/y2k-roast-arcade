@@ -1,69 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Vault – Y2K Sportsbook</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://unpkg.com/@walletconnect/modal@2.4.2/dist/style.css" rel="stylesheet" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>The Vault – Y2K Sportsbook</title>
 </head>
 <body>
-  <div class="crt">
-    <div class="glitch-overlay"></div>
-    <div class="screen">
-      <h1>CONNECT WALLET TO UNLOCK<br>THE VAULT</h1>
-      <div class="buttons">
-        <button id="connectBtn">Connect Wallet</button>
-      </div>
-      <p id="status"></p>
+    <div class="background">
+        <div class="gradient-sphere"></div>
     </div>
-  </div>
+    
+    <div class="container">
+        <div class="glass-card">
+            <div class="header">
+                <div class="logo">Y2K</div>
+                <div class="subtitle">VAULT ACCESS</div>
+            </div>
 
-  <!-- Wallet & Logic -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
-  <script>
-    const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const Y2K_DECIMALS = 18;
+            <div class="verification-container">
+                <div class="verification-ring">
+                    <svg class="progress-ring" width="120" height="120">
+                        <circle class="progress-ring-circle" stroke="#ffffff20" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+                        <circle class="progress-ring-path" stroke="url(#gradient)" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+                    </svg>
+                    <div class="verification-status" id="verificationIcon">
+                        <svg class="lock-icon" viewBox="0 0 24 24" width="32" height="32">
+                            <path d="M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="amount-required">
+                    <div class="amount">4,000,000</div>
+                    <div class="token">Y2K REQUIRED</div>
+                </div>
+            </div>
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const btn = document.getElementById("connectBtn");
-      btn.addEventListener("click", async () => {
-        const modal = new window.Web3Modal.default({
-          projectId: "36c402e4989b8426f99d329788a526fc",
-          chains: ["eip155:25"],
-          themeMode: "dark"
-        });
+            <div class="status-container">
+                <div class="status-item" id="connection-status">
+                    <div class="status-dot"></div>
+                    <span>Ready to Connect</span>
+                </div>
+                <div class="status-item" id="verification-status">
+                    <div class="status-dot"></div>
+                    <span>Awaiting Verification</span>
+                </div>
+                <div class="status-item" id="token-status">
+                    <div class="status-dot"></div>
+                    <span>Token Check Pending</span>
+                </div>
+            </div>
 
-        try {
-          const provider = await modal.connect();
-          const [namespace, , account] = provider.accounts[0].split(":");
+            <button id="connectBtn" class="connect-button">
+                <span class="button-text">Connect Wallet</span>
+                <span class="button-icon">→</span>
+            </button>
 
-          if (namespace !== "eip155") {
-            document.getElementById("status").innerText = "Unsupported chain.";
-            return;
-          }
+            <div id="status" class="status-message"></div>
+        </div>
+    </div>
 
-          const ethersProvider = new ethers.JsonRpcProvider("https://evm.cronos.org");
-          const token = new ethers.Contract(Y2K_TOKEN, [
-            "function balanceOf(address) view returns (uint256)"
-          ], ethersProvider);
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-          const balance = await token.balanceOf(account);
-          const readable = parseFloat(ethers.formatUnits(balance, Y2K_DECIMALS));
-
-          if (readable > 0) {
-            document.getElementById("status").innerText = "Access Granted. Welcome...";
-            setTimeout(() => window.location.href = "vault.html", 1000);
-          } else {
-            document.getElementById("status").innerText = "ACCESS DENIED: No Y2K Detected.";
-          }
-        } catch (err) {
-          console.error(err);
-          document.getElementById("status").innerText = "Connection failed.";
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
-      });
-    });
-  </script>
+
+        html {
+            background-color: #000000;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #000000;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            background: linear-gradient(45deg, #000000, #1a1a1a);
+            overflow: hidden;
+        }
+
+        .gradient-sphere {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, 
+                rgba(99, 102, 241, 0.15) 0%,
+                rgba(99, 102, 241, 0.1) 20%,
+                rgba(99, 102, 241, 0.05) 40%,
+                transparent 70%);
+            filter: blur(40px);
+            animation: sphere-animation 15s ease-in-out infinite;
+        }
+
+        @keyframes sphere-animation {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 32px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 2px;
+        }
+
+        .verification-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .verification-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin-bottom: 24px;
+        }
+
+        .progress-ring-circle {
+            transition: 0.35s stroke-dashoffset;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-dasharray: 326.7256359733385;
+            stroke-dashoffset: 326.7256359733385;
+        }
+
+        .progress-ring-path {
+            transition: 0.35s stroke-dashoffset;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+            stroke-dasharray: 326.7256359733385;
+            stroke-dashoffset: 326.7256359733385;
+        }
+
+        .verification-status {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+
+        .lock-icon {
+            fill: rgba(255, 255, 255, 0.8);
+        }
+
+        .amount-required {
+            text-align: center;
+        }
+
+        .amount {
+            font-size: 32px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .token {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .status-container {
+            margin-bottom: 32px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            margin-right: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .status-item.active {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .status-item.active .status-dot {
+            background: #6366f1;
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+        }
+
+        .status-item span {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .connect-button {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin-bottom: 16px;
+        }
+
+        .connect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .button-text {
+            margin-right: 8px;
+        }
+
+        .button-icon {
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .connect-button:hover .button-icon {
+            transform: translateX(4px);
+        }
+
+        .status-message {
+            text-align: center;
+            min-height: 20px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .loading .verification-status {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
+    <script>
+        const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+        const Y2K_DECIMALS = 18;
+        const REQUIRED_TOKENS = 4000000;
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.innerText = message;
+            statusEl.className = 'status-message ' + type;
+        }
+
+        function setStatusActive(id, active = true) {
+            const element = document.getElementById(id);
+            if (active) {
+                element.classList.add('active');
+            } else {
+                element.classList.remove('active');
+            }
+        }
+
+        function updateVerificationProgress(progress) {
+            const circle = document.querySelector('.progress-ring-path');
+            const radius = circle.r.baseVal.value;
+            const circumference = radius * 2 * Math.PI;
+            const offset = circumference - (progress / 100 * circumference);
+            circle.style.strokeDashoffset = offset;
+        }
+
+        function setLoading(loading) {
+            const container = document.querySelector('.verification-container');
+            if (loading) {
+                container.classList.add('loading');
+            } else {
+                container.classList.remove('loading');
+            }
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("connectBtn");
+            
+            btn.addEventListener("click", async () => {
+                try {
+                    setLoading(true);
+                    updateStatus("Initializing secure connection...");
+                    updateVerificationProgress(0);
+                    setStatusActive('connection-status');
+
+                    const modal = new window.Web3Modal.default({
+                        projectId: "36c402e4989b8426f99d329788a526fc",
+                        chains: ["eip155:25"],
+                        themeMode: "dark"
+                    });
+
+                    const provider = await modal.connect();
+                    const [namespace, , account] = provider.accounts[0].split(":");
+
+                    if (namespace !== "eip155") {
+                        updateStatus("Error: Unsupported blockchain detected");
+                        setStatusActive('connection-status', false);
+                        return;
+                    }
+
+                    updateVerificationProgress(33);
+                    setStatusActive('verification-status');
+                    updateStatus("Verifying wallet credentials...");
+
+                    const ethersProvider = new ethers.JsonRpcProvider("https://evm.cronos.org");
+                    const token = new ethers.Contract(Y2K_TOKEN, [
+                        "function balanceOf(address) view returns (uint256)"
+                    ], ethersProvider);
+
+                    updateVerificationProgress(66);
+                    setStatusActive('token-status');
+                    updateStatus("Checking Y2K balance...");
+
+                    const balance = await token.balanceOf(account);
+                    const readable = parseFloat(ethers.formatUnits(balance, Y2K_DECIMALS));
+                    
+                    updateVerificationProgress(100);
+
+                    if (readable >= REQUIRED_TOKENS) {
+                        updateStatus("Access granted - Preparing secure environment");
+                        setTimeout(() => {
+                            window.location.href = "vault.html";
+                        }, 2000);
+                    } else {
+                        updateStatus(`Access denied: Insufficient Y2K (${formatNumber(REQUIRED_TOKENS)} required)`);
+                        setStatusActive('token-status', false);
+                        updateVerificationProgress(66);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    updateStatus("Connection failed. Please try again.");
+                    setStatusActive('connection-status', false);
+                    updateVerificationProgress(0);
+                } finally {
+                    setLoading(false);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
