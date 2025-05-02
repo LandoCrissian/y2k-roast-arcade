@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <title>The Vault – Y2K Sportsbook</title>
+  <link rel="stylesheet" href="styles/main.css" />
+  <link href="https://unpkg.com/@walletconnect/modal@2.4.2/dist/style.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="background">
+    <div class="gradient-sphere"></div>
+  </div>
+
+  <div class="container">
+    <div class="glass-card">
+      <div class="header">
+        <div class="logo">Y2K</div>
+        <div class="subtitle">VAULT ACCESS</div>
+      </div>
+
+      <div class="verification-container">
+        <div class="verification-ring">
+          <svg class="progress-ring" width="120" height="120">
+            <circle class="progress-ring-circle" r="52" cx="60" cy="60" fill="transparent" stroke-width="4"/>
+            <circle class="progress-ring-path" r="52" cx="60" cy="60" fill="transparent" stroke-width="4"/>
+          </svg>
+          <div class="verification-status">
+            <svg class="lock-icon" viewBox="0 0 24 24" width="32" height="32">
+              <path d="M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="amount-required">
+          <div class="amount">4,000,000</div>
+          <div class="token">Y2K REQUIRED</div>
+        </div>
+      </div>
+
+      <div class="status-container">
+        <div class="status-item" id="connection-status"><div class="status-dot"></div><span>Ready to Connect</span></div>
+        <div class="status-item" id="verification-status"><div class="status-dot"></div><span>Awaiting Verification</span></div>
+        <div class="status-item" id="token-status"><div class="status-dot"></div><span>Token Check Pending</span></div>
+      </div>
+
+      <button id="connectBtn" class="connect-button">
+        <span class="button-text">Connect Wallet</span>
+        <span class="button-icon">→</span>
+      </button>
+      <div id="status" class="status-message"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.6.2/dist/ethers.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3modal@2.4.2/dist/index.umd.js"></script>
+  <script src="scripts/main.js"></script>
+</body>
+</html>
