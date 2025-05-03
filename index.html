@@ -200,21 +200,15 @@
             margin-bottom: 24px;
         }
 
-        .progress-ring-circle {
-            transition: 0.35s stroke-dashoffset;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-            stroke-dasharray: 326.7256359733385;
-            stroke-dashoffset: 326.7256359733385;
-        }
-
+        .progress-ring-circle,
         .progress-ring-path {
-            transition: 0.35s stroke-dashoffset;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-            stroke-dasharray: 326.7256359733385;
-            stroke-dashoffset: 326.7256359733385;
-        }
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+    stroke-dasharray: 326.7256359733385;
+    stroke-dashoffset: 326.7256359733385;
+    transition: stroke-dashoffset 0.6s ease-in-out, stroke 0.3s ease;
+    stroke-linecap: round;
+}
 
         .verification-status {
     position: absolute;
