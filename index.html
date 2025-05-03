@@ -318,39 +318,41 @@
         }
 
         .connect-button {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            margin-bottom: 16px;
-        }
+    width: 100%;
+    padding: 18px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    margin-bottom: 20px;
+    box-shadow: 0 0 0 transparent;
+}
 
-        .connect-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
+.connect-button:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 16px rgba(99, 102, 241, 0.35);
+}
 
-        .button-text {
-            margin-right: 8px;
-        }
+.button-text {
+    margin-right: 10px;
+}
 
-        .button-icon {
-            font-size: 20px;
-            transition: transform 0.3s ease;
-        }
+.button-icon {
+    font-size: 20px;
+    transition: transform 0.2s ease;
+}
 
-        .connect-button:hover .button-icon {
-            transform: translateX(4px);
-        }
+.connect-button:hover .button-icon {
+    transform: translateX(6px);
+}
 
         .status-message {
             text-align: center;
