@@ -186,12 +186,12 @@
             letter-spacing: 2px;
         }
 
-        .verification-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 32px;
-        }
+        .verification-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 24px;
+}
 
         .verification-ring {
     position: relative;
@@ -203,7 +203,12 @@
     justify-content: center;
 }
 
-        .progress-ring-circle,
+        .progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
         .progress-ring-path {
     transform: rotate(-90deg);
     transform-origin: 50% 50%;
@@ -215,8 +220,11 @@
 
         .verification-status {
     position: absolute;
-    width: 120px;
-    height: 120px;
+    top: 50%;
+    left: 50%;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
     border-radius: 50%;
     overflow: hidden;
     display: flex;
@@ -233,7 +241,6 @@
     background-position: center;
     background-repeat: no-repeat;
     border-radius: 50%;
-    z-index: 1;
 }
 
         .lock-overlay {
