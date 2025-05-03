@@ -187,18 +187,24 @@
         }
 
         .verification-ring {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 24px auto; /* Center horizontally + space below */
     position: relative;
-    width: 120px;
-    height: 120px;
-    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .progress-ring {
+    width: 140px;
+    height: 140px;
     position: absolute;
     top: 0;
     left: 0;
-    width: 120px;
-    height: 120px;
+    right: 0;
+    bottom: 0;
+    margin: auto;
     z-index: 1;
 }
 
