@@ -291,20 +291,28 @@
 
     // Wallet Connect (Simulated)
     async function connectWallet() {
-      // Simulate connect
-      currentWallet = '0x348c2F06C64b4465f90446Fd806aFf3A01220450';
-      document.getElementById('walletStatus').textContent = 'Connected: ' + currentWallet.slice(0, 6) + '...' + currentWallet.slice(-4);
+  // Simulate wallet connection (replace this with actual provider request in production)
+  const simulatedWallet = '0x348c2F06C64b4465f90446Fd806aFf3A01220450'; // replace this with the actual connected wallet logic
+  currentWallet = simulatedWallet.toLowerCase();
+  
+  document.getElementById('walletStatus').textContent = 'Connected: ' +
+    currentWallet.slice(0, 6) + '...' + currentWallet.slice(-4);
 
-      if (currentWallet.toLowerCase() !== ADMIN_WALLET) {
-        alert('Unauthorized: Admin wallet required');
-        document.body.innerHTML = '<h2 style="color:red;text-align:center;">Access Denied</h2>';
-        return;
-      }
+  if (currentWallet !== ADMIN_WALLET) {
+    document.body.innerHTML = `
+      <div style="text-align: center; padding-top: 100px;">
+        <h1 style="color: #ef4444;">Access Denied</h1>
+        <p style="color: #aaa;">Admin wallet required to access this dashboard.</p>
+      </div>
+    `;
+    return;
+  }
 
-      populateTeamDropdowns('NBA');
-      renderGameList();
-      renderPayoutList();
-    }
+  // Continue rendering dashboard
+  populateTeamDropdowns('NBA');
+  renderGameList();
+  renderPayoutList();
+}
 
     // Tabs
     document.querySelectorAll('.tab-button').forEach(btn => {
