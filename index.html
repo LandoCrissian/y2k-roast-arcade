@@ -1,100 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <title>The Vault – Y2K Sportsbook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
-  <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js" type="application/javascript"></script>
-</head>
-<body>
-  <!-- Vault Loading Screen -->
-  <div id="vaultLoader" class="vault-loader hidden">
-    <div class="vault-door-container">
-      <div class="vault-door">
-        <div class="door-frame"></div>
-        <div class="door-wheel">
-          <div class="wheel-spoke"></div>
-          <div class="wheel-spoke"></div>
-          <div class="wheel-spoke"></div>
-        </div>
-      </div>
-    </div>
-    <div class="loader-text">ACCESS GRANTED - OPENING VAULT</div>
-  </div>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
 
-  <!-- Audio Elements -->
-  <audio id="vaultOpen">
-    <source src="https://assets.mixkit.co/active_storage/sfx/2851/2851-preview.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="vaultUnlock">
-    <source src="https://assets.mixkit.co/active_storage/sfx/2853/2853-preview.mp3" type="audio/mpeg">
-  </audio>
+    body {
+      background: #000;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-  <div class="background">
-    <div class="gradient-sphere"></div>
-  </div>
+    .glass-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      padding: 32px;
+      width: 90%;
+      max-width: 400px;
+      backdrop-filter: blur(20px);
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
 
-  <div class="container">
-    <div class="glass-card">
-      <div class="header">
-        <div class="logo" id="logoTrigger">Y2K</div>
-        <div class="subtitle">VAULT ACCESS</div>
-      </div>
+    .logo {
+      font-size: 36px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
 
-      <div class="verification-container">
-        <div class="verification-ring">
-          <svg class="progress-ring" width="120" height="120">
-            <circle class="progress-ring-circle" stroke="#ffffff20" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
-            <circle class="progress-ring-path" stroke="#6366f1" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
-          </svg>
-          <div class="verification-status" id="verificationIcon">
-            <div class="token-logo"></div>
-            <div class="lock-overlay">
-              <svg class="lock-icon" viewBox="0 0 24 24" width="32" height="32">
-                <path fill="currentColor" d="M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4z"/>
-              </svg>
-            </div>
-          </div>
-        </div>
-        <div class="amount-required">
-          <div class="amount">4,000,000</div>
-          <div class="token">Y2K REQUIRED</div>
-        </div>
-      </div>
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 2px;
+      margin-bottom: 32px;
+    }
 
-      <div class="status-container">
-        <div class="status-item" id="connection-status">
-          <div class="status-dot"></div>
-          <span>Ready to Connect</span>
-        </div>
-        <div class="status-item" id="verification-status">
-          <div class="status-dot"></div>
-          <span>Awaiting Verification</span>
-        </div>
-        <div class="status-item" id="token-status">
-          <div class="status-dot"></div>
-          <span>Token Check Pending</span>
-        </div>
-      </div>
-
-      <button id="connectBtn" class="connect-button">
-        <span class="button-text">Connect Wallet</span>
-        <span class="button-icon">→</span>
-      </button>
-
-      <div id="status" class="status-message"></div>
-    </div>
-  </div>
-
-      <style>
     .verification-ring {
       width: 140px;
       height: 140px;
-      margin: 0 auto 24px auto;
+      margin: 0 auto 24px;
       position: relative;
     }
 
@@ -109,9 +70,9 @@
     .progress-ring-path {
       transform: rotate(-90deg);
       transform-origin: 50% 50%;
-      stroke-dasharray: 326.7256359733385;
-      stroke-dashoffset: 326.7256359733385;
-      transition: stroke-dashoffset 0.6s ease-in-out, stroke 0.3s ease;
+      stroke-dasharray: 326.72;
+      stroke-dashoffset: 326.72;
+      transition: stroke-dashoffset 0.6s ease;
       stroke-linecap: round;
     }
 
@@ -136,7 +97,6 @@
       background-image: url('https://raw.githubusercontent.com/LandoCrissian/y2k-roast-arcade/refs/heads/main/IMG_5445.jpeg');
       background-size: cover;
       background-position: center;
-      background-repeat: no-repeat;
       border-radius: 50%;
     }
 
@@ -152,135 +112,224 @@
       justify-content: center;
       z-index: 3;
     }
+
+    .amount {
+      font-size: 32px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .token {
+      font-size: 14px;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 24px;
+    }
+
+    .status-item {
+      margin: 10px 0;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .connect-button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .status-message {
+      margin-top: 12px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .vault-loader.hidden {
+      display: none;
+    }
+
+    .vault-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #000;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+
+    .loader-text {
+      margin-top: 20px;
+      color: #6366f1;
+      font-weight: bold;
+    }
   </style>
+</head>
+<body>
+  <div id="vaultLoader" class="vault-loader hidden">
+    <div class="loader-text">ACCESS GRANTED - OPENING VAULT</div>
+  </div>
+
+  <div class="glass-card">
+    <div class="logo" id="logoTrigger">Y2K</div>
+    <div class="subtitle">VAULT ACCESS</div>
+
+    <div class="verification-ring">
+      <svg class="progress-ring" width="120" height="120">
+        <circle class="progress-ring-circle" stroke="#ffffff20" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+        <circle class="progress-ring-path" stroke="#6366f1" stroke-width="4" fill="transparent" r="52" cx="60" cy="60"/>
+      </svg>
+      <div class="verification-status" id="verificationIcon">
+        <div class="token-logo"></div>
+        <div class="lock-overlay">
+          <svg class="lock-icon" viewBox="0 0 24 24" width="32" height="32">
+            <path fill="currentColor" d="M12 1C8.676 1 6 3.676 6 7v2H4v14h16V9h-2V7c0-3.324-2.676-6-6-6zm0 2c2.276 0 4 1.724 4 4v2H8V7c0-2.276 1.724-4 4-4z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="amount">4,000,000</div>
+    <div class="token">Y2K REQUIRED</div>
+
+    <div class="status-item" id="connection-status">Ready to Connect</div>
+    <div class="status-item" id="verification-status">Awaiting Verification</div>
+    <div class="status-item" id="token-status">Token Check Pending</div>
+
+    <button id="connectBtn" class="connect-button">Connect Wallet →</button>
+    <div id="status" class="status-message"></div>
+  </div>
 
   <script>
-    const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const Y2K_DECIMALS = 18;
-    const REQUIRED_TOKENS = 4000000;
-    let provider, web3;
+  const Y2K_TOKEN = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+  const Y2K_DECIMALS = 18;
+  const REQUIRED_TOKENS = 4000000;
+  let provider;
+  let web3;
+  let logoClickCount = 0;
+  let lastClickTime = 0;
 
-    function playSound(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.currentTime = 0;
-      el.volume = 0.5;
-      el.play().catch(() => {
-        document.addEventListener('click', () => el.play(), { once: true });
-      });
-    }
+  function updateVerificationProgress(progress) {
+    const circle = document.querySelector('.progress-ring-path');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    const offset = circumference - (progress / 100 * circumference);
+    circle.style.strokeDashoffset = offset;
+  }
 
-    function updateStatus(msg) {
-      const el = document.getElementById('status');
-      el.innerHTML = msg.replace(/\n/g, '<br>');
-    }
+  function setStatusActive(id, active = true) {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = active ? '1' : '0.4';
+  }
 
-    function updateVerificationProgress(percent) {
-      const circle = document.querySelector('.progress-ring-path');
-      const radius = circle.r.baseVal.value;
-      const circumference = 2 * Math.PI * radius;
-      circle.style.strokeDashoffset = circumference - percent / 100 * circumference;
-    }
+  function updateStatus(msg) {
+    const el = document.getElementById('status');
+    el.innerText = msg;
+  }
 
-    function showVaultLoader() {
-      document.getElementById('vaultLoader').classList.remove('hidden');
-      playSound('vaultUnlock');
-    }
+  function showVaultLoader() {
+    document.getElementById('vaultLoader').classList.remove('hidden');
+    setTimeout(() => window.location.href = "vault.html", 3000);
+  }
 
-    async function switchToCronos() {
-      try {
+  async function switchToCronosNetwork() {
+    try {
+      await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x19' }] });
+    } catch (e) {
+      if (e.code === 4902) {
         await provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x19' }],
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: '0x19',
+            chainName: 'Cronos Mainnet',
+            nativeCurrency: { name: 'Cronos', symbol: 'CRO', decimals: 18 },
+            rpcUrls: ['https://evm.cronos.org'],
+            blockExplorerUrls: ['https://cronoscan.com/']
+          }]
         });
-      } catch (err) {
-        if (err.code === 4902) {
-          await provider.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0x19',
-              chainName: 'Cronos Mainnet',
-              nativeCurrency: { name: 'Cronos', symbol: 'CRO', decimals: 18 },
-              rpcUrls: ['https://evm.cronos.org'],
-              blockExplorerUrls: ['https://cronoscan.com/']
-            }]
-          });
-        } else {
-          throw err;
-        }
+      } else {
+        throw new Error("Failed to switch to Cronos.");
       }
     }
+  }
 
-    async function connectWallet() {
-      try {
-        playSound('vaultOpen');
-        updateStatus("Initializing secure connection...");
-        updateVerificationProgress(0);
+  async function connectWallet() {
+    try {
+      updateStatus("Requesting Wallet Access...");
+      setStatusActive('connection-status', true);
+      updateVerificationProgress(10);
 
-        await new Promise(r => setTimeout(r, 1200));
-        provider = window.ethereum;
-        web3 = new Web3(provider);
+      provider = window.ethereum;
+      if (!provider) throw new Error("No wallet detected.");
+      web3 = new Web3(provider);
 
-        updateStatus("Requesting wallet access...");
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        const user = accounts[0];
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      const account = accounts[0];
 
-        await new Promise(r => setTimeout(r, 1200));
-        updateVerificationProgress(30);
-        updateStatus("Connected. Verifying network...");
+      updateStatus("Switching to Cronos...");
+      updateVerificationProgress(30);
+      await switchToCronosNetwork();
 
-        await switchToCronos();
+      updateStatus("Checking Y2K balance...");
+      updateVerificationProgress(60);
+      setStatusActive('verification-status', true);
 
-        await new Promise(r => setTimeout(r, 1200));
-        updateVerificationProgress(55);
-        updateStatus("Network verified. Checking token balance...");
+      const contract = new web3.eth.Contract([{
+        constant: true,
+        inputs: [{ name: "_owner", type: "address" }],
+        name: "balanceOf",
+        outputs: [{ name: "balance", type: "uint256" }],
+        type: "function"
+      }], Y2K_TOKEN);
 
-        const tokenContract = new web3.eth.Contract([
-          {
-            "constant": true,
-            "inputs": [{ "name": "_owner", "type": "address" }],
-            "name": "balanceOf",
-            "outputs": [{ "name": "balance", "type": "uint256" }],
-            "type": "function"
-          }
-        ], Y2K_TOKEN);
+      const balance = await contract.methods.balanceOf(account).call();
+      const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
+      updateVerificationProgress(90);
 
-        const balance = await tokenContract.methods.balanceOf(user).call();
-        const readable = parseFloat(balance) / Math.pow(10, Y2K_DECIMALS);
-
-        await new Promise(r => setTimeout(r, 1200));
+      if (readable >= REQUIRED_TOKENS) {
+        updateStatus("Access Granted. Opening Vault...");
+        setStatusActive('token-status', true);
         updateVerificationProgress(100);
-
-        if (readable >= REQUIRED_TOKENS) {
-          updateStatus("Access granted - opening vault...");
-          showVaultLoader();
-          setTimeout(() => window.location.href = "vault.html", 3000);
-        } else {
-          updateStatus(`Access Denied\nRequired: 4,000,000 Y2K\nYou Have: ${readable.toLocaleString()}`);
-          updateVerificationProgress(0);
-        }
-      } catch (err) {
-        console.error(err);
-        updateStatus("Connection failed. Try again.");
+        setTimeout(showVaultLoader, 1000);
+      } else {
+        updateStatus(`Insufficient Y2K: ${readable.toLocaleString()} / ${REQUIRED_TOKENS.toLocaleString()}`);
         updateVerificationProgress(0);
-        playSound('vaultOpen');
       }
+    } catch (err) {
+      console.error(err);
+      updateStatus("Connection failed. Try again.");
+      updateVerificationProgress(0);
     }
+  }
 
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("connectBtn").addEventListener("click", connectWallet);
-      document.getElementById("logoTrigger").addEventListener("click", () => {
-        if (!window._logoClicks) window._logoClicks = 1;
-        else window._logoClicks++;
-        if (window._logoClicks === 5) {
-          const egg = document.createElement("div");
-          egg.className = "twitter-easter-egg";
-          egg.innerHTML = `<button class="close-button">×</button><a href="https://twitter.com/Y2K_Finance" target="_blank">🔥 Sneak Peek: Follow Y2K on 𝕏</a>`;
-          document.body.appendChild(egg);
-          egg.querySelector(".close-button").onclick = () => egg.remove();
-        }
-      });
-    });
-  </script>
+  function handleLogoClick() {
+    const now = new Date().getTime();
+    if (now - lastClickTime > 3000) logoClickCount = 1;
+    else logoClickCount++;
+    lastClickTime = now;
+
+    if (logoClickCount === 5) {
+      alert("𝕏 Easter Egg Unlocked: Follow @Y2K_Finance");
+      logoClickCount = 0;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("connectBtn").addEventListener("click", connectWallet);
+    document.getElementById("logoTrigger").addEventListener("click", handleLogoClick);
+  });
+</script>
 </body>
 </html>
