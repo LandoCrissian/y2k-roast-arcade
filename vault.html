@@ -7,58 +7,59 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
     }
 
     body {
-      background: radial-gradient(circle at top, #0f0f0f, #000000);
-      color: #ffffff;
       font-family: 'Orbitron', sans-serif;
-      overflow-x: hidden;
-      height: 100vh;
-      background-image: url('https://www.transparenttextures.com/patterns/cubes.png');
-      background-size: cover;
-      position: relative;
+      background: linear-gradient(135deg, #050505, #0f0f0f);
+      background-size: 400% 400%;
+      animation: gradientMove 15s ease infinite;
+      color: #ffffff;
+      overflow: hidden;
     }
 
-    .overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(255, 255, 255, 0.02);
-      backdrop-filter: blur(8px);
-      z-index: 1;
+    @keyframes gradientMove {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
     }
 
     .vault-container {
-      position: relative;
-      z-index: 2;
-      height: 100%;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      text-align: center;
       padding: 2rem;
+      position: relative;
+      text-align: center;
     }
 
     .glitch-title {
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       color: #00ffe1;
-      text-shadow: 0 0 5px #00ffe1, 0 0 10px #00ffe1;
-      margin-bottom: 1.5rem;
+      text-shadow: 0 0 4px #00ffe1, 0 0 12px #00ffe1;
+      margin-bottom: 2rem;
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { text-shadow: 0 0 4px #00ffe1, 0 0 12px #00ffe1; }
+      50% { text-shadow: 0 0 10px #00ffe1, 0 0 20px #00ffe1; }
     }
 
     .game-box {
-      background: rgba(0, 0, 0, 0.6);
+      background: rgba(0, 0, 0, 0.65);
       border: 1px solid #00ffe1;
-      border-radius: 12px;
-      padding: 1.5rem;
-      width: 90%;
+      border-radius: 15px;
+      padding: 1.8rem;
       max-width: 400px;
-      box-shadow: 0 0 15px rgba(0, 255, 225, 0.2);
+      width: 90%;
+      box-shadow: 0 0 20px rgba(0, 255, 225, 0.15);
+      backdrop-filter: blur(12px);
     }
 
     .game-title {
@@ -70,63 +71,42 @@
     .game-details {
       font-size: 1rem;
       color: #ccc;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .buy-button {
-      padding: 0.8rem 1.5rem;
+      padding: 0.9rem 1.8rem;
       font-size: 1rem;
       background: #00ffe1;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       color: #000;
       font-weight: bold;
+      box-shadow: 0 0 8px #00ffe1;
       cursor: pointer;
-      transition: 0.3s ease all;
+      transition: all 0.3s ease;
     }
 
     .buy-button:hover {
       background: #0ff;
       transform: scale(1.05);
     }
-  </style>
-</head>
 
-  </head>
-<body>
-  <div class="overlay"></div>
-  <div class="vault-container">
-    <div class="glitch-title">Welcome to the Vault</div>
-    
-    <div class="game-box">
-      <div class="game-title">Stanley Cup Finals – Game 1</div>
-      <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
-      <button class="buy-button">Buy a Square</button>
-    </div>
-  </div>
-
-  <!-- User wallet display -->
-  <div class="wallet-info">
-    <img src="https://raw.githubusercontent.com/Y2KCoin/assets/main/y2k-logo.png" alt="Y2K Token" class="token-logo">
-    <div id="walletAddress">0x123...abcd</div>
-    <div id="walletBalance">8,732,109 Y2K</div>
-  </div>
-
-  <style>
     .wallet-info {
       position: fixed;
       top: 1rem;
       right: 1rem;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid #00ffe1;
-      border-radius: 10px;
-      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      padding: 0.8rem 1rem;
       font-size: 0.9rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
       z-index: 10;
-      backdrop-filter: blur(6px);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 12px rgba(0, 255, 225, 0.2);
     }
 
     .wallet-info div {
@@ -138,14 +118,21 @@
       height: 24px;
     }
   </style>
+</head>
+<body>
+  <div class="wallet-info">
+    <img src="https://raw.githubusercontent.com/Y2KCoin/assets/main/y2k-logo.png" alt="Y2K Token" class="token-logo">
+    <div id="walletAddress">0x348c...0450</div>
+    <div id="walletBalance">8,732,109 Y2K</div>
+  </div>
 
-  <script>
-    // Placeholder for future integration
-    const walletAddress = "0x348c...0450";
-    const y2kBalance = "8,732,109 Y2K";
-
-    document.getElementById('walletAddress').innerText = walletAddress;
-    document.getElementById('walletBalance').innerText = y2kBalance;
-  </script>
+  <div class="vault-container">
+    <div class="glitch-title">Welcome to the Vault</div>
+    <div class="game-box">
+      <div class="game-title">Stanley Cup Finals – Game 1</div>
+      <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+      <button class="buy-button">Buy a Square</button>
+    </div>
+  </div>
 </body>
 </html>
