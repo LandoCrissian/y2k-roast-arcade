@@ -2,136 +2,123 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>The Vault - Stanley Cup</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <title>Y2K Quantum Vault - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
     }
 
     body {
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(135deg, #050505, #0f0f0f);
-      background-size: 400% 400%;
-      animation: gradientMove 15s ease infinite;
-      color: #ffffff;
-      overflow: hidden;
+      background-color: #000;
+      color: #fff;
+      overflow-x: hidden;
+      padding: env(safe-area-inset);
     }
 
-    @keyframes gradientMove {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
+    .cyber-grid {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      transform: perspective(500px) rotateX(60deg);
+      animation: gridMove 20s linear infinite;
+      z-index: 0;
+      opacity: 0.2;
     }
 
-    .vault-container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 2rem;
+    @keyframes gridMove {
+      from { background-position: 0 0; }
+      to { background-position: 0 20px; }
+    }
+
+    .container {
       position: relative;
-      text-align: center;
+      z-index: 1;
+      max-width: 430px;
+      margin: auto;
+      padding: 16px;
     }
 
-    .glitch-title {
-      font-size: 2.2rem;
+    .wallet-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .wallet-hud span {
       color: #00ffe1;
-      text-shadow: 0 0 4px #00ffe1, 0 0 12px #00ffe1;
-      margin-bottom: 2rem;
-      animation: pulseGlow 2s infinite;
+      font-size: 14px;
     }
 
-    @keyframes pulseGlow {
-      0%, 100% { text-shadow: 0 0 4px #00ffe1, 0 0 12px #00ffe1; }
-      50% { text-shadow: 0 0 10px #00ffe1, 0 0 20px #00ffe1; }
-    }
-
-    .game-box {
-      background: rgba(0, 0, 0, 0.65);
-      border: 1px solid #00ffe1;
-      border-radius: 15px;
-      padding: 1.8rem;
-      max-width: 400px;
-      width: 90%;
-      box-shadow: 0 0 20px rgba(0, 255, 225, 0.15);
-      backdrop-filter: blur(12px);
+    .glass-panel {
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+      margin-top: 16px;
     }
 
     .game-title {
-      font-size: 1.5rem;
-      margin-bottom: 0.5rem;
-      color: #ffffff;
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-align: center;
     }
 
     .game-details {
-      font-size: 1rem;
-      color: #ccc;
-      margin-bottom: 1.5rem;
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 16px;
+      text-align: center;
     }
 
-    .buy-button {
-      padding: 0.9rem 1.8rem;
-      font-size: 1rem;
-      background: #00ffe1;
+    .buy-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
       border: none;
       border-radius: 10px;
-      color: #000;
       font-weight: bold;
-      box-shadow: 0 0 8px #00ffe1;
+      font-size: 15px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(99,102,241,0.3);
+      transition: 0.2s ease;
     }
 
-    .buy-button:hover {
-      background: #0ff;
-      transform: scale(1.05);
-    }
-
-    .wallet-info {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid #00ffe1;
-      border-radius: 12px;
-      padding: 0.8rem 1rem;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      z-index: 10;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 12px rgba(0, 255, 225, 0.2);
-    }
-
-    .wallet-info div {
-      color: #00ffe1;
-    }
-
-    .token-logo {
-      width: 24px;
-      height: 24px;
+    .buy-btn:hover {
+      transform: scale(1.03);
     }
   </style>
 </head>
 <body>
-  <div class="wallet-info">
-    <img src="https://raw.githubusercontent.com/Y2KCoin/assets/main/y2k-logo.png" alt="Y2K Token" class="token-logo">
-    <div id="walletAddress">0x348c...0450</div>
-    <div id="walletBalance">8,732,109 Y2K</div>
-  </div>
+  <div class="cyber-grid"></div>
+  <div class="container">
+    <div class="wallet-hud">
+      <span id="wallet">0x348c...0450</span>
+      <span id="balance">8,732,109 Y2K</span>
+    </div>
 
-  <div class="vault-container">
-    <div class="glitch-title">Welcome to the Vault</div>
-    <div class="game-box">
+    <div class="glass-panel">
       <div class="game-title">Stanley Cup Finals – Game 1</div>
       <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
-      <button class="buy-button">Buy a Square</button>
+      <button class="buy-btn">Buy a Square</button>
     </div>
   </div>
 </body>
