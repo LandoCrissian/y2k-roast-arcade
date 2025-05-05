@@ -279,23 +279,17 @@
     }
   }
 
-  async function init() {
-    const badge = document.getElementById("statusBadge");
-    const selector = document.getElementById("statusSelector");
-
-    function updateBadge(status) {
-      badge.textContent = status.toUpperCase();
-      badge.className = "status-badge status-" + status;
-    }
-
-    const gameId = "stanley_game1";
+  async function connectWallet() {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const wallet = accounts[0];
     const walletSpan = document.getElementById("wallet");
     const connectBtn = document.getElementById("connectWalletBtn");
     const nicknameInput = document.getElementById("nicknameInput");
+    const badge = document.getElementById("statusBadge");
+    const selector = document.getElementById("statusSelector");
+    const gameId = "stanley_game1";
 
-    let accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    let wallet = accounts[0];
-    walletSpan.textContent = wallet.slice(0,6) + "..." + wallet.slice(-4);
+    walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
     fetchY2KBalance(wallet);
 
     const snap = await getDoc(doc(db, "users", wallet.toLowerCase()));
@@ -304,9 +298,9 @@
     }
 
     nicknameInput.addEventListener("input", async () => {
-  const nickname = nicknameInput.value.trim();
-  await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname }, { merge: true });
-});
+      const nickname = nicknameInput.value.trim();
+      await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname }, { merge: true });
+    });
 
     onSnapshot(doc(db, "users", wallet.toLowerCase()), (docSnap) => {
       if (docSnap.exists()) {
@@ -324,20 +318,20 @@
     onSnapshot(doc(db, "games", gameId), (docSnap) => {
       if (docSnap.exists()) {
         const status = docSnap.data().status;
-        updateBadge(status);
+        badge.textContent = status.toUpperCase();
+        badge.className = "status-badge status-" + status;
         selector.value = status;
       }
     });
 
-    if (connectBtn) {
-  connectBtn.textContent = "Connected";
-  connectBtn.disabled = true;
-  connectBtn.style.opacity = 0.5;
-  connectBtn.style.cursor = "default";
-}
+    connectBtn.textContent = "Disconnect";
+    connectBtn.onclick = () => location.reload();
   }
 
-  window.addEventListener("DOMContentLoaded", init);
+  window.addEventListener("DOMContentLoaded", () => {
+    const connectBtn = document.getElementById("connectWalletBtn");
+    connectBtn.addEventListener("click", connectWallet);
+  });
 </script>
 </body>
 </html>
