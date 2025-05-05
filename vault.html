@@ -338,9 +338,9 @@
       await setDoc(doc(db, "games", gameId), { status: newStatus });
     });
 
+    let connected = "";
     window.addEventListener("DOMContentLoaded", async () => {
       [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
       if (connected.toLowerCase() === ADMIN_WALLET) {
         selector.style.display = "block";
       }
