@@ -5,52 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <title>Y2K Quantum Vault - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-      authDomain: "y2k-arcade.firebaseapp.com",
-      projectId: "y2k-arcade",
-      storageBucket: "y2k-arcade.appspot.com",
-      messagingSenderId: "1063043176357",
-      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const ADMIN_WALLET = "0x348c2f06c64b4465f90446fd806aff3a01220450";
-    const gameRef = doc(db, "games", "stanley-cup-g1");
-
-    document.addEventListener("DOMContentLoaded", async () => {
-      const badge = document.getElementById("statusBadge");
-      const selector = document.getElementById("statusSelector");
-
-      if (window.ethereum && window.ethereum.request) {
-        const [wallet] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-          selector.style.display = "block";
-        }
-      }
-
-      selector.addEventListener("change", async () => {
-        const val = selector.value;
-        await setDoc(gameRef, { status: val }, { merge: true });
-      });
-
-      onSnapshot(gameRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const status = docSnap.data().status || "live";
-          badge.textContent = status.toUpperCase();
-          badge.className = "status-badge status-" + status;
-          selector.value = status;
-        }
-      });
-    });
-  </script>
-
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body {
@@ -77,6 +31,7 @@
 
     .header-bar {
       display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+      position: relative;
     }
 
     .nav-btn {
@@ -95,6 +50,41 @@
     .nav-btn:hover {
       background: rgba(255,255,255,0.08);
       transform: scale(1.03);
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 40px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      min-width: 160px;
+      z-index: 99;
+      backdrop-filter: blur(10px);
+      text-align: left;
+    }
+
+    .dropdown-content a {
+      color: #00ffe1;
+      padding: 10px 14px;
+      display: block;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(255,255,255,0.08);
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
     }
 
     .wallet-hud {
@@ -121,34 +111,136 @@
     .game-title { font-size: 20px; color: #fff; margin-bottom: 8px; text-align: center; }
     .game-details { font-size: 14px; color: #aaa; margin-bottom: 16px; text-align: center; }
 
+    .buy-btn {
+      display: block; width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(99,102,241,0.3);
+      transition: 0.2s ease;
+    }
+
+    .buy-btn:hover { transform: scale(1.03); }
+
+    .placeholder-grid {
+      margin-top: 24px;
+      height: 180px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
+        rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
+      );
+      border: 1px dashed rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.3); font-size: 14px;
+    }
+
+    .info-panel {
+      font-size: 13px;
+      color: #ccc;
+      text-align: center;
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+    }
+
+    .footer-nav {
+      position: fixed;
+      bottom: 0; left: 0;
+      width: 100%;
+      background: rgba(0,0,0,0.6);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      z-index: 10;
+    }
+
+    .footer-nav button {
+      background: none;
+      border: none;
+      color: #00ffe1;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .footer-nav button:hover {
+      color: #22d3ee;
+    }
+
+        .top-button {
+      position: fixed;
+      right: 1rem;
+      bottom: 5rem;
+      background: #00ffe1;
+      color: #000;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,255,225,0.4);
+      cursor: pointer;
+      display: none;
+      z-index: 10;
+    }
+
     .status-badge {
       display: inline-block;
       font-size: 12px;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 6px;
       font-weight: bold;
       margin-top: 8px;
+      background: #22d3ee20;
+      color: #22d3ee;
+      border: 1px solid #22d3ee40;
       text-align: center;
     }
 
-    .status-live  { background: #00ff0040; color: #00ff00; border: 1px solid #00ff0070; }
-    .status-final { background: #ff003340; color: #ff0033; border: 1px solid #ff003370; }
-    .status-paid  { background: #00d9ff40; color: #00d9ff; border: 1px solid #00d9ff70; }
+    .status-live  { background: #34d39920; color: #34d399; border-color: #34d39960; }
+    .status-final { background: #ef444420; color: #ef4444; border-color: #ef444460; }
+    .status-paid  { background: #a855f720; color: #a855f7; border-color: #a855f760; }
 
     select#statusSelector {
-      margin-top: 12px; width: 100%;
-      padding: 8px; border-radius: 8px;
-      background: #111; color: #00ffe1;
+      margin-top: 12px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      background: #111;
+      color: #00ffe1;
       border: 1px solid #00ffe140;
-      font-size: 14px;
       display: none;
+      font-size: 13px;
+    }
+
+    .pot-animated { animation: potPulse 1s ease-in-out; }
+    @keyframes potPulse {
+      0% { transform: scale(1); color: #fff; }
+      50% { transform: scale(1.1); color: #00ffe1; }
+      100% { transform: scale(1); color: #fff; }
+    }
+
+    .glitch-flicker { animation: flicker 0.2s linear 1; }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.02); }
     }
   </style>
 </head>
 <body>
-
-    <div class="cyber-grid"></div>
-
+  <div class="cyber-grid"></div>
   <div class="container">
     <div class="header-bar">
       <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
@@ -169,16 +261,14 @@
 
     <div class="glass-panel">
       <div class="game-title">Stanley Cup Finals – Game 1</div>
-      <div class="game-details" id="potDisplay">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+      <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
       <div id="statusBadge" class="status-badge status-live">LIVE</div>
-
       <select id="statusSelector">
         <option value="live">LIVE</option>
         <option value="final">FINAL</option>
         <option value="paid">PAID</option>
       </select>
-
-      <button class="buy-btn" id="buyBtn">Buy a Square</button>
+      <button class="buy-btn">Buy a Square</button>
     </div>
 
     <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
@@ -196,48 +286,65 @@
     <button onclick="alert('Admin Only')">Create Game</button>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+      authDomain: "y2k-arcade.firebaseapp.com",
+      projectId: "y2k-arcade",
+      storageBucket: "y2k-arcade.appspot.com",
+      messagingSenderId: "1063043176357",
+      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
+    const gameId = "stanley_game1";
+    const badge = document.getElementById("statusBadge");
+    const selector = document.getElementById("statusSelector");
+
+    async function updateBadge(status) {
+      badge.textContent = status.toUpperCase();
+      badge.className = "status-badge status-" + status;
+    }
+
+    onSnapshot(doc(db, "games", gameId), (docSnap) => {
+      if (docSnap.exists()) {
+        const status = docSnap.data().status;
+        updateBadge(status);
+        selector.value = status;
+      }
+    });
+
+    selector.addEventListener("change", async () => {
+      const newStatus = selector.value;
+      await setDoc(doc(db, "games", gameId), { status: newStatus });
+    });
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (connected.toLowerCase() === ADMIN_WALLET) {
+        selector.style.display = "block";
+      }
+      const buyBtn = document.querySelector(".buy-btn");
+      if (buyBtn) {
+        buyBtn.addEventListener("click", () => {
+          buyBtn.classList.add("glitch-flicker");
+          setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
+          document.querySelector(".game-details").classList.add("pot-animated");
+          setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
+        });
+      }
+    });
+
     const topBtn = document.getElementById("topBtn");
     window.addEventListener("scroll", () => {
       topBtn.style.display = window.scrollY > 200 ? "block" : "none";
     });
-
-    function pulsePot() {
-      const pot = document.querySelector(".game-details");
-      if (!pot) return;
-      pot.classList.add("pot-animated");
-      setTimeout(() => pot.classList.remove("pot-animated"), 1000);
-    }
-
-    function flickerButton(btn) {
-      btn.classList.add("glitch-flicker");
-      setTimeout(() => btn.classList.remove("glitch-flicker"), 300);
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const buyBtn = document.getElementById("buyBtn");
-      if (buyBtn) {
-        buyBtn.addEventListener("click", () => {
-          flickerButton(buyBtn);
-          pulsePot();
-        });
-      }
-    });
   </script>
-
-  <style>
-    .pot-animated { animation: potPulse 1s ease-in-out; }
-    @keyframes potPulse {
-      0% { transform: scale(1); color: #fff; }
-      50% { transform: scale(1.1); color: #00ffe1; }
-      100% { transform: scale(1); color: #fff; }
-    }
-
-    .glitch-flicker { animation: flicker 0.2s linear 1; }
-    @keyframes flicker {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.02); }
-    }
-  </style>
 </body>
 </html>
