@@ -285,9 +285,10 @@
       nicknameInput.value = snap.data().nickname || "";
     }
 
-    nicknameInput.addEventListener("blur", async () => {
-      await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname: nicknameInput.value.trim() }, { merge: true });
-    });
+    nicknameInput.addEventListener("input", async () => {
+  const nickname = nicknameInput.value.trim();
+  await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
+});
 
     onSnapshot(doc(db, "users", wallet.toLowerCase()), (docSnap) => {
       if (docSnap.exists()) {
@@ -310,7 +311,12 @@
       }
     });
 
-    if (connectBtn) connectBtn.remove();
+    if (connectBtn) {
+  connectBtn.textContent = "Connected";
+  connectBtn.disabled = true;
+  connectBtn.style.opacity = 0.5;
+  connectBtn.style.cursor = "default";
+}
   }
 
   window.addEventListener("DOMContentLoaded", init);
