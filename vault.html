@@ -283,31 +283,39 @@
     const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
     const wallet = accounts[0];
     const walletSpan = document.getElementById("wallet");
-    const connectBtn = document.getElementById("connectWalletBtn");
     const nicknameInput = document.getElementById("nicknameInput");
-    const badge = document.getElementById("statusBadge");
-    const selector = document.getElementById("statusSelector");
+    const connectBtn = document.getElementById("connectWalletBtn");
     const gameId = "stanley_game1";
 
     walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
     fetchY2KBalance(wallet);
 
-    const snap = await getDoc(doc(db, "users", wallet.toLowerCase()));
+    // Update button to "Disconnect"
+    connectBtn.textContent = "Disconnect";
+    connectBtn.onclick = () => location.reload();
+
+    // Load nickname from Firestore
+    const userDocRef = doc(db, "users", wallet.toLowerCase());
+    const snap = await getDoc(userDocRef);
     if (snap.exists()) {
       nicknameInput.value = snap.data().nickname || "";
     }
 
+    // Save nickname on input
     nicknameInput.addEventListener("input", async () => {
       const nickname = nicknameInput.value.trim();
-      await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname }, { merge: true });
+      await setDoc(userDocRef, { nickname }, { merge: true });
     });
 
-    onSnapshot(doc(db, "users", wallet.toLowerCase()), (docSnap) => {
+    // Real-time nickname update
+    onSnapshot(userDocRef, (docSnap) => {
       if (docSnap.exists()) {
         nicknameInput.value = docSnap.data().nickname || "";
       }
     });
 
+    // Admin-only status selector
+    const selector = document.getElementById("statusSelector");
     if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
       selector.style.display = "block";
       selector.addEventListener("change", async () => {
@@ -315,22 +323,23 @@
       });
     }
 
+    // Watch game status
+    const badge = document.getElementById("statusBadge");
+    function updateBadge(status) {
+      badge.textContent = status.toUpperCase();
+      badge.className = "status-badge status-" + status;
+    }
     onSnapshot(doc(db, "games", gameId), (docSnap) => {
       if (docSnap.exists()) {
         const status = docSnap.data().status;
-        badge.textContent = status.toUpperCase();
-        badge.className = "status-badge status-" + status;
+        updateBadge(status);
         selector.value = status;
       }
     });
-
-    connectBtn.textContent = "Disconnect";
-    connectBtn.onclick = () => location.reload();
   }
 
   window.addEventListener("DOMContentLoaded", () => {
-    const connectBtn = document.getElementById("connectWalletBtn");
-    connectBtn.addEventListener("click", connectWallet);
+    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
   });
 </script>
 </body>
