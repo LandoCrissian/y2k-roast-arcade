@@ -316,6 +316,17 @@
       badge.className = "status-badge status-" + status;
     }
 
+    async function fetchY2KBalance(wallet) {
+  try {
+    // TEMP: Replace this with your actual Cronos RPC or backend endpoint for balance fetch
+    const response = await fetch(`https://y2k-api.example.com/balance/${wallet}`);
+    const data = await response.json();
+    document.getElementById("balance").textContent = `${data.balanceFormatted} Y2K`;
+  } catch (err) {
+    console.warn("Failed to fetch Y2K balance", err);
+  }
+}
+
     onSnapshot(doc(db, "games", gameId), (docSnap) => {
       if (docSnap.exists()) {
         const status = docSnap.data().status;
@@ -334,6 +345,7 @@
       if (connected.toLowerCase() === ADMIN_WALLET) {
         selector.style.display = "block";
       }
+      fetchY2KBalance(connected);
 
       const buyBtn = document.querySelector(".buy-btn");
       if (buyBtn) {
@@ -350,6 +362,21 @@
     window.addEventListener("scroll", () => {
       topBtn.style.display = window.scrollY > 200 ? "block" : "none";
     });
+
+    const nicknameInput = document.getElementById("nicknameInput");
+
+nicknameInput.addEventListener("blur", async () => {
+  const nickname = nicknameInput.value.trim();
+  if (!nickname) return;
+  await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
+});
+
+onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
+  if (docSnap.exists()) {
+    nicknameInput.value = docSnap.data().nickname || "";
+  }
+});
+    
   </script>
 </body>
 </html>
