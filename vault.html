@@ -179,7 +179,7 @@
       color: #22d3ee;
     }
 
-        .top-button {
+    .top-button {
       position: fixed;
       right: 1rem;
       bottom: 5rem;
@@ -239,7 +239,8 @@
     }
   </style>
 </head>
-<body>
+
+  <body>
   <div class="cyber-grid"></div>
   <div class="container">
     <div class="header-bar">
@@ -330,6 +331,7 @@
       if (connected.toLowerCase() === ADMIN_WALLET) {
         selector.style.display = "block";
       }
+
       const buyBtn = document.querySelector(".buy-btn");
       if (buyBtn) {
         buyBtn.addEventListener("click", () => {
