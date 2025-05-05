@@ -191,6 +191,23 @@
       display: none;
       font-size: 13px;
     }
+
+    .placeholder-grid {
+  margin-top: 24px;
+  height: 180px;
+  border-radius: 12px;
+  background: repeating-linear-gradient(
+    45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
+    rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
+  );
+  border: 1px dashed rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.3);
+  font-size: 14px;
+}
+    
   </style>
 </head>
 <body>
@@ -226,6 +243,7 @@
     </select>
     <button class="buy-btn">Buy a Square</button>
   </div>
+  <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
 </div>
 
 <script type="module">
@@ -287,7 +305,7 @@
 
     nicknameInput.addEventListener("input", async () => {
   const nickname = nicknameInput.value.trim();
-  await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
+  await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname }, { merge: true });
 });
 
     onSnapshot(doc(db, "users", wallet.toLowerCase()), (docSnap) => {
