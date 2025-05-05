@@ -295,31 +295,30 @@
     connectBtn.onclick = () => location.reload();
 
     // Load nickname from Firestore
-    const userDocRef = doc(db, "users", wallet.toLowerCase());
-    const snap = await getDoc(userDocRef);
-    if (snap.exists()) {
-      nicknameInput.value = snap.data().nickname || "";
-    }
+const snap = await getDoc(userDocRef);
+if (snap.exists()) {
+  nicknameInput.value = snap.data().nickname || "";
+}
 
-    // Save nickname on input
-    nicknameInput.addEventListener("blur", async () => {
+// Save nickname on blur
+nicknameInput.addEventListener("blur", async () => {
   const nickname = nicknameInput.value.trim();
   if (nickname.length > 0) {
     try {
       await setDoc(userDocRef, { nickname }, { merge: true });
-      console.log("Nickname saved:", nickname);
+      console.log("Saved nickname:", nickname);
     } catch (err) {
-      console.error("Error saving nickname:", err);
+      console.error("Nickname save error:", err);
     }
   }
 });
 
-    // Real-time nickname update
-    onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        nicknameInput.value = docSnap.data().nickname || "";
-      }
-    });
+// Watch nickname changes
+onSnapshot(userDocRef, (docSnap) => {
+  if (docSnap.exists()) {
+    nicknameInput.value = docSnap.data().nickname || "";
+  }
+});
 
     // Admin-only status selector
     const selector = document.getElementById("statusSelector");
