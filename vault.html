@@ -342,6 +342,9 @@
     let connected = "";
     window.addEventListener("DOMContentLoaded", async () => {
       [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+      
       if (connected.toLowerCase() === ADMIN_WALLET) {
         selector.style.display = "block";
       }
