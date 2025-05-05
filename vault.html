@@ -356,59 +356,73 @@
     }
 
     async function fetchY2KBalance(wallet) {
-      try {
-        const response = await fetch(`https://y2k-api.example.com/balance/${wallet}`);
-        const data = await response.json();
-        document.getElementById("balance").textContent = `${data.balanceFormatted} Y2K`;
-      } catch (err) {
-        console.warn("Failed to fetch Y2K balance", err);
-      }
+  try {
+    const response = await fetch(`https://y2k-api.example.com/balance/${wallet}`);
+    const data = await response.json();
+
+    if (!data || !data.balanceFormatted) {
+      document.getElementById("balance").textContent = `0 Y2K`;
+    } else {
+      document.getElementById("balance").textContent = `${data.balanceFormatted} Y2K`;
     }
+  } catch (err) {
+    console.warn("Failed to fetch Y2K balance", err);
+    document.getElementById("balance").textContent = `0 Y2K`;
+  }
+}
 
     let connected = "";
 
     window.addEventListener("DOMContentLoaded", async () => {
-      if (window.ethereum && window.ethereum.selectedAddress) {
-        connected = window.ethereum.selectedAddress;
-      } else {
-        [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      }
+  try {
+    if (window.ethereum && window.ethereum.selectedAddress) {
+      connected = window.ethereum.selectedAddress;
+    } else {
+      [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    }
 
-      document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
-      fetchY2KBalance(connected);
+    document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+    document.getElementById("connectWalletBtn").style.display = "none"; // Hide the button
+    fetchY2KBalance(connected);
 
-      if (connected.toLowerCase() === ADMIN_WALLET) {
-        selector.style.display = "block";
-      }
+    if (connected.toLowerCase() === ADMIN_WALLET) {
+      selector.style.display = "block";
+    }
 
-      const buyBtn = document.querySelector(".buy-btn");
-      if (buyBtn) {
-        buyBtn.addEventListener("click", () => {
-          buyBtn.classList.add("glitch-flicker");
-          setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
-          document.querySelector(".game-details").classList.add("pot-animated");
-          setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
-        });
-      }
-
-      const nicknameInput = document.getElementById("nicknameInput");
-      nicknameInput.addEventListener("blur", async () => {
-        const nickname = nicknameInput.value.trim();
-        if (!nickname) return;
-        await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
+    // Buy button animation
+    const buyBtn = document.querySelector(".buy-btn");
+    if (buyBtn) {
+      buyBtn.addEventListener("click", () => {
+        buyBtn.classList.add("glitch-flicker");
+        setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
+        document.querySelector(".game-details").classList.add("pot-animated");
+        setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
       });
+    }
 
-      onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
-        if (docSnap.exists()) {
-          nicknameInput.value = docSnap.data().nickname || "";
-        }
-      });
+    // Nickname syncing
+    const nicknameInput = document.getElementById("nicknameInput");
+    nicknameInput.addEventListener("blur", async () => {
+      const nickname = nicknameInput.value.trim();
+      if (!nickname) return;
+      await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
     });
+
+    onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
+      if (docSnap.exists()) {
+        nicknameInput.value = docSnap.data().nickname || "";
+      }
+    });
+
+  } catch (err) {
+    console.error("Wallet connection failed", err);
+  }
+});
 
     document.getElementById("connectWalletBtn").addEventListener("click", async () => {
       try {
         [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+        document.getElementById("connectWalletBtn").style.display = "none";
         fetchY2KBalance(connected);
       } catch (e) {
         console.error("Wallet connect failed", e);
