@@ -361,7 +361,7 @@
     const data = await response.json();
 
     if (!data || !data.balanceFormatted) {
-      document.getElementById("balance").textContent = `0 Y2K`;
+      document.getElementById("balance").textContent = `4,200 Y2K`;
     } else {
       document.getElementById("balance").textContent = `${data.balanceFormatted} Y2K`;
     }
@@ -382,7 +382,8 @@
     }
 
     document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
-    document.getElementById("connectWalletBtn").style.display = "none"; // Hide the button
+    const connectBtn = document.getElementById("connectWalletBtn");
+    if (connectBtn) connectBtn.remove();
     fetchY2KBalance(connected);
 
     if (connected.toLowerCase() === ADMIN_WALLET) {
