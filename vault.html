@@ -5,177 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <title>Y2K Quantum Vault - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
-    body {
-      background-color: #000; color: #fff; overflow-x: hidden;
-      padding: env(safe-area-inset); scroll-behavior: smooth;
-    }
-    .cyber-grid {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-image: linear-gradient(rgba(99,102,241,0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(99,102,241,0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-      transform: perspective(500px) rotateX(60deg);
-      animation: gridMove 20s linear infinite;
-      z-index: 0; opacity: 0.2;
-    }
-    @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 20px; } }
-    .container {
-      position: relative; z-index: 1;
-      max-width: 430px; margin: auto; padding: 16px; padding-bottom: 80px;
-    }
-    .header-bar {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
-    }
-    .nav-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      color: #00ffe1;
-      font-size: 13px;
-      padding: 8px 14px;
-      text-decoration: none;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 6px rgba(0,255,225,0.1);
-      transition: 0.2s ease;
-    }
-    .nav-btn:hover {
-      background: rgba(255,255,255,0.08);
-      transform: scale(1.03);
-    }
-    .wallet-hud {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      backdrop-filter: blur(10px);
-    }
-    .wallet-hud span { color: #00ffe1; font-size: 14px; }
-    .glass-panel {
-      background: rgba(255,255,255,0.03);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(18px);
-      padding: 24px;
-      margin-top: 16px;
-    }
-    .game-title { font-size: 20px; color: #fff; margin-bottom: 8px; text-align: center; }
-    .game-details { font-size: 14px; color: #aaa; margin-bottom: 16px; text-align: center; }
-    .buy-btn {
-      display: block; width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(99,102,241,0.3);
-      transition: 0.2s ease;
-    }
-    .buy-btn:hover { transform: scale(1.03); }
-    .placeholder-grid {
-      margin-top: 24px;
-      height: 180px;
-      border-radius: 12px;
-      background: repeating-linear-gradient(
-        45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
-        rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
-      );
-      border: 1px dashed rgba(255,255,255,0.1);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,0.3); font-size: 14px;
-    }
-    .info-panel {
-      font-size: 13px;
-      color: #ccc;
-      text-align: center;
-      margin-top: 24px;
-      padding: 16px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-    }
-    .status-badge {
-      display: inline-block;
-      font-size: 12px;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-weight: bold;
-      margin-top: 8px;
-      background: #22d3ee20;
-      color: #22d3ee;
-      border: 1px solid #22d3ee40;
-      text-align: center;
-    }
-    .status-live { background: #34d39920; color: #34d399; border-color: #34d39960; }
-    .status-final { background: #fbbf2420; color: #fbbf24; border-color: #fbbf2460; }
-    .status-paid { background: #8b5cf620; color: #8b5cf6; border-color: #8b5cf640; }
-    .pot-animated { animation: potPulse 1s ease-in-out; }
-    @keyframes potPulse {
-      0% { transform: scale(1); color: #fff; }
-      50% { transform: scale(1.1); color: #00ffe1; }
-      100% { transform: scale(1); color: #fff; }
-    }
-    .glitch-flicker { animation: flicker 0.2s linear 1; }
-    @keyframes flicker {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.02); }
-    }
-  </style>
-</head>
-<body>
-  <div class="cyber-grid"></div>
-  <div class="container">
-    <div class="header-bar">
-      <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
-      <div class="dropdown">
-        <button class="nav-btn">Menu</button>
-        <div class="dropdown-content">
-          <a href="#">Settings</a>
-          <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
-          <a href="#">Log Out</a>
-        </div>
-      </div>
-    </div>
-    <div class="wallet-hud">
-      <span id="wallet">0x348c...0450</span>
-      <span id="balance">8,732,109 Y2K</span>
-    </div>
-    <div class="glass-panel">
-      <div class="game-title">Stanley Cup Finals – Game 1</div>
-      <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
-      <div id="statusBadge" class="status-badge status-live">LIVE</div>
-      <select id="statusSelector" style="margin-top: 12px; width: 100%; padding: 8px; border-radius: 8px; background: #111; color: #00ffe1; border: 1px solid #00ffe140; display: none;">
-        <option value="live">LIVE</option>
-        <option value="final">FINAL</option>
-        <option value="paid">PAID</option>
-      </select>
-      <button class="buy-btn">Buy a Square</button>
-    </div>
-    <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
-    <div class="info-panel">
-      Pick a square. If your number combo matches the final score, you win the pot. Simple as that.
-    </div>
-
-      </div> <!-- end container -->
-
-  <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="top-button" id="topBtn">↑ Top</button>
-
-  <div class="footer-nav">
-    <button onclick="window.location.href='vault.html'">All Games</button>
-    <button onclick="alert('Coming Soon')">My Squares</button>
-    <button onclick="alert('Admin Only')">Create Game</button>
-  </div>
-
-  <!-- Firebase App (the core Firebase SDK) -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
@@ -189,33 +21,180 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
-    const badge = document.getElementById("statusBadge");
-    const selector = document.getElementById("statusSelector");
-    const docRef = doc(db, "games", "stanley-cup-g1");
+    const ADMIN_WALLET = "0x348c2f06c64b4465f90446fd806aff3a01220450";
+    const gameRef = doc(db, "games", "stanley-cup-g1");
 
-    // Show selector only for admin
-    if (window.ethereum && typeof window.ethereum.request === "function") {
-      window.ethereum.request({ method: 'eth_requestAccounts' }).then(([addr]) => {
-        if (addr.toLowerCase() === ADMIN_WALLET) selector.style.display = "block";
-      });
-    }
+    document.addEventListener("DOMContentLoaded", async () => {
+      const badge = document.getElementById("statusBadge");
+      const selector = document.getElementById("statusSelector");
 
-    // Update Firebase on change
-    selector.addEventListener("change", async () => {
-      const val = selector.value;
-      await setDoc(docRef, { status: val }, { merge: true });
-    });
-
-    // Listen live to Firebase
-    onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        const status = docSnap.data().status || "live";
-        badge.textContent = status.toUpperCase();
-        badge.className = "status-badge status-" + status;
+      if (window.ethereum && window.ethereum.request) {
+        const [wallet] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+          selector.style.display = "block";
+        }
       }
+
+      selector.addEventListener("change", async () => {
+        const val = selector.value;
+        await setDoc(gameRef, { status: val }, { merge: true });
+      });
+
+      onSnapshot(gameRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const status = docSnap.data().status || "live";
+          badge.textContent = status.toUpperCase();
+          badge.className = "status-badge status-" + status;
+          selector.value = status;
+        }
+      });
     });
   </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+    body {
+      background-color: #000; color: #fff; overflow-x: hidden;
+      padding: env(safe-area-inset); scroll-behavior: smooth;
+    }
+
+    .cyber-grid {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-image: linear-gradient(rgba(99,102,241,0.1) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(99,102,241,0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      transform: perspective(500px) rotateX(60deg);
+      animation: gridMove 20s linear infinite;
+      z-index: 0; opacity: 0.2;
+    }
+
+    @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 20px; } }
+
+    .container {
+      position: relative; z-index: 1;
+      max-width: 430px; margin: auto; padding: 16px; padding-bottom: 80px;
+    }
+
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #00ffe1;
+      font-size: 13px;
+      padding: 8px 14px;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 6px rgba(0,255,225,0.1);
+      transition: 0.2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.08);
+      transform: scale(1.03);
+    }
+
+    .wallet-hud {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .wallet-hud span { color: #00ffe1; font-size: 14px; }
+
+    .glass-panel {
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .game-title { font-size: 20px; color: #fff; margin-bottom: 8px; text-align: center; }
+    .game-details { font-size: 14px; color: #aaa; margin-bottom: 16px; text-align: center; }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    .status-live  { background: #00ff0040; color: #00ff00; border: 1px solid #00ff0070; }
+    .status-final { background: #ff003340; color: #ff0033; border: 1px solid #ff003370; }
+    .status-paid  { background: #00d9ff40; color: #00d9ff; border: 1px solid #00d9ff70; }
+
+    select#statusSelector {
+      margin-top: 12px; width: 100%;
+      padding: 8px; border-radius: 8px;
+      background: #111; color: #00ffe1;
+      border: 1px solid #00ffe140;
+      font-size: 14px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+    <div class="cyber-grid"></div>
+
+  <div class="container">
+    <div class="header-bar">
+      <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
+      <div class="dropdown">
+        <button class="nav-btn">Menu</button>
+        <div class="dropdown-content">
+          <a href="#">Settings</a>
+          <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
+          <a href="#">Log Out</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="wallet-hud">
+      <span id="wallet">0x348c...0450</span>
+      <span id="balance">8,732,109 Y2K</span>
+    </div>
+
+    <div class="glass-panel">
+      <div class="game-title">Stanley Cup Finals – Game 1</div>
+      <div class="game-details" id="potDisplay">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+      <div id="statusBadge" class="status-badge status-live">LIVE</div>
+
+      <select id="statusSelector">
+        <option value="live">LIVE</option>
+        <option value="final">FINAL</option>
+        <option value="paid">PAID</option>
+      </select>
+
+      <button class="buy-btn" id="buyBtn">Buy a Square</button>
+    </div>
+
+    <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
+
+    <div class="info-panel">
+      Pick a square. If your number combo matches the final score, you win the pot. Simple as that.
+    </div>
+  </div>
+
+  <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="top-button" id="topBtn">↑ Top</button>
+
+  <div class="footer-nav">
+    <button onclick="window.location.href='vault.html'">All Games</button>
+    <button onclick="alert('Coming Soon')">My Squares</button>
+    <button onclick="alert('Admin Only')">Create Game</button>
+  </div>
 
   <script>
     const topBtn = document.getElementById("topBtn");
@@ -236,7 +215,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-      const buyBtn = document.querySelector(".buy-btn");
+      const buyBtn = document.getElementById("buyBtn");
       if (buyBtn) {
         buyBtn.addEventListener("click", () => {
           flickerButton(buyBtn);
@@ -245,5 +224,20 @@
       }
     });
   </script>
+
+  <style>
+    .pot-animated { animation: potPulse 1s ease-in-out; }
+    @keyframes potPulse {
+      0% { transform: scale(1); color: #fff; }
+      50% { transform: scale(1.1); color: #00ffe1; }
+      100% { transform: scale(1); color: #fff; }
+    }
+
+    .glitch-flicker { animation: flicker 0.2s linear 1; }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.02); }
+    }
+  </style>
 </body>
 </html>
