@@ -267,6 +267,7 @@
   const cronosRpc = "https://evm.cronos.org";
 
   async function fetchY2KBalance(wallet) {
+    const userDocRef = doc(db, "users", wallet.toLowerCase());
     const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
     const abi = ["function balanceOf(address) view returns (uint256)"];
     const token = new ethers.Contract(contractAddress, abi, provider);
@@ -295,13 +296,13 @@
     connectBtn.onclick = () => location.reload();
 
     // Load nickname from Firestore
-const snap = await getDoc(userDocRef);
+const userDocRef = doc(db, "users", wallet.toLowerCase());
 if (snap.exists()) {
   nicknameInput.value = snap.data().nickname || "";
 }
 
 // Save nickname on blur
-nicknameInput.addEventListener("blur", async () => {
+nicknameInput.addEventListener("change", async () => {
   const nickname = nicknameInput.value.trim();
   if (nickname.length > 0) {
     try {
