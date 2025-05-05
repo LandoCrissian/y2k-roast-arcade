@@ -361,7 +361,8 @@
     const data = await response.json();
 
     if (!data || !data.balanceFormatted) {
-      document.getElementById("balance").textContent = `4,200 Y2K`;
+  document.getElementById("balance").textContent = `0 Y2K`;
+}
     } else {
       document.getElementById("balance").textContent = `${data.balanceFormatted} Y2K`;
     }
@@ -424,15 +425,18 @@ if (snap.exists()) {
   }
 });
 
-    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
-      try {
-        [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        document.getElementById("connectWalletBtn").style.display = "none";
-        fetchY2KBalance(connected);
-      } catch (e) {
-        console.error("Wallet connect failed", e);
-      }
-    });
+    const connectBtn = document.getElementById("connectWalletBtn");
+if (connectBtn) {
+  connectBtn.addEventListener("click", async () => {
+    try {
+      [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      connectBtn.remove();
+      fetchY2KBalance(connected);
+    } catch (e) {
+      console.error("Wallet connect failed", e);
+    }
+  });
+}
 
     onSnapshot(doc(db, "games", gameId), (docSnap) => {
       if (docSnap.exists()) {
