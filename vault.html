@@ -376,6 +376,16 @@ onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
     nicknameInput.value = docSnap.data().nickname || "";
   }
 });
+
+    document.getElementById("connectWalletBtn").addEventListener("click", async () => {
+  try {
+    [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+    fetchY2KBalance(connected);
+  } catch (e) {
+    console.error("Wallet connect failed", e);
+  }
+});
     
   </script>
 </body>
