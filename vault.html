@@ -304,5 +304,32 @@
     }
   });
 </script> 
+
+  <script>
+  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const badge = document.getElementById("statusBadge");
+    const selector = document.getElementById("statusSelector");
+
+    if (window.ethereum && typeof window.ethereum.request === "function") {
+      try {
+        const [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        if (connected.toLowerCase() === ADMIN_WALLET) {
+          selector.style.display = "block";
+        }
+      } catch (e) {
+        console.warn("Wallet check failed:", e);
+      }
+    }
+
+    selector.addEventListener("change", () => {
+      const val = selector.value;
+      badge.textContent = val.toUpperCase();
+      badge.className = "status-badge status-" + val;
+    });
+  });
+</script>
+  
 </body>
 </html>
