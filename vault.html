@@ -384,6 +384,10 @@
     document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
     const connectBtn = document.getElementById("connectWalletBtn");
     if (connectBtn) connectBtn.remove();
+    const snap = await getDoc(doc(db, "users", connected.toLowerCase()));
+if (snap.exists()) {
+  document.getElementById("nicknameInput").value = snap.data().nickname || "";
+}
     fetchY2KBalance(connected);
 
     if (connected.toLowerCase() === ADMIN_WALLET) {
