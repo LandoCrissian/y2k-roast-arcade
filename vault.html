@@ -302,10 +302,17 @@
     }
 
     // Save nickname on input
-    nicknameInput.addEventListener("input", async () => {
-      const nickname = nicknameInput.value.trim();
+    nicknameInput.addEventListener("blur", async () => {
+  const nickname = nicknameInput.value.trim();
+  if (nickname.length > 0) {
+    try {
       await setDoc(userDocRef, { nickname }, { merge: true });
-    });
+      console.log("Nickname saved:", nickname);
+    } catch (err) {
+      console.error("Error saving nickname:", err);
+    }
+  }
+});
 
     // Real-time nickname update
     onSnapshot(userDocRef, (docSnap) => {
