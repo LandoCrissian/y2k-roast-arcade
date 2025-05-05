@@ -287,6 +287,17 @@
     setTimeout(() => btn.classList.remove("glitch-flicker"), 300);
   }
 
+   function pulsePot() {
+  const pot = document.querySelector(".game-details");
+  pot.classList.add("pot-animated");
+  setTimeout(() => pot.classList.remove("pot-animated"), 1000);
+}
+
+  function flickerButton(btn) {
+  btn.classList.add("glitch-flicker");
+  setTimeout(() => btn.classList.remove("glitch-flicker"), 300);
+} 
+
   document.addEventListener("DOMContentLoaded", () => {
     const buyBtn = document.querySelector(".buy-btn");
     if (buyBtn) {
