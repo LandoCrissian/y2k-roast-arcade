@@ -356,40 +356,41 @@
   }
 
   async function fetchY2KBalance(wallet) {
-    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const cronosRpc = "https://evm.cronos.org";
-    const balanceOfSelector = "0x70a08231"; // ERC20 balanceOf(address)
-    const addressParam = wallet.replace("0x", "").padStart(64, "0");
-    const callData = balanceOfSelector + addressParam;
+  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+  const rpcUrl = "https://corsproxy.io/?https://evm.cronos.org";
+  const balanceOfSelector = "0x70a08231"; // balanceOf(address)
 
-    try {
-      const response = await fetch(cronosRpc, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "eth_call",
-          params: [
-            {
-              to: contractAddress,
-              data: callData,
-            },
-            "latest",
-          ],
-        }),
-      });
+  const addressParam = wallet.replace("0x", "").padStart(64, "0");
+  const callData = balanceOfSelector + addressParam;
 
-      const result = await response.json();
-      const rawHex = result.result;
+  try {
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "eth_call",
+        params: [
+          {
+            to: contractAddress,
+            data: callData,
+          },
+          "latest",
+        ],
+      }),
+    });
 
-      const balance = BigInt(rawHex) / BigInt(1e18);
-      document.getElementById("balance").textContent = `${balance.toString()} Y2K`;
-    } catch (err) {
-      console.warn("Failed to fetch Y2K balance", err);
-      document.getElementById("balance").textContent = `0 Y2K`;
-    }
+    const result = await response.json();
+    const rawHex = result.result;
+    const balance = parseInt(rawHex, 16) / 1e18;
+
+    document.getElementById("balance").textContent = `${balance.toFixed(2)} Y2K`;
+  } catch (err) {
+    console.warn("Failed to fetch Y2K balance", err);
+    document.getElementById("balance").textContent = `0 Y2K`;
   }
+}
 
   let connected = "";
 
