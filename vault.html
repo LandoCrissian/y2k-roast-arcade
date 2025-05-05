@@ -297,6 +297,7 @@
 
     // Load nickname from Firestore
 const userDocRef = doc(db, "users", wallet.toLowerCase());
+const snap = await getDoc(userDocRef);
 if (snap.exists()) {
   nicknameInput.value = snap.data().nickname || "";
 }
