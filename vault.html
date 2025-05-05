@@ -247,6 +247,7 @@
     <div class="glass-panel">
       <div class="game-title">Stanley Cup Finals – Game 1</div>
       <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+      <div class="status-badge status-live">LIVE</div>
       <button class="buy-btn">Buy a Square</button>
     </div>
 
@@ -272,5 +273,29 @@
       topBtn.style.display = window.scrollY > 200 ? "block" : "none";
     });
   </script>
+
+ <script>
+  function pulsePot() {
+    const pot = document.querySelector(".game-details");
+    if (!pot) return;
+    pot.classList.add("pot-animated");
+    setTimeout(() => pot.classList.remove("pot-animated"), 1000);
+  }
+
+  function flickerButton(btn) {
+    btn.classList.add("glitch-flicker");
+    setTimeout(() => btn.classList.remove("glitch-flicker"), 300);
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const buyBtn = document.querySelector(".buy-btn");
+    if (buyBtn) {
+      buyBtn.addEventListener("click", () => {
+        flickerButton(buyBtn);
+        pulsePot();
+      });
+    }
+  });
+</script> 
 </body>
 </html>
