@@ -247,7 +247,14 @@
     <div class="glass-panel">
       <div class="game-title">Stanley Cup Finals – Game 1</div>
       <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
-      <div class="status-badge status-live">LIVE</div>
+      <div id="statusBadge" class="status-badge status-live">LIVE</div>
+
+<!-- Admin-only status selector -->
+<select id="statusSelector" style="margin-top: 12px; width: 100%; padding: 8px; border-radius: 8px; background: #111; color: #00ffe1; border: 1px solid #00ffe140; display: none;">
+  <option value="live">LIVE</option>
+  <option value="final">FINAL</option>
+  <option value="paid">PAID</option>
+</select>
       <button class="buy-btn">Buy a Square</button>
     </div>
 
