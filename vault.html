@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <title>Y2K Quantum Vault - Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body {
@@ -122,7 +123,7 @@
       word-break: break-all;
     }
 
-    .glass-panel {
+        .glass-panel {
       background: rgba(255,255,255,0.03);
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.08);
@@ -160,81 +161,7 @@
       transition: 0.2s ease;
     }
 
-    .buy-btn:hover {
-      transform: scale(1.03);
-    }
-
-    .placeholder-grid {
-      margin-top: 24px;
-      height: 180px;
-      border-radius: 12px;
-      background: repeating-linear-gradient(
-        45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
-        rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
-      );
-      border: 1px dashed rgba(255,255,255,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.3);
-      font-size: 14px;
-    }
-
-    .info-panel {
-      font-size: 13px;
-      color: #ccc;
-      text-align: center;
-      margin-top: 24px;
-      padding: 16px;
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-    }
-
-    .footer-nav {
-      position: fixed;
-      bottom: 0; left: 0;
-      width: 100%;
-      background: rgba(0,0,0,0.6);
-      border-top: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(16px);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      z-index: 10;
-    }
-
-    .footer-nav button {
-      background: none;
-      border: none;
-      color: #00ffe1;
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .footer-nav button:hover {
-      color: #22d3ee;
-    }
-
-    .top-button {
-      position: fixed;
-      right: 1rem;
-      bottom: 5rem;
-      background: #00ffe1;
-      color: #000;
-      border: none;
-      padding: 10px 14px;
-      border-radius: 30px;
-      font-size: 12px;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0,255,225,0.4);
-      cursor: pointer;
-      display: none;
-      z-index: 10;
-    }
+    .buy-btn:hover { transform: scale(1.03); }
 
     .status-badge {
       display: inline-block;
@@ -253,7 +180,7 @@
     .status-final { background: #ef444420; color: #ef4444; border-color: #ef444460; }
     .status-paid  { background: #a855f720; color: #a855f7; border-color: #a855f760; }
 
-    select#statusSelector {
+    #statusSelector {
       margin-top: 12px;
       width: 100%;
       padding: 8px;
@@ -264,72 +191,44 @@
       display: none;
       font-size: 13px;
     }
-
-    .pot-animated { animation: potPulse 1s ease-in-out; }
-    @keyframes potPulse {
-      0% { transform: scale(1); color: #fff; }
-      50% { transform: scale(1.1); color: #00ffe1; }
-      100% { transform: scale(1); color: #fff; }
-    }
-
-    .glitch-flicker { animation: flicker 0.2s linear 1; }
-    @keyframes flicker {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.02); }
-    }
   </style>
 </head>
-
-  <body>
-  <div class="cyber-grid"></div>
-  <div class="container">
-    <div class="header-bar">
-      <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
-      <div class="dropdown">
-        <button class="nav-btn">Menu</button>
-        <div class="dropdown-content">
-          <a href="#">Settings</a>
-          <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
-          <a href="#">Log Out</a>
-        </div>
+<body>
+<div class="cyber-grid"></div>
+<div class="container">
+  <div class="header-bar">
+    <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
+    <div class="dropdown">
+      <button class="nav-btn">Menu</button>
+      <div class="dropdown-content">
+        <a href="#">Settings</a>
+        <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
+        <a href="#">Log Out</a>
       </div>
     </div>
-
-    <div class="wallet-hud">
-      <span id="wallet">0x...</span>
-      <span id="balance">0 Y2K</span>
-      <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
-      <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
-    </div>
-
-    <div class="glass-panel">
-      <div class="game-title">Stanley Cup Finals – Game 1</div>
-      <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
-      <div id="statusBadge" class="status-badge status-live">LIVE</div>
-      <select id="statusSelector">
-        <option value="live">LIVE</option>
-        <option value="final">FINAL</option>
-        <option value="paid">PAID</option>
-      </select>
-      <button class="buy-btn">Buy a Square</button>
-    </div>
-
-    <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
-
-    <div class="info-panel">
-      Pick a square. If your number combo matches the final score, you win the pot. Simple as that.
-    </div>
   </div>
 
-  <button onclick="window.scrollTo({ top: 0, behavior: 'smooth' })" class="top-button" id="topBtn">↑ Top</button>
-
-  <div class="footer-nav">
-    <button onclick="window.location.href='vault.html'">All Games</button>
-    <button onclick="alert('Coming Soon')">My Squares</button>
-    <button onclick="alert('Admin Only')">Create Game</button>
+  <div class="wallet-hud">
+    <span id="wallet">0x...</span>
+    <span id="balance">0 Y2K</span>
+    <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
+    <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
   </div>
 
-      <script type="module">
+  <div class="glass-panel">
+    <div class="game-title">Stanley Cup Finals – Game 1</div>
+    <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+    <div id="statusBadge" class="status-badge status-live">LIVE</div>
+    <select id="statusSelector">
+      <option value="live">LIVE</option>
+      <option value="final">FINAL</option>
+      <option value="paid">PAID</option>
+    </select>
+    <button class="buy-btn">Buy a Square</button>
+  </div>
+</div>
+
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
@@ -345,123 +244,76 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
-  const gameId = "stanley_game1";
-  const badge = document.getElementById("statusBadge");
-  const selector = document.getElementById("statusSelector");
-
-  async function updateBadge(status) {
-    badge.textContent = status.toUpperCase();
-    badge.className = "status-badge status-" + status;
-  }
+  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
+  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+  const cronosRpc = "https://evm.cronos.org";
 
   async function fetchY2KBalance(wallet) {
-  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-  const rpcUrl = "https://corsproxy.io/?https://evm.cronos.org";
-  const balanceOfSelector = "0x70a08231"; // balanceOf(address)
+    const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
+    const abi = ["function balanceOf(address) view returns (uint256)"];
+    const token = new ethers.Contract(contractAddress, abi, provider);
+    try {
+      const balance = await token.balanceOf(wallet);
+      const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
+      document.getElementById("balance").textContent = `${y2k} Y2K`;
+    } catch (e) {
+      console.warn("Y2K fetch error:", e);
+    }
+  }
 
-  const addressParam = wallet.replace("0x", "").padStart(64, "0");
-  const callData = balanceOfSelector + addressParam;
+  async function init() {
+    const badge = document.getElementById("statusBadge");
+    const selector = document.getElementById("statusSelector");
 
-  try {
-    const response = await fetch(rpcUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "eth_call",
-        params: [
-          {
-            to: contractAddress,
-            data: callData,
-          },
-          "latest",
-        ],
-      }),
+    function updateBadge(status) {
+      badge.textContent = status.toUpperCase();
+      badge.className = "status-badge status-" + status;
+    }
+
+    const gameId = "stanley_game1";
+    const walletSpan = document.getElementById("wallet");
+    const connectBtn = document.getElementById("connectWalletBtn");
+    const nicknameInput = document.getElementById("nicknameInput");
+
+    let accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    let wallet = accounts[0];
+    walletSpan.textContent = wallet.slice(0,6) + "..." + wallet.slice(-4);
+    fetchY2KBalance(wallet);
+
+    const snap = await getDoc(doc(db, "users", wallet.toLowerCase()));
+    if (snap.exists()) {
+      nicknameInput.value = snap.data().nickname || "";
+    }
+
+    nicknameInput.addEventListener("blur", async () => {
+      await setDoc(doc(db, "users", wallet.toLowerCase()), { nickname: nicknameInput.value.trim() }, { merge: true });
     });
 
-    const result = await response.json();
-    const rawHex = result.result;
-    const balance = parseInt(rawHex, 16) / 1e18;
+    onSnapshot(doc(db, "users", wallet.toLowerCase()), (docSnap) => {
+      if (docSnap.exists()) {
+        nicknameInput.value = docSnap.data().nickname || "";
+      }
+    });
 
-    document.getElementById("balance").textContent = `${balance.toFixed(2)} Y2K`;
-  } catch (err) {
-    console.warn("Failed to fetch Y2K balance", err);
-    document.getElementById("balance").textContent = `0 Y2K`;
+    if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+      selector.style.display = "block";
+      selector.addEventListener("change", async () => {
+        await setDoc(doc(db, "games", gameId), { status: selector.value });
+      });
+    }
+
+    onSnapshot(doc(db, "games", gameId), (docSnap) => {
+      if (docSnap.exists()) {
+        const status = docSnap.data().status;
+        updateBadge(status);
+        selector.value = status;
+      }
+    });
+
+    if (connectBtn) connectBtn.remove();
   }
-}
 
-  let connected = "";
-
-  window.addEventListener("DOMContentLoaded", async () => {
-    try {
-      if (window.ethereum && window.ethereum.selectedAddress) {
-        connected = window.ethereum.selectedAddress;
-      } else {
-        [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      }
-
-      document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
-      const connectBtn = document.getElementById("connectWalletBtn");
-      if (connectBtn) connectBtn.remove();
-
-      const snap = await getDoc(doc(db, "users", connected.toLowerCase()));
-      if (snap.exists()) {
-        document.getElementById("nicknameInput").value = snap.data().nickname || "";
-      }
-
-      fetchY2KBalance(connected);
-
-      if (connected.toLowerCase() === ADMIN_WALLET) {
-        selector.style.display = "block";
-      }
-
-      const buyBtn = document.querySelector(".buy-btn");
-      if (buyBtn) {
-        buyBtn.addEventListener("click", () => {
-          buyBtn.classList.add("glitch-flicker");
-          setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
-          document.querySelector(".game-details").classList.add("pot-animated");
-          setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
-        });
-      }
-
-      const nicknameInput = document.getElementById("nicknameInput");
-      nicknameInput.addEventListener("blur", async () => {
-        const nickname = nicknameInput.value.trim();
-        if (!nickname) return;
-        await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
-      });
-
-      onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
-        if (docSnap.exists()) {
-          nicknameInput.value = docSnap.data().nickname || "";
-        }
-      });
-
-    } catch (err) {
-      console.error("Wallet connection failed", err);
-    }
-  });
-
-  onSnapshot(doc(db, "games", gameId), (docSnap) => {
-    if (docSnap.exists()) {
-      const status = docSnap.data().status;
-      updateBadge(status);
-      selector.value = status;
-    }
-  });
-
-  selector.addEventListener("change", async () => {
-    const newStatus = selector.value;
-    await setDoc(doc(db, "games", gameId), { status: newStatus });
-  });
-
-  const topBtn = document.getElementById("topBtn");
-  window.addEventListener("scroll", () => {
-    topBtn.style.display = window.scrollY > 200 ? "block" : "none";
-  });
+  window.addEventListener("DOMContentLoaded", init);
 </script>
 </body>
 </html>
