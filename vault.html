@@ -330,138 +330,137 @@
   </div>
 
       <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-      authDomain: "y2k-arcade.firebaseapp.com",
-      projectId: "y2k-arcade",
-      storageBucket: "y2k-arcade.appspot.com",
-      messagingSenderId: "1063043176357",
-      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+    authDomain: "y2k-arcade.firebaseapp.com",
+    projectId: "y2k-arcade",
+    storageBucket: "y2k-arcade.appspot.com",
+    messagingSenderId: "1063043176357",
+    appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
-    const gameId = "stanley_game1";
-    const badge = document.getElementById("statusBadge");
-    const selector = document.getElementById("statusSelector");
+  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450".toLowerCase();
+  const gameId = "stanley_game1";
+  const badge = document.getElementById("statusBadge");
+  const selector = document.getElementById("statusSelector");
 
-    async function updateBadge(status) {
-      badge.textContent = status.toUpperCase();
-      badge.className = "status-badge status-" + status;
-    }
-
-    async function fetchY2KBalance(wallet) {
-  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-  const cronosRpc = "https://evm.cronos.org";
-  const balanceOfSelector = "0x70a08231"; // ERC20 balanceOf(address)
-
-  const addressParam = wallet.replace("0x", "").padStart(64, "0");
-  const callData = balanceOfSelector + addressParam;
-
-  try {
-    const response = await fetch(cronosRpc, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        jsonrpc: "2.0",
-        id: 1,
-        method: "eth_call",
-        params: [
-          {
-            to: contractAddress,
-            data: callData,
-          },
-          "latest",
-        ],
-      }),
-    });
-
-    const result = await response.json();
-    const rawHex = result.result;
-    const balance = parseInt(rawHex, 16) / 1e18;
-
-    document.getElementById("balance").textContent = `${balance.toFixed(2)} Y2K`;
-  } catch (err) {
-    console.warn("Failed to fetch Y2K balance", err);
-    document.getElementById("balance").textContent = `0 Y2K`;
+  async function updateBadge(status) {
+    badge.textContent = status.toUpperCase();
+    badge.className = "status-badge status-" + status;
   }
-}
 
-    let connected = "";
+  async function fetchY2KBalance(wallet) {
+    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+    const cronosRpc = "https://evm.cronos.org";
+    const balanceOfSelector = "0x70a08231"; // ERC20 balanceOf(address)
+    const addressParam = wallet.replace("0x", "").padStart(64, "0");
+    const callData = balanceOfSelector + addressParam;
 
-    window.addEventListener("DOMContentLoaded", async () => {
-  try {
-    if (window.ethereum && window.ethereum.selectedAddress) {
-      connected = window.ethereum.selectedAddress;
-    } else {
-      [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    }
-
-    document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
-    const connectBtn = document.getElementById("connectWalletBtn");
-    if (connectBtn) connectBtn.remove();
-    const snap = await getDoc(doc(db, "users", connected.toLowerCase()));
-if (snap.exists()) {
-  document.getElementById("nicknameInput").value = snap.data().nickname || "";
-}
-    fetchY2KBalance(connected);
-
-    if (connected.toLowerCase() === ADMIN_WALLET) {
-      selector.style.display = "block";
-    }
-
-    // Buy button animation
-    const buyBtn = document.querySelector(".buy-btn");
-    if (buyBtn) {
-      buyBtn.addEventListener("click", () => {
-        buyBtn.classList.add("glitch-flicker");
-        setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
-        document.querySelector(".game-details").classList.add("pot-animated");
-        setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
+    try {
+      const response = await fetch(cronosRpc, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          jsonrpc: "2.0",
+          id: 1,
+          method: "eth_call",
+          params: [
+            {
+              to: contractAddress,
+              data: callData,
+            },
+            "latest",
+          ],
+        }),
       });
+
+      const result = await response.json();
+      const rawHex = result.result;
+
+      const balance = BigInt(rawHex) / BigInt(1e18);
+      document.getElementById("balance").textContent = `${balance.toString()} Y2K`;
+    } catch (err) {
+      console.warn("Failed to fetch Y2K balance", err);
+      document.getElementById("balance").textContent = `0 Y2K`;
     }
-
-    // Nickname syncing
-    const nicknameInput = document.getElementById("nicknameInput");
-    nicknameInput.addEventListener("blur", async () => {
-      const nickname = nicknameInput.value.trim();
-      if (!nickname) return;
-      await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
-    });
-
-    onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
-      if (docSnap.exists()) {
-        nicknameInput.value = docSnap.data().nickname || "";
-      }
-    });
-
-  } catch (err) {
-    console.error("Wallet connection failed", err);
   }
-});
 
-    onSnapshot(doc(db, "games", gameId), (docSnap) => {
-      if (docSnap.exists()) {
-        const status = docSnap.data().status;
-        updateBadge(status);
-        selector.value = status;
+  let connected = "";
+
+  window.addEventListener("DOMContentLoaded", async () => {
+    try {
+      if (window.ethereum && window.ethereum.selectedAddress) {
+        connected = window.ethereum.selectedAddress;
+      } else {
+        [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
       }
-    });
 
-    selector.addEventListener("change", async () => {
-      const newStatus = selector.value;
-      await setDoc(doc(db, "games", gameId), { status: newStatus });
-    });
+      document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+      const connectBtn = document.getElementById("connectWalletBtn");
+      if (connectBtn) connectBtn.remove();
 
-    const topBtn = document.getElementById("topBtn");
-    window.addEventListener("scroll", () => {
-      topBtn.style.display = window.scrollY > 200 ? "block" : "none";
-    });
-  </script>
+      const snap = await getDoc(doc(db, "users", connected.toLowerCase()));
+      if (snap.exists()) {
+        document.getElementById("nicknameInput").value = snap.data().nickname || "";
+      }
+
+      fetchY2KBalance(connected);
+
+      if (connected.toLowerCase() === ADMIN_WALLET) {
+        selector.style.display = "block";
+      }
+
+      const buyBtn = document.querySelector(".buy-btn");
+      if (buyBtn) {
+        buyBtn.addEventListener("click", () => {
+          buyBtn.classList.add("glitch-flicker");
+          setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
+          document.querySelector(".game-details").classList.add("pot-animated");
+          setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
+        });
+      }
+
+      const nicknameInput = document.getElementById("nicknameInput");
+      nicknameInput.addEventListener("blur", async () => {
+        const nickname = nicknameInput.value.trim();
+        if (!nickname) return;
+        await setDoc(doc(db, "users", connected.toLowerCase()), { nickname }, { merge: true });
+      });
+
+      onSnapshot(doc(db, "users", connected.toLowerCase()), (docSnap) => {
+        if (docSnap.exists()) {
+          nicknameInput.value = docSnap.data().nickname || "";
+        }
+      });
+
+    } catch (err) {
+      console.error("Wallet connection failed", err);
+    }
+  });
+
+  onSnapshot(doc(db, "games", gameId), (docSnap) => {
+    if (docSnap.exists()) {
+      const status = docSnap.data().status;
+      updateBadge(status);
+      selector.value = status;
+    }
+  });
+
+  selector.addEventListener("change", async () => {
+    const newStatus = selector.value;
+    await setDoc(doc(db, "games", gameId), { status: newStatus });
+  });
+
+  const topBtn = document.getElementById("topBtn");
+  window.addEventListener("scroll", () => {
+    topBtn.style.display = window.scrollY > 200 ? "block" : "none";
+  });
+</script>
 </body>
 </html>
