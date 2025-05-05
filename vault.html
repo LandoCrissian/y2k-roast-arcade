@@ -340,26 +340,32 @@
     });
 
     let connected = "";
-    window.addEventListener("DOMContentLoaded", async () => {
-      [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+window.addEventListener("DOMContentLoaded", async () => {
+  if (window.ethereum && window.ethereum.selectedAddress) {
+    connected = window.ethereum.selectedAddress;
+    document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+    fetchY2KBalance(connected);
+    document.getElementById("connectWalletBtn").style.display = "none";
+  } else {
+    [connected] = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
+    fetchY2KBalance(connected);
+  }
 
-      document.getElementById("wallet").textContent = connected.slice(0, 6) + "..." + connected.slice(-4);
-      
-      if (connected.toLowerCase() === ADMIN_WALLET) {
-        selector.style.display = "block";
-      }
-      fetchY2KBalance(connected);
+  if (connected.toLowerCase() === ADMIN_WALLET) {
+    selector.style.display = "block";
+  }
 
-      const buyBtn = document.querySelector(".buy-btn");
-      if (buyBtn) {
-        buyBtn.addEventListener("click", () => {
-          buyBtn.classList.add("glitch-flicker");
-          setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
-          document.querySelector(".game-details").classList.add("pot-animated");
-          setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
-        });
-      }
+  const buyBtn = document.querySelector(".buy-btn");
+  if (buyBtn) {
+    buyBtn.addEventListener("click", () => {
+      buyBtn.classList.add("glitch-flicker");
+      setTimeout(() => buyBtn.classList.remove("glitch-flicker"), 300);
+      document.querySelector(".game-details").classList.add("pot-animated");
+      setTimeout(() => document.querySelector(".game-details").classList.remove("pot-animated"), 1000);
     });
+  }
+});
 
     const topBtn = document.getElementById("topBtn");
     window.addEventListener("scroll", () => {
