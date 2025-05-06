@@ -121,14 +121,14 @@
       color: #00ffe1;
       font-size: 14px;
       word-break: break-word;
+      cursor: pointer;
     }
 
     .wallet-hud span:hover {
       text-decoration: underline;
-      cursor: pointer;
     }
 
-    .modal-overlay {
+        .modal-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -194,63 +194,147 @@
       font-size: 12px;
       cursor: pointer;
     }
+
+    .glass-panel {
+      background: rgba(255,255,255,0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(18px);
+      padding: 24px;
+      margin-top: 16px;
+    }
+
+    .game-title {
+      font-size: 20px;
+      color: #fff;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .game-details {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .buy-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(99,102,241,0.3);
+      transition: 0.2s ease;
+    }
+
+    .buy-btn:hover { transform: scale(1.03); }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-top: 8px;
+      background: #22d3ee20;
+      color: #22d3ee;
+      border: 1px solid #22d3ee40;
+      text-align: center;
+    }
+
+    .status-live  { background: #34d39920; color: #34d399; border-color: #34d39960; }
+    .status-final { background: #ef444420; color: #ef4444; border-color: #ef444460; }
+    .status-paid  { background: #a855f720; color: #a855f7; border-color: #a855f760; }
+
+    #statusSelector {
+      margin-top: 12px;
+      width: 100%;
+      padding: 8px;
+      border-radius: 8px;
+      background: #111;
+      color: #00ffe1;
+      border: 1px solid #00ffe140;
+      display: none;
+      font-size: 13px;
+    }
+
+    .placeholder-grid {
+      margin-top: 24px;
+      height: 180px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
+        rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
+      );
+      border: 1px dashed rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 14px;
+    }
   </style>
 </head>
-
-  <body>
-<div class="cyber-grid"></div>
-<div class="container">
-  <div class="header-bar">
-    <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
-    <div class="dropdown">
-      <button class="nav-btn">Menu</button>
-      <div class="dropdown-content">
-        <a href="#">Settings</a>
-        <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
-        <a href="#">Log Out</a>
+<body>
+  <div class="cyber-grid"></div>
+  <div class="container">
+    <div class="header-bar">
+      <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
+      <div class="dropdown">
+        <button class="nav-btn">Menu</button>
+        <div class="dropdown-content">
+          <a href="#">Settings</a>
+          <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
+          <a href="#">Log Out</a>
+        </div>
       </div>
+    </div>
+
+    <div class="wallet-hud">
+      <span id="wallet" onclick="openProfileModal()">0x...</span>
+      <span id="balance">0 Y2K</span>
+      <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
+      <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
+    </div>
+
+    <div class="glass-panel">
+      <div class="game-title">NBA Finals – Game 1</div>
+      <div class="game-details">Buy-in: 200,000 Y2K<br>Pot Total: 4,000,000 Y2K</div>
+      <div id="statusBadge" class="status-badge status-live">LIVE</div>
+      <select id="statusSelector">
+        <option value="live">LIVE</option>
+        <option value="final">FINAL</option>
+        <option value="paid">PAID</option>
+      </select>
+      <button class="buy-btn">Buy a Square</button>
+    </div>
+
+    <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal-overlay">
+    <div class="modal-content">
+      <img id="profileImage" src="" alt="PFP" />
+      <h2>Player Profile</h2>
+      <p id="profileName">@nickname</p>
+      <p id="profileWallet">Wallet: 0x1234...abcd</p>
+      <p id="gamesPlayed">Games Played: 0</p>
+      <p id="squaresBought">Squares Bought: 0</p>
+      <p id="totalEarnings">Y2K Earnings: 0</p>
+      <button class="upload-btn" onclick="document.getElementById('pfpUpload').click()">Upload PFP</button>
+      <input id="pfpUpload" type="file" accept="image/*" style="display:none" />
+      <button class="close-btn">Close</button>
     </div>
   </div>
 
-  <div class="wallet-hud">
-    <span id="wallet" onclick="openProfileModal()">0x...</span>
-    <span id="balance">0 Y2K</span>
-    <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
-    <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
-  </div>
-
-  <div class="glass-panel">
-    <div class="game-title">NBA Finals – Game 1</div>
-    <div class="game-details">Buy-in: 200,000 Y2K<br>Pot Total: 4,000,000 Y2K</div>
-    <div id="statusBadge" class="status-badge status-live">LIVE</div>
-    <select id="statusSelector">
-      <option value="live">LIVE</option>
-      <option value="final">FINAL</option>
-      <option value="paid">PAID</option>
-    </select>
-    <button class="buy-btn">Buy a Square</button>
-  </div>
-
-  <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
-</div>
-
-<!-- Profile Modal -->
-<div id="profileModal" class="modal-overlay">
-  <div class="modal-content">
-    <img id="profileImage" src="" alt="PFP" />
-    <h2>Player Profile</h2>
-    <p id="profileName">@nickname</p>
-    <p id="profileWallet">Wallet: 0x1234...abcd</p>
-    <p id="gamesPlayed">Games Played: 0</p>
-    <p id="squaresBought">Squares Bought: 0</p>
-    <p id="totalEarnings">Y2K Earnings: 0</p>
-    <button class="upload-btn" onclick="document.getElementById('pfpUpload').click()">Upload PFP</button>
-    <input id="pfpUpload" type="file" accept="image/*" style="display:none" />
-    <button class="close-btn" onclick="closeProfileModal()">Close</button>
-  </div>
-</div>
-
-    <script type="module">
+  <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
   import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
@@ -335,7 +419,6 @@
       badge.textContent = status.toUpperCase();
       badge.className = "status-badge status-" + status;
     }
-
     onSnapshot(doc(db, "games", gameId), (docSnap) => {
       if (docSnap.exists()) {
         const status = docSnap.data().status;
@@ -372,20 +455,20 @@
     modal.style.display = "flex";
   }
 
-  function closeProfileModal() {
-    document.getElementById("profileModal").style.display = "none";
-  }
-
   async function uploadPFP(event) {
     const file = event.target.files[0];
     if (!file || !currentWallet) return;
 
-    const storageRef = ref(storage, `pfp/${currentWallet}`);
+    const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
     await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
 
     await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
     document.getElementById("profileImage").src = url;
+  }
+
+  function closeProfileModal() {
+    document.getElementById("profileModal").style.display = "none";
   }
 
   window.addEventListener("DOMContentLoaded", () => {
