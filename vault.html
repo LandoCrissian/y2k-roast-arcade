@@ -231,7 +231,7 @@
   </style>
 </head>
 <body>
-  <div class="cyber-grid"></div>
+    <div class="cyber-grid"></div>
   <div class="container">
     <div class="header-bar">
       <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
@@ -244,12 +244,14 @@
         </div>
       </div>
     </div>
+
     <div class="wallet-hud">
       <span id="wallet" onclick="openProfileModal()">0x...</span>
       <span id="balance">0 Y2K</span>
       <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
       <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
     </div>
+
     <div class="glass-panel">
       <div class="game-title">NBA Finals – Game 1</div>
       <div class="game-details">Buy-in: 200,000 Y2K<br>Pot Total: 4,000,000 Y2K</div>
@@ -261,6 +263,7 @@
       </select>
       <button class="buy-btn">Buy a Square</button>
     </div>
+
     <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
   </div>
 
@@ -277,145 +280,136 @@
       <label class="upload-btn" for="pfpUpload">Choose New PFP</label>
       <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
       <button id="confirmUploadBtn" class="upload-btn" style="display:none;">Confirm Upload</button>
-      <button class="close-btn" onclick="document.getElementById('profileModal').style.display='none'">Close</button>
+      <button class="close-btn">Close</button>
     </div>
   </div>
 
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-    authDomain: "y2k-arcade.firebaseapp.com",
-    projectId: "y2k-arcade",
-    storageBucket: "y2k-arcade.appspot.com",
-    messagingSenderId: "1063043176357",
-    appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-  };
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+      authDomain: "y2k-arcade.firebaseapp.com",
+      projectId: "y2k-arcade",
+      storageBucket: "y2k-arcade.appspot.com",
+      messagingSenderId: "1063043176357",
+      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
-  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-  const cronosRpc = "https://evm.cronos.org";
+    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
+    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+    const cronosRpc = "https://evm.cronos.org";
 
-  let currentWallet = "";
-  let selectedPFPFile = null;
+    let currentWallet = "";
+    let selectedPFPFile = null;
 
-  async function fetchY2KBalance(wallet) {
-    const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
-    const abi = ["function balanceOf(address) view returns (uint256)"];
-    const token = new ethers.Contract(contractAddress, abi, provider);
-    try {
-      const balance = await token.balanceOf(wallet);
-      const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-      document.getElementById("balance").textContent = `${y2k} Y2K`;
-    } catch (e) {
-      console.warn("Y2K fetch error:", e);
-    }
-  }
-
-  async function connectWallet() {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const wallet = accounts[0];
-    currentWallet = wallet.toLowerCase();
-
-    const walletSpan = document.getElementById("wallet");
-    const nicknameInput = document.getElementById("nicknameInput");
-    const connectBtn = document.getElementById("connectWalletBtn");
-    const gameId = "nba_game1";
-
-    walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
-    fetchY2KBalance(wallet);
-
-    connectBtn.textContent = "Disconnect";
-    connectBtn.onclick = () => location.reload();
-
-    const userDocRef = doc(db, "users", currentWallet);
-    const snap = await getDoc(userDocRef);
-    if (snap.exists()) {
-      nicknameInput.value = snap.data().nickname || "";
+    async function fetchY2KBalance(wallet) {
+      const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
+      const abi = ["function balanceOf(address) view returns (uint256)"];
+      const token = new ethers.Contract(contractAddress, abi, provider);
+      try {
+        const balance = await token.balanceOf(wallet);
+        const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
+        document.getElementById("balance").textContent = `${y2k} Y2K`;
+      } catch (e) {
+        console.warn("Y2K fetch error:", e);
+      }
     }
 
-    nicknameInput.addEventListener("change", async () => {
-      const nickname = nicknameInput.value.trim();
-      if (nickname.length > 0) {
-        await setDoc(userDocRef, { nickname }, { merge: true });
-      }
-    });
+    async function connectWallet() {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const wallet = accounts[0];
+      currentWallet = wallet.toLowerCase();
 
-    onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        nicknameInput.value = docSnap.data().nickname || "";
-      }
-    });
+      const walletSpan = document.getElementById("wallet");
+      const nicknameInput = document.getElementById("nicknameInput");
+      const connectBtn = document.getElementById("connectWalletBtn");
+      const gameId = "nba_game1";
 
-    const selector = document.getElementById("statusSelector");
-    if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-      selector.style.display = "block";
-      selector.addEventListener("change", async () => {
-        await setDoc(doc(db, "games", gameId), { status: selector.value });
+      walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
+      fetchY2KBalance(wallet);
+
+      connectBtn.textContent = "Disconnect";
+            connectBtn.onclick = () => location.reload();
+
+      const userDocRef = doc(db, "users", currentWallet);
+      const snap = await getDoc(userDocRef);
+      if (snap.exists()) {
+        nicknameInput.value = snap.data().nickname || "";
+      }
+
+      nicknameInput.addEventListener("change", async () => {
+        const nickname = nicknameInput.value.trim();
+        if (nickname.length > 0) {
+          await setDoc(userDocRef, { nickname }, { merge: true });
+        }
+      });
+
+      onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          nicknameInput.value = docSnap.data().nickname || "";
+        }
+      });
+
+      const selector = document.getElementById("statusSelector");
+      if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+        selector.style.display = "block";
+        selector.addEventListener("change", async () => {
+          await setDoc(doc(db, "games", gameId), { status: selector.value });
+        });
+      }
+
+      const badge = document.getElementById("statusBadge");
+      function updateBadge(status) {
+        badge.textContent = status.toUpperCase();
+        badge.className = "status-badge status-" + status;
+      }
+
+      onSnapshot(doc(db, "games", gameId), (docSnap) => {
+        if (docSnap.exists()) {
+          const status = docSnap.data().status;
+          updateBadge(status);
+          selector.value = status;
+        }
       });
     }
 
-    const badge = document.getElementById("statusBadge");
-    function updateBadge(status) {
-      badge.textContent = status.toUpperCase();
-      badge.className = "status-badge status-" + status;
-    }
+    async function openProfileModal() {
+      const modal = document.getElementById("profileModal");
+      const profileName = document.getElementById("profileName");
+      const profileWallet = document.getElementById("profileWallet");
+      const profileImage = document.getElementById("profileImage");
 
-    onSnapshot(doc(db, "games", gameId), (docSnap) => {
-      if (docSnap.exists()) {
-        const status = docSnap.data().status;
-        updateBadge(status);
-        selector.value = status;
+      const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+      profileWallet.textContent = "Wallet: " + shortWallet;
+
+      const docSnap = await getDoc(doc(db, "users", currentWallet));
+      profileName.textContent = docSnap.exists() && docSnap.data().nickname
+        ? "@" + docSnap.data().nickname
+        : "@unknown";
+
+      document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
+      document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
+      document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
+
+      if (docSnap.data()?.pfpUrl) {
+        profileImage.src = docSnap.data().pfpUrl;
+      } else {
+        profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
       }
-    });
-  }
 
-  async function openProfileModal() {
-    const modal = document.getElementById("profileModal");
-    const profileName = document.getElementById("profileName");
-    const profileWallet = document.getElementById("profileWallet");
-    const profileImage = document.getElementById("profileImage");
-
-    const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-    profileWallet.textContent = "Wallet: " + shortWallet;
-
-    const docSnap = await getDoc(doc(db, "users", currentWallet));
-    profileName.textContent = docSnap.exists() && docSnap.data().nickname
-      ? "@" + docSnap.data().nickname
-      : "@unknown";
-
-    document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
-    document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
-    document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
-
-    if (docSnap.data()?.pfpUrl) {
-      profileImage.src = docSnap.data().pfpUrl;
-    } else {
-      profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
+      modal.style.display = "flex";
     }
 
-    modal.style.display = "flex";
-  }
-</script>
-
-  <script type="module">
-  // Close profile modal
-  function closeProfileModal() {
-    document.getElementById("profileModal").style.display = "none";
-  }
-
-  // DOM event bindings
-  window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-    document.getElementById("wallet").addEventListener("click", openProfileModal);
-    document.querySelector(".close-btn")?.addEventListener("click", closeProfileModal);
+    function closeProfileModal() {
+      document.getElementById("profileModal").style.display = "none";
+    }
 
     document.getElementById("pfpUpload").addEventListener("change", (event) => {
       selectedPFPFile = event.target.files[0];
@@ -441,7 +435,12 @@
         console.error("Upload failed:", error);
       }
     });
-  });
-</script>
+
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+      document.getElementById("wallet").addEventListener("click", openProfileModal);
+      document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
+    });
+  </script>
 </body>
 </html>
