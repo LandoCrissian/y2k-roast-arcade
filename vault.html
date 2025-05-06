@@ -299,9 +299,9 @@
       <p id="gamesPlayed">Games Played: 0</p>
       <p id="squaresBought">Squares Bought: 0</p>
       <p id="totalEarnings">Y2K Earnings: 0</p>
-      <label class="upload-btn" for="pfpUpload">Upload PFP</label>
-      <input id="pfpUpload" type="file" accept="image/*" style="display:none" />
-      <button class="close-btn" onclick="closeProfileModal()">Close</button>
+      <label class="upload-btn" for="pfpUpload">Choose New PFP</label>
+      <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
+      <button id="confirmUploadBtn" class="upload-btn" style="display:none;">Confirm Upload</button>
     </div>
   </div>
 
@@ -442,41 +442,43 @@
     }
 
     // Upload Profile Picture Function using Firebase Storage
-    async function uploadPFP(event) {
-      const file = event.target.files[0];
-      console.log("Selected file:", file);
-      if (!file) {
-        console.warn("No file selected for upload.");
-        return;
-      }
-      if (!currentWallet) {
-        console.warn("No connected wallet found.");
-        return;
-      }
-      try {
-        const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
-        const snapshot = await uploadBytes(storageRef, file);
-        console.log("Upload snapshot:", snapshot);
-        const url = await getDownloadURL(storageRef);
-        console.log("Download URL:", url);
-        await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-        document.getElementById("profileImage").src = url;
-        console.log("PFP updated in UI.");
-      } catch (error) {
-        console.error("Upload error:", error);
-      }
-    }
-
-    function closeProfileModal() {
+      
+      function closeProfileModal() {
       document.getElementById("profileModal").style.display = "none";
     }
+
+    let selectedPFPFile = null;
+
+document.getElementById("pfpUpload").addEventListener("change", (event) => {
+  selectedPFPFile = event.target.files[0];
+  if (selectedPFPFile) {
+    document.getElementById("confirmUploadBtn").style.display = "inline-block";
+  }
+});
+
+document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
+  if (!selectedPFPFile || !currentWallet) return;
+
+  try {
+    const storageRef = ref(storage, `pfps/${currentWallet}`);
+    const snapshot = await uploadBytes(storageRef, selectedPFPFile);
+    const url = await getDownloadURL(storageRef);
+
+    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+    document.getElementById("profileImage").src = url;
+
+    selectedPFPFile = null;
+    document.getElementById("confirmUploadBtn").style.display = "none";
+  } catch (error) {
+    console.error("Upload failed:", error);
+  }
+});
 
     // Attach event listeners on DOM loaded
     window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
       document.getElementById("wallet").addEventListener("click", openProfileModal);
       document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
-      document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
     });
   </script>
 </body>
