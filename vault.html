@@ -319,20 +319,21 @@
   </div>
 
   <!-- Profile Modal -->
-  <div id="profileModal" class="modal-overlay">
-    <div class="modal-content">
-      <img id="profileImage" src="" alt="PFP" />
-      <h2>Player Profile</h2>
-      <p id="profileName">@nickname</p>
-      <p id="profileWallet">Wallet: 0x1234...abcd</p>
-      <p id="gamesPlayed">Games Played: 0</p>
-      <p id="squaresBought">Squares Bought: 0</p>
-      <p id="totalEarnings">Y2K Earnings: 0</p>
-      <label class="upload-btn" for="pfpUpload">Upload PFP</label>
-      <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
-      <button class="close-btn">Close</button>
-    </div>
+<div id="profileModal" class="modal-overlay">
+  <div class="modal-content">
+    <img id="profileImage" src="" alt="PFP" />
+    <h2>Player Profile</h2>
+    <p id="profileName">@nickname</p>
+    <p id="profileWallet">Wallet: 0x1234...abcd</p>
+    <p id="gamesPlayed">Games Played: 0</p>
+    <p id="squaresBought">Squares Bought: 0</p>
+    <p id="totalEarnings">Y2K Earnings: 0</p>
+    <label class="upload-btn" for="pfpUpload">Choose New PFP</label>
+    <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
+    <button id="confirmUploadBtn" class="upload-btn" style="display:none;">Confirm Upload</button>
+    <button class="close-btn">Close</button>
   </div>
+</div>
 
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -495,6 +496,33 @@
     document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
     document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
   });
+
+    let selectedPfpFile = null;
+
+document.getElementById("pfpUpload").addEventListener("change", (event) => {
+  selectedPfpFile = event.target.files[0];
+  if (selectedPfpFile) {
+    document.getElementById("confirmUploadBtn").style.display = "inline-block";
+  }
+});
+
+document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
+  if (!selectedPfpFile || !currentWallet) return;
+
+  try {
+    const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
+    await uploadBytes(storageRef, selectedPfpFile);
+    const url = await getDownloadURL(storageRef);
+
+    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+    document.getElementById("profileImage").src = url;
+    document.getElementById("confirmUploadBtn").style.display = "none";
+    console.log("PFP uploaded and updated successfully.");
+  } catch (error) {
+    console.error("Upload error:", error);
+  }
+});
+    
 </script>
 </body>
 </html>
