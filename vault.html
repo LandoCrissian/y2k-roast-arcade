@@ -306,180 +306,165 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-    // Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-      authDomain: "y2k-arcade.firebaseapp.com",
-      projectId: "y2k-arcade",
-      storageBucket: "y2k-arcade.appspot.com",
-      messagingSenderId: "1063043176357",
-      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-    };
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+  authDomain: "y2k-arcade.firebaseapp.com",
+  projectId: "y2k-arcade",
+  storageBucket: "y2k-arcade.appspot.com",
+  messagingSenderId: "1063043176357",
+  appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
-    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const cronosRpc = "https://evm.cronos.org";
+const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
+const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+const cronosRpc = "https://evm.cronos.org";
 
-    let currentWallet = "";
+let currentWallet = "";
+let selectedPFPFile = null;
 
-    // Function to fetch Y2K token balance from Cronos
-    async function fetchY2KBalance(wallet) {
-      const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
-      const abi = ["function balanceOf(address) view returns (uint256)"];
-      const token = new ethers.Contract(contractAddress, abi, provider);
-      try {
-        const balance = await token.balanceOf(wallet);
-        const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-        document.getElementById("balance").textContent = `${y2k} Y2K`;
-      } catch (e) {
-        console.warn("Y2K fetch error:", e);
-      }
-    }
-
-    // Connect Wallet function
-    async function connectWallet() {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      const wallet = accounts[0];
-      currentWallet = wallet.toLowerCase();
-
-      const walletSpan = document.getElementById("wallet");
-      const nicknameInput = document.getElementById("nicknameInput");
-      const connectBtn = document.getElementById("connectWalletBtn");
-      const gameId = "nba_game1";
-
-      walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
-      fetchY2KBalance(wallet);
-
-      // Update connect button to Disconnect (which simply reloads the page)
-      connectBtn.textContent = "Disconnect";
-      connectBtn.onclick = () => location.reload();
-
-      // Work with user profile document in Firestore
-      const userDocRef = doc(db, "users", currentWallet);
-      const snap = await getDoc(userDocRef);
-      if (snap.exists()) {
-        nicknameInput.value = snap.data().nickname || "";
-      }
-
-      // Save nickname when input changes
-      nicknameInput.addEventListener("change", async () => {
-        const nickname = nicknameInput.value.trim();
-        if (nickname.length > 0) {
-          try {
-            await setDoc(userDocRef, { nickname }, { merge: true });
-            console.log("Saved nickname:", nickname);
-          } catch (err) {
-            console.error("Nickname save error:", err);
-          }
-        }
-      });
-
-      // Listen for realtime nickname updates
-      onSnapshot(userDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-          nicknameInput.value = docSnap.data().nickname || "";
-        }
-      });
-
-      // Admin-only status selector
-      const selector = document.getElementById("statusSelector");
-      if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-        selector.style.display = "block";
-        selector.addEventListener("change", async () => {
-          await setDoc(doc(db, "games", gameId), { status: selector.value });
-        });
-      }
-
-      // Watch game status updates
-      const badge = document.getElementById("statusBadge");
-      function updateBadge(status) {
-        badge.textContent = status.toUpperCase();
-        badge.className = "status-badge status-" + status;
-      }
-      onSnapshot(doc(db, "games", gameId), (docSnap) => {
-        if (docSnap.exists()) {
-          const status = docSnap.data().status;
-          updateBadge(status);
-          selector.value = status;
-        }
-      });
-    }
-
-    // Open Profile Modal (when clicking on wallet address)
-    async function openProfileModal() {
-      const modal = document.getElementById("profileModal");
-      const profileName = document.getElementById("profileName");
-      const profileWallet = document.getElementById("profileWallet");
-      const profileImage = document.getElementById("profileImage");
-
-      const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-      profileWallet.textContent = "Wallet: " + shortWallet;
-
-      const docSnap = await getDoc(doc(db, "users", currentWallet));
-      profileName.textContent = docSnap.exists() && docSnap.data().nickname
-        ? "@" + docSnap.data().nickname
-        : "@unknown";
-
-      document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
-      document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
-      document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
-
-      if (docSnap.data()?.pfpUrl) {
-        profileImage.src = docSnap.data().pfpUrl;
-      } else {
-        profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
-      }
-
-      modal.style.display = "flex";
-    }
-
-    // Upload Profile Picture Function using Firebase Storage
-      
-      function closeProfileModal() {
-      document.getElementById("profileModal").style.display = "none";
-    }
-
-    let selectedPFPFile = null;
-
-document.getElementById("pfpUpload").addEventListener("change", (event) => {
-  selectedPFPFile = event.target.files[0];
-  if (selectedPFPFile) {
-    document.getElementById("confirmUploadBtn").style.display = "inline-block";
-  }
-});
-
-document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
-  if (!selectedPFPFile || !currentWallet) return;
-
+async function fetchY2KBalance(wallet) {
+  const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
+  const abi = ["function balanceOf(address) view returns (uint256)"];
+  const token = new ethers.Contract(contractAddress, abi, provider);
   try {
-    const storageRef = ref(storage, `pfps/${currentWallet}`);
-    const snapshot = await uploadBytes(storageRef, selectedPFPFile);
-    const url = await getDownloadURL(storageRef);
-
-    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-    document.getElementById("profileImage").src = url;
-
-    selectedPFPFile = null;
-    document.getElementById("confirmUploadBtn").style.display = "none";
-  } catch (error) {
-    console.error("Upload failed:", error);
+    const balance = await token.balanceOf(wallet);
+    const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
+    document.getElementById("balance").textContent = `${y2k} Y2K`;
+  } catch (e) {
+    console.warn("Y2K fetch error:", e);
   }
-});
+}
 
-    // Attach event listeners on DOM loaded
-    window.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-      document.getElementById("wallet").addEventListener("click", openProfileModal);
-      document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
+async function connectWallet() {
+  const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+  const wallet = accounts[0];
+  currentWallet = wallet.toLowerCase();
+
+  const walletSpan = document.getElementById("wallet");
+  const nicknameInput = document.getElementById("nicknameInput");
+  const connectBtn = document.getElementById("connectWalletBtn");
+  const gameId = "nba_game1";
+
+  walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
+  fetchY2KBalance(wallet);
+
+  connectBtn.textContent = "Disconnect";
+  connectBtn.onclick = () => location.reload();
+
+  const userDocRef = doc(db, "users", currentWallet);
+  const snap = await getDoc(userDocRef);
+  if (snap.exists()) {
+    nicknameInput.value = snap.data().nickname || "";
+  }
+
+  nicknameInput.addEventListener("change", async () => {
+    const nickname = nicknameInput.value.trim();
+    if (nickname.length > 0) {
+      await setDoc(userDocRef, { nickname }, { merge: true });
+    }
+  });
+
+  onSnapshot(userDocRef, (docSnap) => {
+    if (docSnap.exists()) {
+      nicknameInput.value = docSnap.data().nickname || "";
+    }
+  });
+
+  const selector = document.getElementById("statusSelector");
+  if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+    selector.style.display = "block";
+    selector.addEventListener("change", async () => {
+      await setDoc(doc(db, "games", gameId), { status: selector.value });
     });
-  </script>
+  }
+
+  const badge = document.getElementById("statusBadge");
+  function updateBadge(status) {
+    badge.textContent = status.toUpperCase();
+    badge.className = "status-badge status-" + status;
+  }
+
+  onSnapshot(doc(db, "games", gameId), (docSnap) => {
+    if (docSnap.exists()) {
+      const status = docSnap.data().status;
+      updateBadge(status);
+      selector.value = status;
+    }
+  });
+}
+
+async function openProfileModal() {
+  const modal = document.getElementById("profileModal");
+  const profileName = document.getElementById("profileName");
+  const profileWallet = document.getElementById("profileWallet");
+  const profileImage = document.getElementById("profileImage");
+
+  const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+  profileWallet.textContent = "Wallet: " + shortWallet;
+
+  const docSnap = await getDoc(doc(db, "users", currentWallet));
+  profileName.textContent = docSnap.exists() && docSnap.data().nickname
+    ? "@" + docSnap.data().nickname
+    : "@unknown";
+
+  document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
+  document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
+  document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
+
+  if (docSnap.data()?.pfpUrl) {
+    profileImage.src = docSnap.data().pfpUrl;
+  } else {
+    profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
+  }
+
+  modal.style.display = "flex";
+}
+
+function closeProfileModal() {
+  document.getElementById("profileModal").style.display = "none";
+}
+
+// Wait for DOM to attach listeners
+window.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+  document.getElementById("wallet").addEventListener("click", openProfileModal);
+  document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
+
+  document.getElementById("pfpUpload").addEventListener("change", (event) => {
+    selectedPFPFile = event.target.files[0];
+    if (selectedPFPFile) {
+      document.getElementById("confirmUploadBtn").style.display = "inline-block";
+    }
+  });
+
+  document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
+    console.log("Confirm clicked");
+    if (!selectedPFPFile || !currentWallet) return;
+
+    try {
+      const storageRef = ref(storage, `pfps/${currentWallet}`);
+      const snapshot = await uploadBytes(storageRef, selectedPFPFile);
+      const url = await getDownloadURL(storageRef);
+
+      await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+      document.getElementById("profileImage").src = url;
+
+      selectedPFPFile = null;
+      document.getElementById("confirmUploadBtn").style.display = "none";
+    } catch (error) {
+      console.error("Upload failed:", error);
+    }
+  });
+});
+</script>
 </body>
 </html>
