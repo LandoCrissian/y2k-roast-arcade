@@ -431,6 +431,7 @@
   window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("wallet").addEventListener("click", openProfileModal);
+    document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
     document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
   });
 
@@ -439,17 +440,20 @@
     const profileName = document.getElementById("profileName");
     const profileWallet = document.getElementById("profileWallet");
     const profileImage = document.getElementById("profileImage");
-    const userRef = doc(db, "users", currentWallet);
-    const docSnap = await getDoc(userRef);
 
-    profileWallet.textContent = "Wallet: " + currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-    profileName.textContent = docSnap.exists() && docSnap.data().nickname ? "@" + docSnap.data().nickname : "@unknown";
+    const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+    profileWallet.textContent = "Wallet: " + shortWallet;
 
-    document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data().gamesPlayed || 0);
-    document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data().squaresBought || 0);
-    document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data().earnings || 0);
+    const docSnap = await getDoc(doc(db, "users", currentWallet));
+    profileName.textContent = docSnap.exists() && docSnap.data().nickname
+      ? "@" + docSnap.data().nickname
+      : "@unknown";
 
-    if (docSnap.data().pfpUrl) {
+    document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
+    document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
+    document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
+
+    if (docSnap.data()?.pfpUrl) {
       profileImage.src = docSnap.data().pfpUrl;
     } else {
       profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
@@ -465,9 +469,11 @@
   async function uploadPFP(event) {
     const file = event.target.files[0];
     if (!file || !currentWallet) return;
+
     const storageRef = ref(storage, `pfp/${currentWallet}`);
     await uploadBytes(storageRef, file);
     const url = await getDownloadURL(storageRef);
+
     await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
     document.getElementById("profileImage").src = url;
   }
