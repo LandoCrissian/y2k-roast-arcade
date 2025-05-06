@@ -456,16 +456,34 @@
   }
 
   async function uploadPFP(event) {
-    const file = event.target.files[0];
-    if (!file || !currentWallet) return;
+  const file = event.target.files[0];
+  console.log("Selected file:", file);
 
+  if (!file) {
+    console.warn("No file selected for upload.");
+    return;
+  }
+
+  if (!currentWallet) {
+    console.warn("No connected wallet found.");
+    return;
+  }
+
+  try {
     const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
-    await uploadBytes(storageRef, file);
+    const snapshot = await uploadBytes(storageRef, file);
+    console.log("Upload snapshot:", snapshot);
+
     const url = await getDownloadURL(storageRef);
+    console.log("Download URL:", url);
 
     await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
     document.getElementById("profileImage").src = url;
+    console.log("PFP updated in UI.");
+  } catch (error) {
+    console.error("Upload error:", error);
   }
+}
 
   function closeProfileModal() {
     document.getElementById("profileModal").style.display = "none";
