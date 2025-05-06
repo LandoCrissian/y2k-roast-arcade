@@ -128,7 +128,7 @@
       cursor: pointer;
     }
 
-    .modal-overlay {
+        .modal-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -139,10 +139,6 @@
       align-items: center;
       z-index: 999;
     }
-
-    .modal-overlay.show {
-  display: flex;
-}
 
     .modal-content {
       background: rgba(255,255,255,0.04);
@@ -168,6 +164,15 @@
       color: #ccc;
     }
 
+    .modal-content img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 12px;
+      border: 2px solid #00ffe1;
+    }
+
     .close-btn {
       margin-top: 16px;
       background: #111;
@@ -176,6 +181,17 @@
       padding: 8px 16px;
       border-radius: 8px;
       font-size: 13px;
+      cursor: pointer;
+    }
+
+    .upload-btn {
+      margin-top: 10px;
+      background: #222;
+      border: 1px solid #00ffe140;
+      color: #00ffe1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
       cursor: pointer;
     }
 
@@ -188,7 +204,7 @@
       margin-top: 16px;
     }
 
-        .game-title {
+    .game-title {
       font-size: 20px;
       color: #fff;
       margin-bottom: 8px;
@@ -288,8 +304,8 @@
   </div>
 
   <div class="glass-panel">
-    <div class="game-title">Stanley Cup Finals – Game 1</div>
-    <div class="game-details">Buy-in: 100 Y2K<br>Pot Total: 4,200 Y2K</div>
+    <div class="game-title">NBA Finals – Game 1</div>
+    <div class="game-details">Buy-in: 200,000 Y2K<br>Pot Total: 4,000,000 Y2K</div>
     <div id="statusBadge" class="status-badge status-live">LIVE</div>
     <select id="statusSelector">
       <option value="live">LIVE</option>
@@ -305,20 +321,23 @@
 <!-- Profile Modal -->
 <div id="profileModal" class="modal-overlay">
   <div class="modal-content">
+    <img id="profileImage" src="" alt="PFP" />
     <h2>Player Profile</h2>
     <p id="profileName">@nickname</p>
     <p id="profileWallet">Wallet: 0x1234...abcd</p>
-    <p>Games Played: 1</p>
-    <p>Squares Bought: 3</p>
-    <p>Y2K Earnings: 0</p>
+    <p id="gamesPlayed">Games Played: 0</p>
+    <p id="squaresBought">Squares Bought: 0</p>
+    <p id="totalEarnings">Y2K Earnings: 0</p>
+    <button class="upload-btn" onclick="document.getElementById('pfpUpload').click()">Upload PFP</button>
+    <input id="pfpUpload" type="file" accept="image/*" style="display:none" />
     <button class="close-btn" onclick="closeProfileModal()">Close</button>
   </div>
 </div>
 
 <script type="module">
-
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
   import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
@@ -331,6 +350,7 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
   const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
@@ -359,7 +379,7 @@
     const walletSpan = document.getElementById("wallet");
     const nicknameInput = document.getElementById("nicknameInput");
     const connectBtn = document.getElementById("connectWalletBtn");
-    const gameId = "stanley_game1";
+    const gameId = "nba_game1";
 
     walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
     fetchY2KBalance(wallet);
@@ -376,12 +396,7 @@
     nicknameInput.addEventListener("change", async () => {
       const nickname = nicknameInput.value.trim();
       if (nickname.length > 0) {
-        try {
-          await setDoc(userDocRef, { nickname }, { merge: true });
-          console.log("Saved nickname:", nickname);
-        } catch (err) {
-          console.error("Nickname save error:", err);
-        }
+        await setDoc(userDocRef, { nickname }, { merge: true });
       }
     });
 
@@ -416,28 +431,46 @@
   window.addEventListener("DOMContentLoaded", () => {
     document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
     document.getElementById("wallet").addEventListener("click", openProfileModal);
+    document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
   });
 
-  // Profile Modal Logic
-  window.openProfileModal = async function () {
+  async function openProfileModal() {
     const modal = document.getElementById("profileModal");
     const profileName = document.getElementById("profileName");
     const profileWallet = document.getElementById("profileWallet");
+    const profileImage = document.getElementById("profileImage");
+    const userRef = doc(db, "users", currentWallet);
+    const docSnap = await getDoc(userRef);
 
-    const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-    profileWallet.textContent = "Wallet: " + shortWallet;
+    profileWallet.textContent = "Wallet: " + currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+    profileName.textContent = docSnap.exists() && docSnap.data().nickname ? "@" + docSnap.data().nickname : "@unknown";
 
-    const docSnap = await getDoc(doc(db, "users", currentWallet));
-    profileName.textContent = docSnap.exists() && docSnap.data().nickname
-      ? "@" + docSnap.data().nickname
-      : "@unknown";
+    document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data().gamesPlayed || 0);
+    document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data().squaresBought || 0);
+    document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data().earnings || 0);
 
-    modal.classList.add("show");
-  };
+    if (docSnap.data().pfpUrl) {
+      profileImage.src = docSnap.data().pfpUrl;
+    } else {
+      profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
+    }
 
-  window.closeProfileModal = function () {
-    document.getElementById("profileModal").classList.remove("show");
-  };
+    modal.style.display = "flex";
+  }
+
+  function closeProfileModal() {
+    document.getElementById("profileModal").style.display = "none";
+  }
+
+  async function uploadPFP(event) {
+    const file = event.target.files[0];
+    if (!file || !currentWallet) return;
+    const storageRef = ref(storage, `pfp/${currentWallet}`);
+    await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(storageRef);
+    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+    document.getElementById("profileImage").src = url;
+  }
 </script>
 </body>
 </html>
