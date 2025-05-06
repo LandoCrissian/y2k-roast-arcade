@@ -324,146 +324,84 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
-const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-const cronosRpc = "https://evm.cronos.org";
-
 let currentWallet = "";
 let selectedPFPFile = null;
 
-async function fetchY2KBalance(wallet) {
-  const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
-  const abi = ["function balanceOf(address) view returns (uint256)"];
-  const token = new ethers.Contract(contractAddress, abi, provider);
-  try {
-    const balance = await token.balanceOf(wallet);
-    const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-    document.getElementById("balance").textContent = `${y2k} Y2K`;
-  } catch (e) {
-    console.warn("Y2K fetch error:", e);
-  }
-}
-
+// --- Wallet Connect ---
 async function connectWallet() {
   const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  const wallet = accounts[0];
-  currentWallet = wallet.toLowerCase();
+  currentWallet = accounts[0].toLowerCase();
 
-  const walletSpan = document.getElementById("wallet");
-  const nicknameInput = document.getElementById("nicknameInput");
-  const connectBtn = document.getElementById("connectWalletBtn");
-  const gameId = "nba_game1";
+  document.getElementById("wallet").textContent = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+  document.getElementById("connectWalletBtn").textContent = "Disconnect";
+  document.getElementById("connectWalletBtn").onclick = () => location.reload();
 
-  walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
-  fetchY2KBalance(wallet);
-
-  connectBtn.textContent = "Disconnect";
-  connectBtn.onclick = () => location.reload();
-
-  const userDocRef = doc(db, "users", currentWallet);
-  const snap = await getDoc(userDocRef);
+  const userRef = doc(db, "users", currentWallet);
+  const snap = await getDoc(userRef);
   if (snap.exists()) {
-    nicknameInput.value = snap.data().nickname || "";
+    document.getElementById("nicknameInput").value = snap.data().nickname || "";
   }
 
-  nicknameInput.addEventListener("change", async () => {
-    const nickname = nicknameInput.value.trim();
-    if (nickname.length > 0) {
-      await setDoc(userDocRef, { nickname }, { merge: true });
-    }
+  document.getElementById("nicknameInput").addEventListener("change", async () => {
+    await setDoc(userRef, { nickname: document.getElementById("nicknameInput").value.trim() }, { merge: true });
   });
 
-  onSnapshot(userDocRef, (docSnap) => {
+  onSnapshot(userRef, (docSnap) => {
     if (docSnap.exists()) {
-      nicknameInput.value = docSnap.data().nickname || "";
-    }
-  });
-
-  const selector = document.getElementById("statusSelector");
-  if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-    selector.style.display = "block";
-    selector.addEventListener("change", async () => {
-      await setDoc(doc(db, "games", gameId), { status: selector.value });
-    });
-  }
-
-  const badge = document.getElementById("statusBadge");
-  function updateBadge(status) {
-    badge.textContent = status.toUpperCase();
-    badge.className = "status-badge status-" + status;
-  }
-
-  onSnapshot(doc(db, "games", gameId), (docSnap) => {
-    if (docSnap.exists()) {
-      const status = docSnap.data().status;
-      updateBadge(status);
-      selector.value = status;
+      document.getElementById("nicknameInput").value = docSnap.data().nickname || "";
     }
   });
 }
 
+// --- Profile Modal ---
 async function openProfileModal() {
-  const modal = document.getElementById("profileModal");
-  const profileName = document.getElementById("profileName");
-  const profileWallet = document.getElementById("profileWallet");
   const profileImage = document.getElementById("profileImage");
-
-  const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-  profileWallet.textContent = "Wallet: " + shortWallet;
-
   const docSnap = await getDoc(doc(db, "users", currentWallet));
-  profileName.textContent = docSnap.exists() && docSnap.data().nickname
-    ? "@" + docSnap.data().nickname
-    : "@unknown";
+  const data = docSnap.exists() ? docSnap.data() : {};
 
-  document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
-  document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
-  document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
+  document.getElementById("profileWallet").textContent = "Wallet: " + currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+  document.getElementById("profileName").textContent = data.nickname ? "@" + data.nickname : "@unknown";
+  document.getElementById("gamesPlayed").textContent = "Games Played: " + (data.gamesPlayed || 0);
+  document.getElementById("squaresBought").textContent = "Squares Bought: " + (data.squaresBought || 0);
+  document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (data.earnings || 0);
 
-  if (docSnap.data()?.pfpUrl) {
-    profileImage.src = docSnap.data().pfpUrl;
-  } else {
-    profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
-  }
+  profileImage.src = data.pfpUrl || "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
 
-  modal.style.display = "flex";
+  document.getElementById("profileModal").style.display = "flex";
 }
 
+// --- Close Modal ---
 function closeProfileModal() {
   document.getElementById("profileModal").style.display = "none";
 }
 
-// Wait for DOM to attach listeners
+// --- Upload Logic ---
 window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
   document.getElementById("wallet").addEventListener("click", openProfileModal);
-  document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
-
-  document.getElementById("pfpUpload").addEventListener("change", (event) => {
-    selectedPFPFile = event.target.files[0];
+  document.getElementById("pfpUpload").addEventListener("change", (e) => {
+    selectedPFPFile = e.target.files[0];
     if (selectedPFPFile) {
       document.getElementById("confirmUploadBtn").style.display = "inline-block";
     }
   });
 
   document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
-    console.log("Confirm clicked");
     if (!selectedPFPFile || !currentWallet) return;
-
     try {
       const storageRef = ref(storage, `pfps/${currentWallet}`);
-      const snapshot = await uploadBytes(storageRef, selectedPFPFile);
+      await uploadBytes(storageRef, selectedPFPFile);
       const url = await getDownloadURL(storageRef);
-
       await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
       document.getElementById("profileImage").src = url;
-
-      selectedPFPFile = null;
       document.getElementById("confirmUploadBtn").style.display = "none";
-    } catch (error) {
-      console.error("Upload failed:", error);
+      selectedPFPFile = null;
+    } catch (err) {
+      console.error("Upload failed:", err);
     }
   });
+
+  document.querySelector(".close-btn")?.addEventListener("click", closeProfileModal);
 });
 </script>
 </body>
