@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
+    /* Global Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body {
       background-color: #000;
@@ -15,7 +16,6 @@
       padding: env(safe-area-inset);
       scroll-behavior: smooth;
     }
-
     .cyber-grid {
       position: fixed;
       top: 0; left: 0;
@@ -28,12 +28,10 @@
       z-index: 0;
       opacity: 0.2;
     }
-
     @keyframes gridMove {
       from { background-position: 0 0; }
       to { background-position: 0 20px; }
     }
-
     .container {
       position: relative;
       z-index: 1;
@@ -42,14 +40,12 @@
       padding: 16px;
       padding-bottom: 80px;
     }
-
     .header-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
     }
-
     .nav-btn {
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
@@ -62,17 +58,14 @@
       box-shadow: 0 0 6px rgba(0,255,225,0.1);
       transition: 0.2s ease;
     }
-
     .nav-btn:hover {
       background: rgba(255,255,255,0.08);
       transform: scale(1.03);
     }
-
     .dropdown {
       position: relative;
       display: inline-block;
     }
-
     .dropdown-content {
       display: none;
       position: absolute;
@@ -86,7 +79,6 @@
       backdrop-filter: blur(10px);
       text-align: left;
     }
-
     .dropdown-content a {
       color: #00ffe1;
       padding: 10px 14px;
@@ -94,15 +86,12 @@
       font-size: 13px;
       text-decoration: none;
     }
-
     .dropdown-content a:hover {
       background-color: rgba(255,255,255,0.08);
     }
-
     .dropdown:hover .dropdown-content {
       display: block;
     }
-
     .wallet-hud {
       display: flex;
       flex-wrap: wrap;
@@ -116,19 +105,15 @@
       margin-bottom: 16px;
       backdrop-filter: blur(10px);
     }
-
     .wallet-hud span {
       color: #00ffe1;
       font-size: 14px;
       word-break: break-word;
       cursor: pointer;
     }
-
-    .wallet-hud span:hover {
-      text-decoration: underline;
-    }
-
-        .modal-overlay {
+    .wallet-hud span:hover { text-decoration: underline; }
+    /* Modal Styles */
+    .modal-overlay {
       position: fixed;
       top: 0; left: 0;
       width: 100%; height: 100%;
@@ -139,7 +124,6 @@
       align-items: center;
       z-index: 999;
     }
-
     .modal-content {
       background: rgba(255,255,255,0.04);
       border: 1px solid rgba(255,255,255,0.1);
@@ -151,19 +135,16 @@
       box-shadow: 0 0 20px rgba(0,255,225,0.2);
       text-align: center;
     }
-
     .modal-content h2 {
       margin-bottom: 12px;
       color: #00ffe1;
       font-size: 18px;
     }
-
     .modal-content p {
       font-size: 14px;
       margin: 4px 0;
       color: #ccc;
     }
-
     .modal-content img {
       width: 80px;
       height: 80px;
@@ -172,7 +153,6 @@
       margin-bottom: 12px;
       border: 2px solid #00ffe1;
     }
-
     .close-btn {
       margin-top: 16px;
       background: #111;
@@ -183,7 +163,6 @@
       font-size: 13px;
       cursor: pointer;
     }
-
     .upload-btn {
       margin-top: 10px;
       background: #222;
@@ -194,7 +173,7 @@
       font-size: 12px;
       cursor: pointer;
     }
-
+    /* Glass Panel & Game Info */
     .glass-panel {
       background: rgba(255,255,255,0.03);
       border-radius: 20px;
@@ -203,21 +182,18 @@
       padding: 24px;
       margin-top: 16px;
     }
-
     .game-title {
       font-size: 20px;
       color: #fff;
       margin-bottom: 8px;
       text-align: center;
     }
-
     .game-details {
       font-size: 14px;
       color: #aaa;
       margin-bottom: 16px;
       text-align: center;
     }
-
     .buy-btn {
       display: block;
       width: 100%;
@@ -232,9 +208,7 @@
       box-shadow: 0 0 10px rgba(99,102,241,0.3);
       transition: 0.2s ease;
     }
-
     .buy-btn:hover { transform: scale(1.03); }
-
     .status-badge {
       display: inline-block;
       font-size: 12px;
@@ -247,11 +221,9 @@
       border: 1px solid #22d3ee40;
       text-align: center;
     }
-
     .status-live  { background: #34d39920; color: #34d399; border-color: #34d39960; }
     .status-final { background: #ef444420; color: #ef4444; border-color: #ef444460; }
     .status-paid  { background: #a855f720; color: #a855f7; border-color: #a855f760; }
-
     #statusSelector {
       margin-top: 12px;
       width: 100%;
@@ -263,7 +235,6 @@
       display: none;
       font-size: 13px;
     }
-
     .placeholder-grid {
       margin-top: 24px;
       height: 180px;
@@ -319,210 +290,194 @@
   </div>
 
   <!-- Profile Modal -->
-<div id="profileModal" class="modal-overlay">
-  <div class="modal-content">
-    <img id="profileImage" src="" alt="PFP" />
-    <h2>Player Profile</h2>
-    <p id="profileName">@nickname</p>
-    <p id="profileWallet">Wallet: 0x1234...abcd</p>
-    <p id="gamesPlayed">Games Played: 0</p>
-    <p id="squaresBought">Squares Bought: 0</p>
-    <p id="totalEarnings">Y2K Earnings: 0</p>
-    <label class="upload-btn" for="pfpUpload">Choose New PFP</label>
-    <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
-    <button id="confirmUploadBtn" class="upload-btn" style="display:none;">Confirm Upload</button>
-    <button class="close-btn">Close</button>
+  <div id="profileModal" class="modal-overlay">
+    <div class="modal-content">
+      <img id="profileImage" src="" alt="PFP" />
+      <h2>Player Profile</h2>
+      <p id="profileName">@nickname</p>
+      <p id="profileWallet">Wallet: 0x1234...abcd</p>
+      <p id="gamesPlayed">Games Played: 0</p>
+      <p id="squaresBought">Squares Bought: 0</p>
+      <p id="totalEarnings">Y2K Earnings: 0</p>
+      <label class="upload-btn" for="pfpUpload">Upload PFP</label>
+      <input id="pfpUpload" type="file" accept="image/*" style="display:none" />
+      <button class="close-btn" onclick="closeProfileModal()">Close</button>
+    </div>
   </div>
-</div>
 
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-    authDomain: "y2k-arcade.firebaseapp.com",
-    projectId: "y2k-arcade",
-    storageBucket: "y2k-arcade.appspot.com",
-    messagingSenderId: "1063043176357",
-    appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-  };
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+      authDomain: "y2k-arcade.firebaseapp.com",
+      projectId: "y2k-arcade",
+      storageBucket: "y2k-arcade.appspot.com",
+      messagingSenderId: "1063043176357",
+      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-  const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
-  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-  const cronosRpc = "https://evm.cronos.org";
+    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
+    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+    const cronosRpc = "https://evm.cronos.org";
 
-  let currentWallet = "";
+    let currentWallet = "";
 
-  async function fetchY2KBalance(wallet) {
-    const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
-    const abi = ["function balanceOf(address) view returns (uint256)"];
-    const token = new ethers.Contract(contractAddress, abi, provider);
-    try {
-      const balance = await token.balanceOf(wallet);
-      const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-      document.getElementById("balance").textContent = `${y2k} Y2K`;
-    } catch (e) {
-      console.warn("Y2K fetch error:", e);
-    }
-  }
-
-  async function connectWallet() {
-    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const wallet = accounts[0];
-    currentWallet = wallet.toLowerCase();
-
-    const walletSpan = document.getElementById("wallet");
-    const nicknameInput = document.getElementById("nicknameInput");
-    const connectBtn = document.getElementById("connectWalletBtn");
-    const gameId = "nba_game1";
-
-    walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
-    fetchY2KBalance(wallet);
-
-    connectBtn.textContent = "Disconnect";
-    connectBtn.onclick = () => location.reload();
-
-    const userDocRef = doc(db, "users", currentWallet);
-    const snap = await getDoc(userDocRef);
-    if (snap.exists()) {
-      nicknameInput.value = snap.data().nickname || "";
+    // Function to fetch Y2K token balance from Cronos
+    async function fetchY2KBalance(wallet) {
+      const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
+      const abi = ["function balanceOf(address) view returns (uint256)"];
+      const token = new ethers.Contract(contractAddress, abi, provider);
+      try {
+        const balance = await token.balanceOf(wallet);
+        const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
+        document.getElementById("balance").textContent = `${y2k} Y2K`;
+      } catch (e) {
+        console.warn("Y2K fetch error:", e);
+      }
     }
 
-    nicknameInput.addEventListener("change", async () => {
-      const nickname = nicknameInput.value.trim();
-      if (nickname.length > 0) {
-        await setDoc(userDocRef, { nickname }, { merge: true });
-      }
-    });
+    // Connect Wallet function
+    async function connectWallet() {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      const wallet = accounts[0];
+      currentWallet = wallet.toLowerCase();
 
-    onSnapshot(userDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        nicknameInput.value = docSnap.data().nickname || "";
-      }
-    });
+      const walletSpan = document.getElementById("wallet");
+      const nicknameInput = document.getElementById("nicknameInput");
+      const connectBtn = document.getElementById("connectWalletBtn");
+      const gameId = "nba_game1";
 
-    const selector = document.getElementById("statusSelector");
-    if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-      selector.style.display = "block";
-      selector.addEventListener("change", async () => {
-        await setDoc(doc(db, "games", gameId), { status: selector.value });
+      walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
+      fetchY2KBalance(wallet);
+
+      // Update connect button to Disconnect (which simply reloads the page)
+      connectBtn.textContent = "Disconnect";
+      connectBtn.onclick = () => location.reload();
+
+      // Work with user profile document in Firestore
+      const userDocRef = doc(db, "users", currentWallet);
+      const snap = await getDoc(userDocRef);
+      if (snap.exists()) {
+        nicknameInput.value = snap.data().nickname || "";
+      }
+
+      // Save nickname when input changes
+      nicknameInput.addEventListener("change", async () => {
+        const nickname = nicknameInput.value.trim();
+        if (nickname.length > 0) {
+          try {
+            await setDoc(userDocRef, { nickname }, { merge: true });
+            console.log("Saved nickname:", nickname);
+          } catch (err) {
+            console.error("Nickname save error:", err);
+          }
+        }
+      });
+
+      // Listen for realtime nickname updates
+      onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          nicknameInput.value = docSnap.data().nickname || "";
+        }
+      });
+
+      // Admin-only status selector
+      const selector = document.getElementById("statusSelector");
+      if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
+        selector.style.display = "block";
+        selector.addEventListener("change", async () => {
+          await setDoc(doc(db, "games", gameId), { status: selector.value });
+        });
+      }
+
+      // Watch game status updates
+      const badge = document.getElementById("statusBadge");
+      function updateBadge(status) {
+        badge.textContent = status.toUpperCase();
+        badge.className = "status-badge status-" + status;
+      }
+      onSnapshot(doc(db, "games", gameId), (docSnap) => {
+        if (docSnap.exists()) {
+          const status = docSnap.data().status;
+          updateBadge(status);
+          selector.value = status;
+        }
       });
     }
 
-    const badge = document.getElementById("statusBadge");
-    function updateBadge(status) {
-      badge.textContent = status.toUpperCase();
-      badge.className = "status-badge status-" + status;
-    }
-    onSnapshot(doc(db, "games", gameId), (docSnap) => {
-      if (docSnap.exists()) {
-        const status = docSnap.data().status;
-        updateBadge(status);
-        selector.value = status;
+    // Open Profile Modal (when clicking on wallet address)
+    async function openProfileModal() {
+      const modal = document.getElementById("profileModal");
+      const profileName = document.getElementById("profileName");
+      const profileWallet = document.getElementById("profileWallet");
+      const profileImage = document.getElementById("profileImage");
+
+      const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
+      profileWallet.textContent = "Wallet: " + shortWallet;
+
+      const docSnap = await getDoc(doc(db, "users", currentWallet));
+      profileName.textContent = docSnap.exists() && docSnap.data().nickname
+        ? "@" + docSnap.data().nickname
+        : "@unknown";
+
+      document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
+      document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
+      document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
+
+      if (docSnap.data()?.pfpUrl) {
+        profileImage.src = docSnap.data().pfpUrl;
+      } else {
+        profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
       }
-    });
-  }
 
-  async function openProfileModal() {
-    const modal = document.getElementById("profileModal");
-    const profileName = document.getElementById("profileName");
-    const profileWallet = document.getElementById("profileWallet");
-    const profileImage = document.getElementById("profileImage");
-
-    const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-    profileWallet.textContent = "Wallet: " + shortWallet;
-
-    const docSnap = await getDoc(doc(db, "users", currentWallet));
-    profileName.textContent = docSnap.exists() && docSnap.data().nickname
-      ? "@" + docSnap.data().nickname
-      : "@unknown";
-
-    document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
-    document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
-    document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
-
-    if (docSnap.data()?.pfpUrl) {
-      profileImage.src = docSnap.data().pfpUrl;
-    } else {
-      profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
+      modal.style.display = "flex";
     }
 
-    modal.style.display = "flex";
-  }
+    // Upload Profile Picture Function using Firebase Storage
+    async function uploadPFP(event) {
+      const file = event.target.files[0];
+      console.log("Selected file:", file);
+      if (!file) {
+        console.warn("No file selected for upload.");
+        return;
+      }
+      if (!currentWallet) {
+        console.warn("No connected wallet found.");
+        return;
+      }
+      try {
+        const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
+        const snapshot = await uploadBytes(storageRef, file);
+        console.log("Upload snapshot:", snapshot);
+        const url = await getDownloadURL(storageRef);
+        console.log("Download URL:", url);
+        await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+        document.getElementById("profileImage").src = url;
+        console.log("PFP updated in UI.");
+      } catch (error) {
+        console.error("Upload error:", error);
+      }
+    }
 
-  async function uploadPFP(event) {
-  const file = event.target.files[0];
-  console.log("Selected file:", file);
+    function closeProfileModal() {
+      document.getElementById("profileModal").style.display = "none";
+    }
 
-  if (!file) {
-    console.warn("No file selected for upload.");
-    return;
-  }
-
-  if (!currentWallet) {
-    console.warn("No connected wallet found.");
-    return;
-  }
-
-  try {
-    const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
-    const snapshot = await uploadBytes(storageRef, file);
-    console.log("Upload snapshot:", snapshot);
-
-    const url = await getDownloadURL(storageRef);
-    console.log("Download URL:", url);
-
-    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-    document.getElementById("profileImage").src = url;
-    console.log("PFP updated in UI.");
-  } catch (error) {
-    console.error("Upload error:", error);
-  }
-}
-
-  function closeProfileModal() {
-    document.getElementById("profileModal").style.display = "none";
-  }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-    document.getElementById("wallet").addEventListener("click", openProfileModal);
-    document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
-    document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
-  });
-
-    let selectedPfpFile = null;
-
-document.getElementById("pfpUpload").addEventListener("change", (event) => {
-  selectedPfpFile = event.target.files[0];
-  if (selectedPfpFile) {
-    document.getElementById("confirmUploadBtn").style.display = "inline-block";
-  }
-});
-
-document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
-  if (!selectedPfpFile || !currentWallet) return;
-
-  try {
-    const storageRef = ref(storage, `pfps/${currentWallet}.jpg`);
-    await uploadBytes(storageRef, selectedPfpFile);
-    const url = await getDownloadURL(storageRef);
-
-    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-    document.getElementById("profileImage").src = url;
-    document.getElementById("confirmUploadBtn").style.display = "none";
-    console.log("PFP uploaded and updated successfully.");
-  } catch (error) {
-    console.error("Upload error:", error);
-  }
-});
-    
-</script>
+    // Attach event listeners on DOM loaded
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
+      document.getElementById("wallet").addEventListener("click", openProfileModal);
+      document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
+      document.getElementById("pfpUpload").addEventListener("change", uploadPFP);
+    });
+  </script>
 </body>
 </html>
