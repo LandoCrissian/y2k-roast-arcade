@@ -419,22 +419,31 @@
     });
 
     document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
-      if (!selectedPFPFile || !currentWallet) return;
+  console.log("Confirm Upload Clicked");
+  console.log("Selected file:", selectedPFPFile);
+  console.log("Current wallet:", currentWallet);
 
-      try {
-        const storageRef = ref(storage, `pfps/${currentWallet}`);
-        const snapshot = await uploadBytes(storageRef, selectedPFPFile);
-        const url = await getDownloadURL(storageRef);
+  if (!selectedPFPFile || !currentWallet) {
+    console.warn("Missing file or wallet");
+    return;
+  }
 
-        await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-        document.getElementById("profileImage").src = url;
+  try {
+    const storageRef = ref(storage, `pfps/${currentWallet}`);
+    const snapshot = await uploadBytes(storageRef, selectedPFPFile);
+    const url = await getDownloadURL(storageRef);
+    console.log("Upload complete. URL:", url);
 
-        selectedPFPFile = null;
-        document.getElementById("confirmUploadBtn").style.display = "none";
-      } catch (error) {
-        console.error("Upload failed:", error);
-      }
-    });
+    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+    document.getElementById("profileImage").src = url;
+
+    selectedPFPFile = null;
+    document.getElementById("confirmUploadBtn").style.display = "none";
+    console.log("PFP updated in UI.");
+  } catch (error) {
+    console.error("Upload failed:", error);
+  }
+});
 
     window.addEventListener("DOMContentLoaded", () => {
       document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
