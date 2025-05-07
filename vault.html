@@ -165,17 +165,21 @@
       const username = document.getElementById("username").value.trim();
       const xHandle = document.getElementById("xHandle").value.trim();
 
-      if (!currentWallet || !username) return alert("Username is required.");
+      if (!currentWallet || !username) {
+        alert("Username is required.");
+        return;
+      }
 
       let pfpUrl = pfpPreview.src;
+
       if (selectedFile) {
         try {
           const storageRef = ref(storage, `pfps/${currentWallet}`);
           const snapshot = await uploadBytes(storageRef, selectedFile);
           pfpUrl = await getDownloadURL(snapshot.ref);
-          console.log("Image uploaded:", pfpUrl);
+          console.log("Uploaded profile image:", pfpUrl);
         } catch (e) {
-          console.warn("Upload failed, using preview:", e);
+          console.warn("Image upload failed:", e);
         }
       }
 
@@ -183,17 +187,22 @@
         username,
         xHandle,
         pfpUrl,
+        wallet: currentWallet,
         profileCreated: true,
-        timestamp: Date.now()
+        createdAt: Date.now()
       };
 
-      console.log("Pretend saving to Firestore...", userData);
-      alert("Profile complete! Entering Vault...");
+      try {
+        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
+        console.log("Profile saved to Firestore:", userData);
+        alert("Profile created!");
 
-      // Redirect to LIVE VAULT
-      setTimeout(() => {
+        // Redirect to the Quantum Vault
         window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-      }, 1000);
+      } catch (e) {
+        console.error("Firestore error:", e);
+        alert("Error saving profile. Please try again.");
+      }
     });
   </script>
 </body>
