@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Create your profile in the Quantum Vault. Pick your avatar and step into the arcade." />
+  <meta name="description" content="Create your profile in the Quantum Vault. Choose your avatar and step into the arcade." />
   <title>Quantum Vault – Create Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -28,7 +28,7 @@
       text-align: center;
     }
     .panel {
-      max-width: 400px;
+      max-width: 440px;
       margin: 60px auto;
       padding: 32px;
       border-radius: 20px;
@@ -99,7 +99,7 @@
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Choose your avatar, enter your name, and enter the Vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Pick a PFP, enter your name, and step into the Vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
 
     <div id="avatarGrid"></div>
 
@@ -133,14 +133,17 @@
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
 
-    const seedList = Array.from({ length: 16 }, (_, i) => `quantum-${i + 1}`);
+    const styles = ["bottts", "croodles", "notionists", "adventurer"];
+    const seedList = Array.from({ length: 24 }, (_, i) => `quantum-${i + 1}`);
     const avatarThumbs = [];
 
-    seedList.forEach(seed => {
-      const url = `https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${seed}`;
+    seedList.forEach((seed, index) => {
+      const style = styles[index % styles.length];
+      const url = `https://api.dicebear.com/6.x/${style}/svg?seed=${seed}`;
       const img = document.createElement("img");
       img.src = url;
       img.className = "avatar-thumb";
+      img.alt = `${style} ${seed}`;
       img.addEventListener("click", () => {
         avatarThumbs.forEach(i => i.classList.remove("selected"));
         img.classList.add("selected");
