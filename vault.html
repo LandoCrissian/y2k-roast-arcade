@@ -3,14 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Create your profile in the Quantum Vault. Sign with wallet, upload profile image, and step into the arcade." />
   <title>Quantum Vault – Create Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+    :root {
+      --bg: #000;
+      --text: #fff;
+      --accent: #00ffe1;
+      --input-bg: #111;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Space Grotesk', sans-serif;
+    }
     body {
-      background: #000;
-      color: #fff;
+      background: var(--bg);
+      color: var(--text);
       padding: 24px;
       text-align: center;
     }
@@ -24,49 +37,46 @@
       backdrop-filter: blur(16px);
     }
     .title {
-      font-size: 22px;
+      font-size: 24px;
       margin-bottom: 12px;
-      color: #00ffe1;
+      color: var(--accent);
     }
     .desc {
-      font-size: 13px;
+      font-size: 14px;
       margin-bottom: 24px;
       color: #ccc;
     }
-    .input {
+    .input, .upload-label {
+      display: block;
       width: 100%;
       margin-bottom: 12px;
       padding: 10px;
       border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: #111;
-      color: #00ffe1;
-      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: var(--input-bg);
+      color: var(--accent);
+      font-size: 14px;
     }
     .upload-label {
-      display: block;
-      margin: 10px auto;
-      padding: 8px 16px;
-      background: #111;
-      border: 1px solid #00ffe140;
-      color: #00ffe1;
-      border-radius: 8px;
-      font-size: 13px;
+      text-align: center;
+      border: 1px solid var(--accent);
       cursor: pointer;
-      width: fit-content;
+      background: #181818;
     }
-    .upload-label:hover { background: #181818; }
+    .upload-label:hover { background: #222; }
     #pfpPreview {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       object-fit: cover;
       margin: 10px auto;
-      border: 2px solid #00ffe1;
+      border: 2px solid var(--accent);
     }
     .btn {
-      margin-top: 20px;
-      padding: 10px 20px;
+      display: block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 16px;
       background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: white;
       border: none;
@@ -77,131 +87,114 @@
       transition: 0.2s ease;
     }
     .btn:hover { transform: scale(1.03); }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Welcome to the Quantum Vault — sign in and create your player profile.<br><br>**DYOR. You may lose funds. Gambling is risky.**</div>
+    <div class="desc">Welcome to the Quantum Vault. Sign in and create your player profile.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
 
-    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="PFP" />
+    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="Profile Preview" />
     <label class="upload-label" for="pfpUpload">Upload Profile Picture</label>
-    <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
+    <input id="pfpUpload" type="file" accept="image/*" class="hidden" />
 
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
 
     <button id="connectBtn" class="btn">Connect Wallet & Sign</button>
-    <button id="createBtn" class="btn" style="display:none;">Create Profile</button>
+    <button id="createBtn" class="btn hidden">Create Profile</button>
+    <button id="enterVaultBtn" class="btn hidden">Enter Vault</button>
   </div>
 
-    <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-  authDomain: "y2k-arcade.firebaseapp.com",
-  projectId: "y2k-arcade",
-  storageBucket: "y2k-arcade.appspot.com",
-  messagingSenderId: "1063043176357",
-  appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+      authDomain: "y2k-arcade.firebaseapp.com",
+      projectId: "y2k-arcade",
+      storageBucket: "y2k-arcade.appspot.com",
+      messagingSenderId: "1063043176357",
+      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
 
-let currentWallet = "";
-let selectedFile = null;
+    let currentWallet = "";
+    let selectedFile = null;
 
-const connectBtn = document.getElementById("connectBtn");
-const createBtn = document.getElementById("createBtn");
-const enterBtn = document.getElementById("enterVaultBtn");
-const pfpPreview = document.getElementById("pfpPreview");
+    const pfpPreview = document.getElementById("pfpPreview");
+    const connectBtn = document.getElementById("connectBtn");
+    const createBtn = document.getElementById("createBtn");
+    const enterBtn = document.getElementById("enterVaultBtn");
 
-document.getElementById("pfpUpload").addEventListener("change", (e) => {
-  selectedFile = e.target.files[0];
-  if (selectedFile) {
-    const reader = new FileReader();
-    reader.onload = () => { pfpPreview.src = reader.result; };
-    reader.readAsDataURL(selectedFile);
-  }
-});
+    document.getElementById("pfpUpload").addEventListener("change", e => {
+      selectedFile = e.target.files[0];
+      if (selectedFile) {
+        const reader = new FileReader();
+        reader.onload = () => pfpPreview.src = reader.result;
+        reader.readAsDataURL(selectedFile);
+      }
+    });
 
-connectBtn.addEventListener("click", async () => {
-  try {
-    if (!window.ethereum) {
-      alert("MetaMask not found");
-      return;
-    }
+    connectBtn.addEventListener("click", async () => {
+      if (!window.ethereum) return alert("MetaMask not found");
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const address = await signer.getAddress();
-    currentWallet = address.toLowerCase();
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      currentWallet = (await signer.getAddress()).toLowerCase();
 
-    const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
-    await signer.signMessage(message);
+      const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
+      await signer.signMessage(message);
 
-    console.log("Wallet connected:", currentWallet);
+      connectBtn.classList.add("hidden");
+      createBtn.classList.remove("hidden");
+    });
 
-    connectBtn.style.display = "none";
-    createBtn.style.display = "inline-block";
-  } catch (err) {
-    console.error("Connect/sign error:", err);
-  }
-});
+    createBtn.addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const xHandle = document.getElementById("xHandle").value.trim();
 
-createBtn.addEventListener("click", async () => {
-  console.log("CREATE BUTTON CLICKED");
-  const username = document.getElementById("username").value.trim();
-  const xHandle = document.getElementById("xHandle").value.trim();
+      if (!currentWallet || !username) return alert("Username is required.");
 
-  if (!currentWallet || !username) {
-    alert("Username is required.");
-    return;
-  }
+      let pfpUrl = "";
+      if (selectedFile) {
+        try {
+          const storageRef = ref(storage, `pfps/${currentWallet}`);
+          await uploadBytes(storageRef, selectedFile);
+          pfpUrl = await getDownloadURL(storageRef);
+        } catch (e) {
+          console.error("Upload failed", e);
+        }
+      }
 
-  let pfpUrl = "";
-  if (selectedFile) {
-    try {
-      console.log("Uploading PFP...");
-      const storageRef = ref(storage, `pfps/${currentWallet}`);
-      await uploadBytes(storageRef, selectedFile);
-      pfpUrl = await getDownloadURL(storageRef);
-      console.log("Uploaded to Firebase:", pfpUrl);
-    } catch (uploadErr) {
-      console.error("UPLOAD ERROR:", uploadErr);
-    }
-  } else {
-    console.log("No file selected.");
-  }
+      const userData = {
+        username,
+        xHandle,
+        pfpUrl,
+        profileCreated: true
+      };
 
-  const userData = {
-    username,
-    xHandle,
-    pfpUrl,
-    profileCreated: true
-  };
+      try {
+        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
+        alert("Profile created!");
+        createBtn.classList.add("hidden");
+        enterBtn.classList.remove("hidden");
+      } catch (e) {
+        console.error("Firestore error", e);
+        alert("Error saving profile.");
+      }
+    });
 
-  try {
-    console.log("Saving user data to Firestore:", userData);
-    await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-    enterBtn.style.display = "inline-block";
-    createBtn.style.display = "none";
-    alert("Profile created!");
-  } catch (firestoreErr) {
-    console.error("FIRESTORE SAVE ERROR:", firestoreErr);
-    alert("Error saving profile.");
-  }
-});
-
-enterBtn.addEventListener("click", () => {
-  window.location.href = "/vault.html";
-});
-</script>
+    enterBtn.addEventListener("click", () => {
+      window.location.href = "/vault.html";
+    });
+  </script>
 </body>
 </html>
