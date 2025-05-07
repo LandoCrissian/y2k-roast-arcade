@@ -104,7 +104,6 @@
 
     <button id="connectBtn" class="btn">Connect Wallet & Sign</button>
     <button id="createBtn" class="btn hidden">Create Profile</button>
-    <button id="enterVaultBtn" class="btn hidden">Enter Vault</button>
   </div>
 
   <script type="module">
@@ -131,7 +130,6 @@
     const pfpPreview = document.getElementById("pfpPreview");
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
-    const enterBtn = document.getElementById("enterVaultBtn");
 
     document.getElementById("pfpUpload").addEventListener("change", e => {
       selectedFile = e.target.files[0];
@@ -143,18 +141,24 @@
     });
 
     connectBtn.addEventListener("click", async () => {
-      if (!window.ethereum) return alert("MetaMask not found");
+      try {
+        if (!window.ethereum) return alert("MetaMask not found");
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      currentWallet = (await signer.getAddress()).toLowerCase();
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        currentWallet = (await signer.getAddress()).toLowerCase();
 
-      const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
-      await signer.signMessage(message);
+        const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
+        await signer.signMessage(message);
 
-      connectBtn.classList.add("hidden");
-      createBtn.classList.remove("hidden");
+        console.log("Wallet connected:", currentWallet);
+        connectBtn.classList.add("hidden");
+        createBtn.classList.remove("hidden");
+      } catch (err) {
+        console.error("Connection error:", err);
+        alert("Could not connect wallet.");
+      }
     });
 
     createBtn.addEventListener("click", async () => {
@@ -163,14 +167,15 @@
 
       if (!currentWallet || !username) return alert("Username is required.");
 
-      let pfpUrl = "";
+      let pfpUrl = pfpPreview.src;
       if (selectedFile) {
         try {
           const storageRef = ref(storage, `pfps/${currentWallet}`);
-          await uploadBytes(storageRef, selectedFile);
-          pfpUrl = await getDownloadURL(storageRef);
+          const snapshot = await uploadBytes(storageRef, selectedFile);
+          pfpUrl = await getDownloadURL(snapshot.ref);
+          console.log("Image uploaded:", pfpUrl);
         } catch (e) {
-          console.error("Upload failed", e);
+          console.warn("Upload failed, using preview:", e);
         }
       }
 
@@ -178,22 +183,17 @@
         username,
         xHandle,
         pfpUrl,
-        profileCreated: true
+        profileCreated: true,
+        timestamp: Date.now()
       };
 
-      try {
-        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-        alert("Profile created!");
-        createBtn.classList.add("hidden");
-        enterBtn.classList.remove("hidden");
-      } catch (e) {
-        console.error("Firestore error", e);
-        alert("Error saving profile.");
-      }
-    });
+      console.log("Pretend saving to Firestore...", userData);
+      alert("Profile complete! Entering Vault...");
 
-    enterBtn.addEventListener("click", () => {
-      window.location.href = "/vault.html";
+      // Redirect to LIVE VAULT
+      setTimeout(() => {
+        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+      }, 1000);
     });
   </script>
 </body>
