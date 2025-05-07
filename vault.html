@@ -2,102 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Profile - Quantum Vault</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+  <title>Quantum Vault – Create Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space+Grotesk', sans-serif; }
     body {
-      background: linear-gradient(to bottom right, #000, #111);
+      background: #000;
       color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 40px 16px;
-    }
-    .card {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
       padding: 24px;
-      border-radius: 18px;
+      text-align: center;
+    }
+    .panel {
       max-width: 400px;
-      width: 100%;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 0 20px rgba(0,255,225,0.1);
+      margin: 60px auto;
+      padding: 32px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
     }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
+    .title {
+      font-size: 22px;
+      margin-bottom: 12px;
       color: #00ffe1;
     }
-    input {
-      width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 14px;
-      border: 1px solid #00ffe140;
-      background: #111;
-      border-radius: 10px;
-      color: #00ffe1;
-      font-size: 14px;
-    }
-    label.upload {
-      display: inline-block;
-      background: #222;
-      color: #00ffe1;
-      padding: 8px 14px;
-      border-radius: 8px;
-      border: 1px solid #00ffe140;
-      cursor: pointer;
+    .desc {
       font-size: 13px;
-      margin-bottom: 10px;
-    }
-    #confirmBtn, #enterVaultBtn {
-      width: 100%;
-      padding: 12px;
-      background: #00ffe1;
-      color: #000;
-      font-weight: bold;
-      font-size: 15px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 16px;
-    }
-    #enterVaultBtn {
-      background: #111;
-      color: #00ffe1;
-      border: 1px solid #00ffe140;
-      display: none;
-    }
-    .disclaimer {
-      font-size: 13px;
+      margin-bottom: 24px;
       color: #ccc;
-      margin: 14px 0;
-      text-align: center;
     }
-    .preview-img {
+    .input {
+      width: 100%;
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #111;
+      color: #00ffe1;
+      font-size: 13px;
+    }
+    .upload-label {
+      display: block;
+      margin: 10px auto;
+      padding: 8px 16px;
+      background: #111;
+      border: 1px solid #00ffe140;
+      color: #00ffe1;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      width: fit-content;
+    }
+    .upload-label:hover { background: #181818; }
+    #pfpPreview {
       width: 80px;
       height: 80px;
-      object-fit: cover;
       border-radius: 50%;
+      object-fit: cover;
+      margin: 10px auto;
       border: 2px solid #00ffe1;
-      margin: auto;
-      display: block;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .btn:hover { transform: scale(1.03); }
+    #enterVaultBtn {
+      display: none;
+      margin-top: 24px;
+      background: #00ffe1;
+      color: #000;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h2>Create Your Profile</h2>
-    <img id="preview" class="preview-img" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=wallet" />
-    <input id="nickname" type="text" placeholder="Nickname" />
-    <input id="handle" type="text" placeholder="𝕏 Handle (Optional)" />
-    <label class="upload" for="pfp">Choose Profile Pic</label>
-    <input type="file" id="pfp" accept="image/*" style="display:none;" />
-    <div class="disclaimer">By clicking confirm, you agree to our terms and understand that losses are possible. DYOR before participating.</div>
-    <button id="confirmBtn">Confirm Profile</button>
-    <button id="enterVaultBtn" onclick="window.location.href='vault.html'">Enter Vault</button>
+  <div class="panel">
+    <div class="title">Create Your Quantum Profile</div>
+    <div class="desc">Welcome to the Quantum Vault — sign in and create your player profile.<br><br>**DYOR. You may lose funds. Gambling is risky.**</div>
+
+    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="PFP" />
+    <label class="upload-label" for="pfpUpload">Upload Profile Picture</label>
+    <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
+
+    <input id="username" class="input" type="text" placeholder="Username (required)" />
+    <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
+    <button id="connectBtn" class="btn">Connect Wallet & Sign</button>
+    <button id="createBtn" class="btn" style="display:none;">Create Profile</button>
+    <button id="enterVaultBtn" class="btn">Enter Vault</button>
   </div>
 
     <script type="module">
@@ -121,68 +122,74 @@
     let currentWallet = "";
     let selectedFile = null;
 
-    async function connectWalletAndSign() {
-      try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
-        const address = await signer.getAddress();
-        const message = "By signing, you accept the risk of loss and agree to play responsibly on Quantum Vault.";
-        await signer.signMessage(message);
-        currentWallet = address.toLowerCase();
-        document.getElementById("preview").src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
-        return true;
-      } catch (err) {
-        alert("Wallet connection or signature failed.");
-        return false;
-      }
-    }
+    const connectBtn = document.getElementById("connectBtn");
+    const createBtn = document.getElementById("createBtn");
+    const enterBtn = document.getElementById("enterVaultBtn");
+    const pfpPreview = document.getElementById("pfpPreview");
 
-    document.getElementById("pfp").addEventListener("change", (e) => {
+    document.getElementById("pfpUpload").addEventListener("change", (e) => {
       selectedFile = e.target.files[0];
       if (selectedFile) {
         const reader = new FileReader();
-        reader.onload = () => {
-          document.getElementById("preview").src = reader.result;
-        };
+        reader.onload = () => { pfpPreview.src = reader.result; };
         reader.readAsDataURL(selectedFile);
       }
     });
 
-    document.getElementById("confirmBtn").addEventListener("click", async () => {
-      const nickname = document.getElementById("nickname").value.trim();
-      const handle = document.getElementById("handle").value.trim();
-
-      if (!nickname) {
-        alert("Please enter a nickname.");
+    connectBtn.addEventListener("click", async () => {
+      if (!window.ethereum) {
+        alert("MetaMask not found");
         return;
       }
 
-      const ok = await connectWalletAndSign();
-      if (!ok) return;
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = provider.getSigner();
+      const address = await signer.getAddress();
+      currentWallet = address.toLowerCase();
 
-      const userRef = doc(db, "users", currentWallet);
-      const data = {
-        nickname,
-        handle,
+      const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
+      await signer.signMessage(message);
+
+      connectBtn.style.display = "none";
+      createBtn.style.display = "inline-block";
+    });
+
+    createBtn.addEventListener("click", async () => {
+      const username = document.getElementById("username").value.trim();
+      const xHandle = document.getElementById("xHandle").value.trim();
+      if (!currentWallet || !username) {
+        alert("Username is required.");
+        return;
+      }
+
+      let pfpUrl = "";
+      if (selectedFile) {
+        const storageRef = ref(storage, `pfps/${currentWallet}`);
+        await uploadBytes(storageRef, selectedFile);
+        pfpUrl = await getDownloadURL(storageRef);
+      }
+
+      const userData = {
+        username,
+        xHandle,
+        pfpUrl,
         profileCreated: true
       };
 
-      if (selectedFile) {
-        try {
-          const storageRef = ref(storage, `pfps/${currentWallet}`);
-          await uploadBytes(storageRef, selectedFile);
-          const url = await getDownloadURL(storageRef);
-          data.pfpUrl = url;
-        } catch (e) {
-          console.warn("PFP upload failed:", e);
-        }
+      try {
+        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
+        enterBtn.style.display = "inline-block";
+        createBtn.style.display = "none";
+        alert("Profile created!");
+      } catch (err) {
+        console.error("Failed to save profile:", err);
+        alert("Error saving profile.");
       }
+    });
 
-      await setDoc(userRef, data, { merge: true });
-      document.getElementById("enterVaultBtn").style.display = "block";
-      document.getElementById("confirmBtn").textContent = "Profile Saved";
-      document.getElementById("confirmBtn").disabled = true;
+    enterBtn.addEventListener("click", () => {
+      window.location.href = "/vault.html";
     });
   </script>
 </body>
