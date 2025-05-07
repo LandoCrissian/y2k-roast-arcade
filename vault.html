@@ -74,12 +74,12 @@
   </div>
 
   <div id="modal" class="hidden">
-    <div id="modal-content">
-      <h2>Sign to Confirm</h2>
-      <p>This signature proves you own this wallet.<br>No transactions will be made.</p>
-      <button onclick="document.getElementById('modal').classList.add('hidden'); window._allowSign = true;">Continue</button>
-    </div>
+  <div id="modal-content">
+    <h2>Sign to Confirm</h2>
+    <p>This signature proves you own this wallet.<br>No transactions will be made.</p>
+    <button id="confirmSignBtn">Continue</button>
   </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
@@ -97,11 +97,17 @@
   const db = getFirestore(app);
 
   const avatarGrid = document.getElementById("avatarGrid");
-  const walletBtn = document.getElementById("walletBtn");
-  const createBtn = document.getElementById("createBtn");
-  const usernameInput = document.getElementById("username");
-  const xHandleInput = document.getElementById("xHandle");
-  const walletAddr = document.getElementById("walletAddr");
+const walletBtn = document.getElementById("walletBtn");
+const createBtn = document.getElementById("createBtn");
+const usernameInput = document.getElementById("usernameInput");
+const xHandleInput = document.getElementById("xHandleInput");
+const walletAddr = document.getElementById("walletAddr");
+
+// Attach modal confirm logic immediately
+document.getElementById("confirmSignBtn").addEventListener("click", () => {
+  document.getElementById("modal").classList.add("hidden");
+  window._allowSign = true;
+});
 
   let currentWallet = "";
   let selectedAvatar = "";
