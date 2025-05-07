@@ -133,11 +133,11 @@
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
 
-    const seedList = Array.from({ length: 12 }, (_, i) => `quantum-${i + 1}`);
+    const seedList = Array.from({ length: 16 }, (_, i) => `quantum-${i + 1}`);
     const avatarThumbs = [];
 
     seedList.forEach(seed => {
-      const url = `https://api.dicebear.com/6.x/micah/svg?seed=${seed}`;
+      const url = `https://api.dicebear.com/6.x/adventurer-neutral/svg?seed=${seed}`;
       const img = document.createElement("img");
       img.src = url;
       img.className = "avatar-thumb";
