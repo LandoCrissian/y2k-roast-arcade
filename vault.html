@@ -40,43 +40,19 @@
       font-weight: bold; cursor: pointer; transition: 0.2s ease;
     }
     .btn:hover { transform: scale(1.03); }
-    .hidden { display: none; }
     #walletAddr { font-size: 12px; color: #999; margin-top: 8px; }
-    #terms { font-size: 11px; color: #888; margin-top: 6px; }
-    #modal {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex;
-      align-items: center; justify-content: center; z-index: 1000;
-    }
-    #modal-content {
-      background: #111; padding: 20px 30px; border-radius: 12px; max-width: 320px;
-      color: #eee; text-align: center;
-    }
-    #modal-content h2 { font-size: 18px; color: var(--accent); margin-bottom: 12px; }
-    #modal-content button {
-      background: var(--accent); color: #000; padding: 10px 20px;
-      border: none; border-radius: 6px; font-weight: bold; margin-top: 12px; cursor: pointer;
-    }
   </style>
 </head>
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Connect, sign, select your robot. Then enter the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Connect your wallet, select a robot avatar, and join the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
     <div class="avatars" id="avatarGrid"></div>
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
     <button id="walletBtn" class="btn">Connect Wallet</button>
-    <div id="walletAddr" class="hidden"></div>
-    <button id="createBtn" class="btn hidden">Create Profile</button>
-    <div id="terms">By continuing, you agree to our Terms & Privacy Policy.</div>
-  </div>
-
-  <div id="modal" class="hidden">
-    <div id="modal-content">
-      <h2>Sign to Confirm</h2>
-      <p>This signature proves you own this wallet.<br>No transactions will be made.</p>
-      <button id="confirmSignBtn">Continue</button>
-    </div>
+    <div id="walletAddr"></div>
+    <button id="createBtn" class="btn" style="display:none;">Create Profile</button>
   </div>
 
   <script type="module">
@@ -102,6 +78,9 @@
     const xHandleInput = document.getElementById("xHandle");
     const walletAddr = document.getElementById("walletAddr");
 
+    let currentWallet = "";
+    let selectedAvatar = "";
+
     const avatarSeeds = Array.from({ length: 20 }, (_, i) => `quantumBot-${i}`);
     avatarSeeds.forEach(seed => {
       const img = document.createElement("img");
@@ -115,52 +94,21 @@
       avatarGrid.appendChild(img);
     });
 
-    let currentWallet = "";
-    let selectedAvatar = "";
-
-    document.getElementById("confirmSignBtn").addEventListener("click", () => {
-      document.getElementById("modal").classList.add("hidden");
-      window._allowSign = true;
-    });
-
-    async function connectWallet() {
-      walletBtn.innerText = "Connecting...";
+    walletBtn.onclick = async () => {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
       currentWallet = (await signer.getAddress()).toLowerCase();
       walletAddr.innerText = `Connected: ${currentWallet.slice(0, 6)}...${currentWallet.slice(-4)}`;
-      walletAddr.classList.remove("hidden");
+      createBtn.style.display = "block";
+    };
 
-      window._allowSign = false;
-document.getElementById("modal").classList.remove("hidden");
-
-await new Promise(resolve => {
-  const interval = setInterval(() => {
-    if (window._allowSign) {
-      clearInterval(interval);
-      resolve();
-    }
-  }, 100);
-});
-
-      await signer.signMessage("Quantum Vault Login: This proves wallet ownership. DYOR.");
-
-      const snap = await getDoc(doc(db, "users", currentWallet));
-      if (snap.exists()) {
-        alert("Welcome back! Redirecting...");
-        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-      } else {
-        walletBtn.classList.add("hidden");
-        createBtn.classList.remove("hidden");
-      }
-    }
-
-    async function saveProfile() {
+    createBtn.onclick = async () => {
       const username = usernameInput.value.trim();
       const xHandle = xHandleInput.value.trim();
       if (!currentWallet || !username || !selectedAvatar) {
-        return alert("Username and avatar required.");
+        alert("Username and avatar required.");
+        return;
       }
 
       const data = {
@@ -175,10 +123,7 @@ await new Promise(resolve => {
       await setDoc(doc(db, "users", currentWallet), data, { merge: true });
       alert("Profile created. Entering Vault...");
       window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-    }
-
-    walletBtn.onclick = connectWallet;
-    createBtn.onclick = saveProfile;
+    };
   </script>
 </body>
 </html>
