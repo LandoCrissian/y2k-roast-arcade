@@ -40,19 +40,22 @@
       font-weight: bold; cursor: pointer; transition: 0.2s ease;
     }
     .btn:hover { transform: scale(1.03); }
+    .hidden { display: none; }
     #walletAddr { font-size: 12px; color: #999; margin-top: 8px; }
+    #terms { font-size: 11px; color: #888; margin-top: 6px; }
   </style>
 </head>
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Connect your wallet, select a robot avatar, and join the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Connect, sign, select your robot. Then enter the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
     <div class="avatars" id="avatarGrid"></div>
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
     <button id="walletBtn" class="btn">Connect Wallet</button>
-    <div id="walletAddr"></div>
-    <button id="createBtn" class="btn" style="display:none;">Create Profile</button>
+    <div id="walletAddr" class="hidden"></div>
+    <button id="createBtn" class="btn hidden">Create Profile</button>
+    <div id="terms">By continuing, you agree to our Terms & Privacy Policy.</div>
   </div>
 
   <script type="module">
@@ -95,20 +98,38 @@
     });
 
     walletBtn.onclick = async () => {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
-      const signer = provider.getSigner();
-      currentWallet = (await signer.getAddress()).toLowerCase();
-      walletAddr.innerText = `Connected: ${currentWallet.slice(0, 6)}...${currentWallet.slice(-4)}`;
-      createBtn.style.display = "block";
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        currentWallet = (await signer.getAddress()).toLowerCase();
+        walletAddr.innerText = `Connected: ${currentWallet.slice(0, 6)}...${currentWallet.slice(-4)}`;
+        walletAddr.classList.remove("hidden");
+
+        // Signature message to confirm consent
+        const msg = "By signing this, I confirm I own this wallet and acknowledge the risks of gambling in the Quantum Vault.";
+        await signer.signMessage(msg);
+
+        const snap = await getDoc(doc(db, "users", currentWallet));
+        if (snap.exists()) {
+          alert("Welcome back! Redirecting...");
+          window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+        } else {
+          walletBtn.classList.add("hidden");
+          createBtn.classList.remove("hidden");
+        }
+      } catch (err) {
+        alert("Wallet connection or signature failed.");
+        console.error(err);
+      }
     };
 
     createBtn.onclick = async () => {
       const username = usernameInput.value.trim();
       const xHandle = xHandleInput.value.trim();
+
       if (!currentWallet || !username || !selectedAvatar) {
-        alert("Username and avatar required.");
-        return;
+        return alert("Username and avatar required.");
       }
 
       const data = {
@@ -120,9 +141,14 @@
         createdAt: Date.now()
       };
 
-      await setDoc(doc(db, "users", currentWallet), data, { merge: true });
-      alert("Profile created. Entering Vault...");
-      window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+      try {
+        await setDoc(doc(db, "users", currentWallet), data, { merge: true });
+        alert("Profile created! Entering the Vault...");
+        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+      } catch (err) {
+        alert("Error saving profile.");
+        console.error("Firestore error:", err);
+      }
     };
   </script>
 </body>
