@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-  <title>Y2K Quantum Vault - Dashboard</title>
+  <title>Enter the Y2K Quantum Vault</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
@@ -11,215 +11,70 @@
     body {
       background-color: #000;
       color: #fff;
-      overflow-x: hidden;
       padding: env(safe-area-inset);
-      scroll-behavior: smooth;
-    }
-    .cyber-grid {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-image: linear-gradient(rgba(99,102,241,0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(99,102,241,0.1) 1px, transparent 1px);
-      background-size: 20px 20px;
-      transform: perspective(500px) rotateX(60deg);
-      animation: gridMove 20s linear infinite;
-      z-index: 0;
-      opacity: 0.2;
-    }
-    @keyframes gridMove {
-      from { background-position: 0 0; }
-      to { background-position: 0 20px; }
-    }
-    .container {
-      position: relative;
-      z-index: 1;
-      max-width: 430px;
-      margin: auto;
-      padding: 16px;
-      padding-bottom: 80px;
-    }
-    .header-bar {
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
-      margin-bottom: 16px;
+      justify-content: center;
+      min-height: 100vh;
     }
-    .nav-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      color: #00ffe1;
-      font-size: 13px;
-      padding: 8px 14px;
-      text-decoration: none;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 0 6px rgba(0,255,225,0.1);
-      transition: 0.2s ease;
-    }
-    .nav-btn:hover {
-      background: rgba(255,255,255,0.08);
-      transform: scale(1.03);
-    }
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 40px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 10px;
-      min-width: 160px;
-      z-index: 99;
-      backdrop-filter: blur(10px);
-      text-align: left;
-    }
-    .dropdown-content a {
-      color: #00ffe1;
-      padding: 10px 14px;
-      display: block;
-      font-size: 13px;
-      text-decoration: none;
-    }
-    .dropdown-content a:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-    .dropdown:hover .dropdown-content { display: block; }
-    .wallet-hud {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 12px 16px;
-      margin-bottom: 16px;
-      backdrop-filter: blur(10px);
-    }
-    .wallet-hud span {
-      color: #00ffe1;
-      font-size: 14px;
-      word-break: break-word;
-      cursor: pointer;
-    }
-    .wallet-hud span:hover { text-decoration: underline; }
-    .glass-panel {
+    .vault-box {
       background: rgba(255,255,255,0.03);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
       padding: 24px;
-      margin-top: 16px;
-    }
-    .game-title {
-      font-size: 20px;
-      color: #fff;
-      margin-bottom: 8px;
+      width: 92%;
+      max-width: 400px;
       text-align: center;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 0 20px rgba(0,255,225,0.08);
     }
-    .game-details {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 16px;
-      text-align: center;
+    .vault-box h1 {
+      font-size: 22px;
+      margin-bottom: 14px;
+      color: #00ffe1;
     }
-    .buy-btn {
-      display: block;
+    .vault-box p {
+      font-size: 13px;
+      color: #bbb;
+      margin-bottom: 12px;
+    }
+    input, textarea {
       width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white;
-      border: none;
+      padding: 10px;
       border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-      box-shadow: 0 0 10px rgba(99,102,241,0.3);
-      transition: 0.2s ease;
-    }
-    .buy-btn:hover { transform: scale(1.03); }
-    .status-badge {
-      display: inline-block;
-      font-size: 12px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: bold;
-      margin-top: 8px;
-      background: #22d3ee20;
-      color: #22d3ee;
-      border: 1px solid #22d3ee40;
-      text-align: center;
-    }
-    .status-live  { background: #34d39920; color: #34d399; border-color: #34d39960; }
-    .status-final { background: #ef444420; color: #ef4444; border-color: #ef444460; }
-    .status-paid  { background: #a855f720; color: #a855f7; border-color: #a855f760; }
-    #statusSelector {
-      margin-top: 12px;
-      width: 100%;
-      padding: 8px;
-      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
       background: #111;
       color: #00ffe1;
-      border: 1px solid #00ffe140;
-      display: none;
+      margin-bottom: 14px;
       font-size: 13px;
     }
-    .placeholder-grid {
-      margin-top: 24px;
-      height: 180px;
-      border-radius: 12px;
-      background: repeating-linear-gradient(
-        45deg, rgba(255,255,255,0.03), rgba(255,255,255,0.03) 10px,
-        rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px
-      );
-      border: 1px dashed rgba(255,255,255,0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.3);
-      font-size: 14px;
-    }
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(6px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-    }
-    .modal-content {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 14px;
-      padding: 24px;
-      max-width: 90%;
-      width: 360px;
+    .connect-btn, .proceed-btn, .sign-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
       color: #fff;
-      box-shadow: 0 0 20px rgba(0,255,225,0.2);
-      text-align: center;
-    }
-    .modal-content h2 { margin-bottom: 12px; color: #00ffe1; font-size: 18px; }
-    .modal-content p {
+      font-weight: bold;
       font-size: 14px;
-      margin: 4px 0;
-      color: #ccc;
+      border: none;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
     }
-    .modal-content img {
+    .connect-btn:hover, .proceed-btn:hover {
+      transform: scale(1.02);
+    }
+    .pfp-preview {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 12px;
       border: 2px solid #00ffe1;
+      margin: 10px auto;
     }
-    .upload-btn, .close-btn {
-      margin-top: 10px;
+    .hidden { display: none; }
+    label.upload-btn {
       background: #222;
       border: 1px solid #00ffe140;
       color: #00ffe1;
@@ -227,229 +82,149 @@
       border-radius: 8px;
       font-size: 12px;
       cursor: pointer;
+      display: inline-block;
+      margin-bottom: 10px;
     }
   </style>
 </head>
 <body>
-    <div class="cyber-grid"></div>
-  <div class="container">
-    <div class="header-bar">
-      <a href="https://y2kcoin.org" class="nav-btn">Main Site</a>
-      <div class="dropdown">
-        <button class="nav-btn">Menu</button>
-        <div class="dropdown-content">
-          <a href="#">Settings</a>
-          <a href="https://discord.gg/XxtpYNXX4a">Discord</a>
-          <a href="#">Log Out</a>
-        </div>
-      </div>
-    </div>
+  <div class="vault-box">
+    <h1>Enter the Quantum Vault</h1>
+    <p>Please connect your wallet and accept the disclaimer to continue.</p>
+    <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
+    <p id="walletDisplay" style="font-size:13px; margin-top:10px;"></p>
+    <p id="balanceDisplay" style="font-size:13px; color:#00ffe1;"></p>
 
-    <div class="wallet-hud">
-      <span id="wallet" onclick="openProfileModal()">0x...</span>
-      <span id="balance">0 Y2K</span>
-      <input id="nicknameInput" type="text" placeholder="Enter 𝕏 or nickname" style="flex:1; background:#111; border:1px solid #00ffe140; color:#00ffe1; padding:4px 8px; border-radius:8px; font-size:12px;" />
-      <button id="connectWalletBtn" class="nav-btn" style="margin-top:12px;">Connect Wallet</button>
-    </div>
+    <p style="margin-top:16px;">Disclaimer: This is a gambling application. Loss of funds is possible. DYOR.</p>
+    <button id="signDisclaimerBtn" class="sign-btn hidden">Accept & Sign to Continue</button>
 
-    <div class="glass-panel">
-      <div class="game-title">NBA Finals – Game 1</div>
-      <div class="game-details">Buy-in: 200,000 Y2K<br>Pot Total: 4,000,000 Y2K</div>
-      <div id="statusBadge" class="status-badge status-live">LIVE</div>
-      <select id="statusSelector">
-        <option value="live">LIVE</option>
-        <option value="final">FINAL</option>
-        <option value="paid">PAID</option>
-      </select>
-      <button class="buy-btn">Buy a Square</button>
-    </div>
-
-    <div class="placeholder-grid">[ Square Grid Coming Soon ]</div>
-  </div>
-
-  <!-- Profile Modal -->
-  <div id="profileModal" class="modal-overlay">
-    <div class="modal-content">
-      <img id="profileImage" src="" alt="PFP" />
-      <h2>Player Profile</h2>
-      <p id="profileName">@nickname</p>
-      <p id="profileWallet">Wallet: 0x1234...abcd</p>
-      <p id="gamesPlayed">Games Played: 0</p>
-      <p id="squaresBought">Squares Bought: 0</p>
-      <p id="totalEarnings">Y2K Earnings: 0</p>
-      <label class="upload-btn" for="pfpUpload">Choose New PFP</label>
-      <input id="pfpUpload" type="file" accept="image/*" style="display:none;" />
-      <button id="confirmUploadBtn" class="upload-btn" style="display:none;">Confirm Upload</button>
-      <button class="close-btn">Close</button>
+    <div id="profileFields" class="hidden">
+      <input id="username" type="text" placeholder="Pick a username (required)" />
+      <input id="xhandle" type="text" placeholder="𝕏 handle (optional)" />
+      <img id="pfpPreview" class="pfp-preview hidden" src="" alt="PFP" />
+      <label class="upload-btn" for="pfpInput">Choose Profile Picture</label>
+      <input id="pfpInput" type="file" accept="image/*" class="hidden" />
+      <button id="proceedBtn" class="proceed-btn">Create Profile & Enter</button>
     </div>
   </div>
 
-    <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-      authDomain: "y2k-arcade.firebaseapp.com",
-      projectId: "y2k-arcade",
-      storageBucket: "y2k-arcade.appspot.com",
-      messagingSenderId: "1063043176357",
-      appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+  const firebaseConfig = {
+    apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+    authDomain: "y2k-arcade.firebaseapp.com",
+    projectId: "y2k-arcade",
+    storageBucket: "y2k-arcade.appspot.com",
+    messagingSenderId: "1063043176357",
+    appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+
+  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
+  const cronosRpc = "https://evm.cronos.org";
+  const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
+  let currentWallet = "";
+  let selectedPFP = null;
+
+  const connectBtn = document.getElementById("connectWalletBtn");
+  const signBtn = document.getElementById("signDisclaimerBtn");
+  const profileFields = document.getElementById("profileFields");
+  const proceedBtn = document.getElementById("proceedBtn");
+  const pfpInput = document.getElementById("pfpInput");
+  const pfpPreview = document.getElementById("pfpPreview");
+
+  connectBtn.onclick = async () => {
+    try {
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      currentWallet = accounts[0].toLowerCase();
+      document.getElementById("walletDisplay").textContent = `Connected: ${currentWallet.slice(0,6)}...${currentWallet.slice(-4)}`;
+      await fetchBalance(currentWallet);
+      signBtn.classList.remove("hidden");
+    } catch (err) {
+      console.error("Wallet connection failed", err);
+    }
+  };
+
+  async function fetchBalance(wallet) {
+    const abi = ["function balanceOf(address) view returns (uint256)"];
+    const token = new ethers.Contract(contractAddress, abi, provider);
+    try {
+      const balance = await token.balanceOf(wallet);
+      const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
+      document.getElementById("balanceDisplay").textContent = `Balance: ${y2k} Y2K`;
+    } catch (e) {
+      console.warn("Balance fetch failed:", e);
+    }
+  }
+
+  signBtn.onclick = async () => {
+    try {
+      const message = "By signing this message, I accept the risks of using the Y2K Quantum Vault. DYOR.";
+      const signed = await window.ethereum.request({
+        method: "personal_sign",
+        params: [message, currentWallet]
+      });
+      console.log("Signature confirmed:", signed);
+      signBtn.classList.add("hidden");
+      profileFields.classList.remove("hidden");
+    } catch (err) {
+      console.error("Signature rejected:", err);
+    }
+  };
+
+  pfpInput.addEventListener("change", (e) => {
+    selectedPFP = e.target.files[0];
+    if (selectedPFP) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        pfpPreview.src = reader.result;
+        pfpPreview.classList.remove("hidden");
+      };
+      reader.readAsDataURL(selectedPFP);
+    }
+  });
+
+  proceedBtn.onclick = async () => {
+    const username = document.getElementById("username").value.trim();
+    const xhandle = document.getElementById("xhandle").value.trim();
+
+    if (!username || !currentWallet) {
+      alert("Please enter a username and connect wallet.");
+      return;
+    }
+
+    let pfpUrl = "";
+    if (selectedPFP) {
+      try {
+        const storageRef = ref(storage, `pfps/${currentWallet}`);
+        await uploadBytes(storageRef, selectedPFP);
+        pfpUrl = await getDownloadURL(storageRef);
+      } catch (err) {
+        console.error("PFP upload failed:", err);
+      }
+    }
+
+    const profileData = {
+      username,
+      xhandle: xhandle || "",
+      pfpUrl,
+      created: Date.now()
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const storage = getStorage(app);
-
-    const ADMIN_WALLET = "0x348c2F06C64b4465f90446Fd806aFf3A01220450";
-    const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-    const cronosRpc = "https://evm.cronos.org";
-
-    let currentWallet = "";
-    let selectedPFPFile = null;
-
-    async function fetchY2KBalance(wallet) {
-      const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
-      const abi = ["function balanceOf(address) view returns (uint256)"];
-      const token = new ethers.Contract(contractAddress, abi, provider);
-      try {
-        const balance = await token.balanceOf(wallet);
-        const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-        document.getElementById("balance").textContent = `${y2k} Y2K`;
-      } catch (e) {
-        console.warn("Y2K fetch error:", e);
-      }
+    try {
+      await setDoc(doc(db, "users", currentWallet), profileData, { merge: true });
+      window.location.href = "vault.html";
+    } catch (err) {
+      console.error("Profile creation failed:", err);
     }
-
-    async function connectWallet() {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      const wallet = accounts[0];
-      currentWallet = wallet.toLowerCase();
-
-      const walletSpan = document.getElementById("wallet");
-      const nicknameInput = document.getElementById("nicknameInput");
-      const connectBtn = document.getElementById("connectWalletBtn");
-      const gameId = "nba_game1";
-
-      walletSpan.textContent = wallet.slice(0, 6) + "..." + wallet.slice(-4);
-      fetchY2KBalance(wallet);
-
-      connectBtn.textContent = "Disconnect";
-            connectBtn.onclick = () => location.reload();
-
-      const userDocRef = doc(db, "users", currentWallet);
-      const snap = await getDoc(userDocRef);
-      if (snap.exists()) {
-        nicknameInput.value = snap.data().nickname || "";
-      }
-
-      nicknameInput.addEventListener("change", async () => {
-        const nickname = nicknameInput.value.trim();
-        if (nickname.length > 0) {
-          await setDoc(userDocRef, { nickname }, { merge: true });
-        }
-      });
-
-      onSnapshot(userDocRef, (docSnap) => {
-        if (docSnap.exists()) {
-          nicknameInput.value = docSnap.data().nickname || "";
-        }
-      });
-
-      const selector = document.getElementById("statusSelector");
-      if (wallet.toLowerCase() === ADMIN_WALLET.toLowerCase()) {
-        selector.style.display = "block";
-        selector.addEventListener("change", async () => {
-          await setDoc(doc(db, "games", gameId), { status: selector.value });
-        });
-      }
-
-      const badge = document.getElementById("statusBadge");
-      function updateBadge(status) {
-        badge.textContent = status.toUpperCase();
-        badge.className = "status-badge status-" + status;
-      }
-
-      onSnapshot(doc(db, "games", gameId), (docSnap) => {
-        if (docSnap.exists()) {
-          const status = docSnap.data().status;
-          updateBadge(status);
-          selector.value = status;
-        }
-      });
-    }
-
-    async function openProfileModal() {
-      const modal = document.getElementById("profileModal");
-      const profileName = document.getElementById("profileName");
-      const profileWallet = document.getElementById("profileWallet");
-      const profileImage = document.getElementById("profileImage");
-
-      const shortWallet = currentWallet.slice(0, 6) + "..." + currentWallet.slice(-4);
-      profileWallet.textContent = "Wallet: " + shortWallet;
-
-      const docSnap = await getDoc(doc(db, "users", currentWallet));
-      profileName.textContent = docSnap.exists() && docSnap.data().nickname
-        ? "@" + docSnap.data().nickname
-        : "@unknown";
-
-      document.getElementById("gamesPlayed").textContent = "Games Played: " + (docSnap.data()?.gamesPlayed || 0);
-      document.getElementById("squaresBought").textContent = "Squares Bought: " + (docSnap.data()?.squaresBought || 0);
-      document.getElementById("totalEarnings").textContent = "Y2K Earnings: " + (docSnap.data()?.earnings || 0);
-
-      if (docSnap.data()?.pfpUrl) {
-        profileImage.src = docSnap.data().pfpUrl;
-      } else {
-        profileImage.src = "https://api.dicebear.com/6.x/pixel-art/svg?seed=" + currentWallet.slice(2, 8);
-      }
-
-      modal.style.display = "flex";
-    }
-
-    function closeProfileModal() {
-      document.getElementById("profileModal").style.display = "none";
-    }
-
-    document.getElementById("pfpUpload").addEventListener("change", (event) => {
-      selectedPFPFile = event.target.files[0];
-      if (selectedPFPFile) {
-        document.getElementById("confirmUploadBtn").style.display = "inline-block";
-      }
-    });
-
-    document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
-  console.log("Confirm Upload Clicked");
-  console.log("Selected file:", selectedPFPFile);
-  console.log("Current wallet:", currentWallet);
-
-  if (!selectedPFPFile || !currentWallet) {
-    console.warn("Missing file or wallet");
-    return;
-  }
-
-  try {
-    const storageRef = ref(storage, `pfps/${currentWallet}`);
-    const snapshot = await uploadBytes(storageRef, selectedPFPFile);
-    const url = await getDownloadURL(storageRef);
-    console.log("Upload complete. URL:", url);
-
-    await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
-    document.getElementById("profileImage").src = url;
-
-    selectedPFPFile = null;
-    document.getElementById("confirmUploadBtn").style.display = "none";
-    console.log("PFP updated in UI.");
-  } catch (error) {
-    console.error("Upload failed:", error);
-  }
-});
-
-    window.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
-      document.getElementById("wallet").addEventListener("click", openProfileModal);
-      document.querySelector(".close-btn").addEventListener("click", closeProfileModal);
-    });
-  </script>
+  };
+</script>
+    </script>
 </body>
 </html>
