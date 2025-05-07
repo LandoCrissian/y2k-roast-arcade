@@ -133,11 +133,16 @@
       walletAddr.classList.remove("hidden");
 
       window._allowSign = false;
-      document.getElementById("modal").classList.remove("hidden");
-      await new Promise(resolve => {
-        const check = () => window._allowSign ? resolve(true) : setTimeout(check, 100);
-        check();
-      });
+document.getElementById("modal").classList.remove("hidden");
+
+await new Promise(resolve => {
+  const interval = setInterval(() => {
+    if (window._allowSign) {
+      clearInterval(interval);
+      resolve();
+    }
+  }, 100);
+});
 
       await signer.signMessage("Quantum Vault Login: This proves wallet ownership. DYOR.");
 
