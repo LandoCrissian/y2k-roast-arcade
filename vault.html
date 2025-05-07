@@ -96,11 +96,11 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  const avatarGrid = document.getElementById("avatarGrid");
+const avatarGrid = document.getElementById("avatarGrid");
 const walletBtn = document.getElementById("walletBtn");
 const createBtn = document.getElementById("createBtn");
-const usernameInput = document.getElementById("usernameInput");
-const xHandleInput = document.getElementById("xHandleInput");
+const usernameInput = document.getElementById("username");
+const xHandleInput = document.getElementById("xHandle");
 const walletAddr = document.getElementById("walletAddr");
 
 // Attach modal confirm logic immediately
@@ -156,8 +156,8 @@ document.getElementById("confirmSignBtn").addEventListener("click", () => {
   }
 
   async function saveProfile() {
-    const username = usernameInput.value.trim();
-    const xHandle = xHandleInput.value.trim();
+    const usernameInput = document.getElementById("username");
+const xHandleInput = document.getElementById("xHandle");
     if (!currentWallet || !username || !selectedAvatar) return alert("Username and avatar required.");
 
     const data = {
