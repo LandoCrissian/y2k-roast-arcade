@@ -77,12 +77,6 @@
       transition: 0.2s ease;
     }
     .btn:hover { transform: scale(1.03); }
-    #enterVaultBtn {
-      display: none;
-      margin-top: 24px;
-      background: #00ffe1;
-      color: #000;
-    }
   </style>
 </head>
 <body>
@@ -96,12 +90,12 @@
 
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
+
     <button id="connectBtn" class="btn">Connect Wallet & Sign</button>
     <button id="createBtn" class="btn" style="display:none;">Create Profile</button>
-    <button id="enterVaultBtn" class="btn">Enter Vault</button>
   </div>
 
-  <script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
@@ -124,10 +118,10 @@
 
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
-    const enterBtn = document.getElementById("enterVaultBtn");
+    const pfpUpload = document.getElementById("pfpUpload");
     const pfpPreview = document.getElementById("pfpPreview");
 
-    document.getElementById("pfpUpload").addEventListener("change", (e) => {
+    pfpUpload.addEventListener("change", (e) => {
       selectedFile = e.target.files[0];
       if (selectedFile) {
         const reader = new FileReader();
@@ -137,19 +131,15 @@
     });
 
     connectBtn.addEventListener("click", async () => {
-      if (!window.ethereum) {
-        alert("MetaMask not found");
-        return;
-      }
+      if (!window.ethereum) return alert("MetaMask not found");
 
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       await provider.send("eth_requestAccounts", []);
       const signer = provider.getSigner();
-      const address = await signer.getAddress();
-      currentWallet = address.toLowerCase();
+      currentWallet = (await signer.getAddress()).toLowerCase();
 
-      const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
-      await signer.signMessage(message);
+      const disclaimer = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
+      await signer.signMessage(disclaimer);
 
       connectBtn.style.display = "none";
       createBtn.style.display = "inline-block";
@@ -158,10 +148,7 @@
     createBtn.addEventListener("click", async () => {
       const username = document.getElementById("username").value.trim();
       const xHandle = document.getElementById("xHandle").value.trim();
-      if (!currentWallet || !username) {
-        alert("Username is required.");
-        return;
-      }
+      if (!currentWallet || !username) return alert("Username is required.");
 
       let pfpUrl = "";
       if (selectedFile) {
@@ -179,17 +166,12 @@
 
       try {
         await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-        enterBtn.style.display = "inline-block";
-        createBtn.style.display = "none";
         alert("Profile created!");
+        window.location.href = "/vault.html";
       } catch (err) {
-        console.error("Failed to save profile:", err);
-        alert("Error saving profile.");
+        console.error("Profile creation error:", err);
+        alert("Failed to create profile.");
       }
-    });
-
-    enterBtn.addEventListener("click", () => {
-      window.location.href = "/vault.html";
     });
   </script>
 </body>
