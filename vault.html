@@ -3,109 +3,97 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
-  <title>Enter the Y2K Quantum Vault</title>
+  <title>Create Profile – Quantum Vault</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body {
-      background-color: #000;
+      background: #000;
       color: #fff;
-      padding: env(safe-area-inset);
+      min-height: 100vh;
+      padding: 24px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
+      background-image: radial-gradient(circle at 50% 10%, rgba(99,102,241,0.05), transparent 70%);
     }
-    .vault-box {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 18px;
-      padding: 24px;
-      width: 92%;
-      max-width: 400px;
-      text-align: center;
-      backdrop-filter: blur(16px);
-      box-shadow: 0 0 20px rgba(0,255,225,0.08);
-    }
-    .vault-box h1 {
-      font-size: 22px;
-      margin-bottom: 14px;
+    h1 {
+      font-size: 24px;
       color: #00ffe1;
+      margin-bottom: 16px;
     }
-    .vault-box p {
-      font-size: 13px;
+    p {
+      font-size: 14px;
       color: #bbb;
-      margin-bottom: 12px;
+      text-align: center;
+      max-width: 320px;
+      margin-bottom: 20px;
     }
-    input, textarea {
+    .input-group {
+      margin-bottom: 14px;
       width: 100%;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
+    }
+    input[type="text"], input[type="file"] {
+      width: 100%;
+      padding: 10px 14px;
       background: #111;
       color: #00ffe1;
-      margin-bottom: 14px;
-      font-size: 13px;
-    }
-    .connect-btn, .proceed-btn, .sign-btn {
-      width: 100%;
-      padding: 12px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-      font-weight: bold;
+      border: 1px solid #00ffe140;
+      border-radius: 8px;
       font-size: 14px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: 0.2s ease;
+      outline: none;
     }
-    .connect-btn:hover, .proceed-btn:hover {
+    button {
+      background: linear-gradient(to right, #6366f1, #8b5cf6);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
       transform: scale(1.02);
+    }
+    #confirmUploadBtn {
+      display: none;
+      background: #00ffe1;
+      color: #000;
+    }
+    #enterVaultBtn {
+      margin-top: 28px;
+      display: none;
+      background: #22c55e;
+      color: #000;
     }
     .pfp-preview {
       width: 80px;
       height: 80px;
-      border-radius: 50%;
       object-fit: cover;
+      border-radius: 50%;
       border: 2px solid #00ffe1;
-      margin: 10px auto;
-    }
-    .hidden { display: none; }
-    label.upload-btn {
-      background: #222;
-      border: 1px solid #00ffe140;
-      color: #00ffe1;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 12px;
-      cursor: pointer;
-      display: inline-block;
-      margin-bottom: 10px;
+      margin: 12px auto;
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="vault-box">
-    <h1>Enter the Quantum Vault</h1>
-    <p>Please connect your wallet and accept the disclaimer to continue.</p>
-    <button id="connectWalletBtn" class="connect-btn">Connect Wallet</button>
-    <p id="walletDisplay" style="font-size:13px; margin-top:10px;"></p>
-    <p id="balanceDisplay" style="font-size:13px; color:#00ffe1;"></p>
+  <h1>Create Your Quantum Profile</h1>
+  <p>Connect your wallet to begin. Accept the disclaimer to continue into the gambling realm.</p>
 
-    <p style="margin-top:16px;">Disclaimer: This is a gambling application. Loss of funds is possible. DYOR.</p>
-    <button id="signDisclaimerBtn" class="sign-btn hidden">Accept & Sign to Continue</button>
+  <button id="connectWalletBtn">Connect Wallet</button>
 
-    <div id="profileFields" class="hidden">
-      <input id="username" type="text" placeholder="Pick a username (required)" />
-      <input id="xhandle" type="text" placeholder="𝕏 handle (optional)" />
-      <img id="pfpPreview" class="pfp-preview hidden" src="" alt="PFP" />
-      <label class="upload-btn" for="pfpInput">Choose Profile Picture</label>
-      <input id="pfpInput" type="file" accept="image/*" class="hidden" />
-      <button id="proceedBtn" class="proceed-btn">Create Profile & Enter</button>
-    </div>
+  <div id="profileForm" style="display:none; max-width: 300px; width: 100%; text-align: center;">
+    <img id="pfpPreview" class="pfp-preview" />
+    <div class="input-group"><input id="username" type="text" placeholder="Username" /></div>
+    <div class="input-group"><input id="handle" type="text" placeholder="𝕏 handle (optional)" /></div>
+    <div class="input-group"><input type="file" id="pfpUpload" accept="image/*" /></div>
+    <button id="confirmUploadBtn">Upload PFP</button>
+    <button id="saveProfileBtn">Save Profile</button>
+    <button id="enterVaultBtn" onclick="location.href='vault.html'">Enter Vault</button>
   </div>
 
   <script type="module">
@@ -126,105 +114,89 @@
   const db = getFirestore(app);
   const storage = getStorage(app);
 
-  const contractAddress = "0xB4Df7d2A736Cc391146bB0dF4277E8F68247Ac6d";
-  const cronosRpc = "https://evm.cronos.org";
-  const provider = new ethers.providers.JsonRpcProvider(cronosRpc);
   let currentWallet = "";
-  let selectedPFP = null;
+  let selectedPFPFile = null;
 
-  const connectBtn = document.getElementById("connectWalletBtn");
-  const signBtn = document.getElementById("signDisclaimerBtn");
-  const profileFields = document.getElementById("profileFields");
-  const proceedBtn = document.getElementById("proceedBtn");
-  const pfpInput = document.getElementById("pfpInput");
-  const pfpPreview = document.getElementById("pfpPreview");
+  async function connectWallet() {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    currentWallet = accounts[0].toLowerCase();
+    document.getElementById("connectWalletBtn").textContent = currentWallet.slice(0,6) + "..." + currentWallet.slice(-4);
 
-  connectBtn.onclick = async () => {
-    try {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      currentWallet = accounts[0].toLowerCase();
-      document.getElementById("walletDisplay").textContent = `Connected: ${currentWallet.slice(0,6)}...${currentWallet.slice(-4)}`;
-      await fetchBalance(currentWallet);
-      signBtn.classList.remove("hidden");
-    } catch (err) {
-      console.error("Wallet connection failed", err);
-    }
-  };
-
-  async function fetchBalance(wallet) {
-    const abi = ["function balanceOf(address) view returns (uint256)"];
-    const token = new ethers.Contract(contractAddress, abi, provider);
-    try {
-      const balance = await token.balanceOf(wallet);
-      const y2k = parseFloat(ethers.utils.formatUnits(balance, 18)).toFixed(2);
-      document.getElementById("balanceDisplay").textContent = `Balance: ${y2k} Y2K`;
-    } catch (e) {
-      console.warn("Balance fetch failed:", e);
+    const userDoc = await getDoc(doc(db, "users", currentWallet));
+    if (userDoc.exists() && userDoc.data().profileCreated) {
+      document.getElementById("enterVaultBtn").style.display = "block";
+    } else {
+      document.getElementById("profileForm").style.display = "block";
     }
   }
 
-  signBtn.onclick = async () => {
-    try {
-      const message = "By signing this message, I accept the risks of using the Y2K Quantum Vault. DYOR.";
-      const signed = await window.ethereum.request({
-        method: "personal_sign",
-        params: [message, currentWallet]
-      });
-      console.log("Signature confirmed:", signed);
-      signBtn.classList.add("hidden");
-      profileFields.classList.remove("hidden");
-    } catch (err) {
-      console.error("Signature rejected:", err);
-    }
-  };
+  document.getElementById("connectWalletBtn").addEventListener("click", connectWallet);
 
-  pfpInput.addEventListener("change", (e) => {
-    selectedPFP = e.target.files[0];
-    if (selectedPFP) {
+  document.getElementById("pfpUpload").addEventListener("change", (event) => {
+    selectedPFPFile = event.target.files[0];
+    if (selectedPFPFile) {
+      document.getElementById("confirmUploadBtn").style.display = "inline-block";
       const reader = new FileReader();
       reader.onload = () => {
-        pfpPreview.src = reader.result;
-        pfpPreview.classList.remove("hidden");
+        document.getElementById("pfpPreview").src = reader.result;
+        document.getElementById("pfpPreview").style.display = "block";
       };
-      reader.readAsDataURL(selectedPFP);
+      reader.readAsDataURL(selectedPFPFile);
     }
   });
 
-  proceedBtn.onclick = async () => {
-    const username = document.getElementById("username").value.trim();
-    const xhandle = document.getElementById("xhandle").value.trim();
+  document.getElementById("confirmUploadBtn").addEventListener("click", async () => {
+    if (!selectedPFPFile || !currentWallet) return;
+    try {
+      const storageRef = ref(storage, `pfps/${currentWallet}`);
+      await uploadBytes(storageRef, selectedPFPFile);
+      const url = await getDownloadURL(storageRef);
+      await setDoc(doc(db, "users", currentWallet), { pfpUrl: url }, { merge: true });
+      document.getElementById("confirmUploadBtn").style.display = "none";
+    } catch (err) {
+      console.error("Upload failed:", err);
+    }
+  });
 
-    if (!username || !currentWallet) {
-      alert("Please enter a username and connect wallet.");
+      document.getElementById("saveProfileBtn").addEventListener("click", async () => {
+    const username = document.getElementById("usernameInput").value.trim();
+    const twitter = document.getElementById("twitterInput").value.trim();
+    const agreed = document.getElementById("dyorCheckbox").checked;
+
+    if (!currentWallet) {
+      alert("Connect your wallet first.");
       return;
     }
 
-    let pfpUrl = "";
-    if (selectedPFP) {
-      try {
-        const storageRef = ref(storage, `pfps/${currentWallet}`);
-        await uploadBytes(storageRef, selectedPFP);
-        pfpUrl = await getDownloadURL(storageRef);
-      } catch (err) {
-        console.error("PFP upload failed:", err);
-      }
+    if (!agreed) {
+      alert("You must acknowledge the risks before proceeding.");
+      return;
     }
 
-    const profileData = {
-      username,
-      xhandle: xhandle || "",
-      pfpUrl,
-      created: Date.now()
-    };
+    if (!username) {
+      alert("Please enter a username.");
+      return;
+    }
 
     try {
-      await setDoc(doc(db, "users", currentWallet), profileData, { merge: true });
-      window.location.href = "vault.html";
+      const userRef = doc(db, "users", currentWallet);
+      const update = {
+        username,
+        twitter,
+        profileCreated: true
+      };
+      await setDoc(userRef, update, { merge: true });
+
+      document.getElementById("profileForm").style.display = "none";
+      document.getElementById("enterVaultBtn").style.display = "block";
     } catch (err) {
-      console.error("Profile creation failed:", err);
+      console.error("Failed to save profile:", err);
     }
-  };
-</script>
-    </script>
+  });
+
+  document.getElementById("enterVaultBtn").addEventListener("click", () => {
+    window.location.href = "vault.html";
+  });
+  </script>
 </body>
 </html>
