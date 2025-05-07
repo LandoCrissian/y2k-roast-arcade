@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Create your profile in the Quantum Vault. Sign with wallet, customize avatar, and step into the arcade." />
+  <meta name="description" content="Create your profile in the Quantum Vault. Pick your avatar and step into the arcade." />
   <title>Quantum Vault – Create Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -46,7 +46,7 @@
       margin-bottom: 24px;
       color: #ccc;
     }
-    .input, .select {
+    .input {
       display: block;
       width: 100%;
       margin-bottom: 12px;
@@ -57,13 +57,26 @@
       color: var(--accent);
       font-size: 14px;
     }
-    #pfpPreview {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 10px auto;
-      border: 2px solid var(--accent);
+    #avatarGrid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      justify-items: center;
+      margin-bottom: 16px;
+    }
+    .avatar-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .avatar-thumb:hover {
+      border-color: var(--accent);
+    }
+    .avatar-thumb.selected {
+      border-color: var(--accent);
     }
     .btn {
       display: block;
@@ -86,23 +99,9 @@
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Choose a style, enter your name, and connect to the Vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Choose your avatar, enter your name, and enter the Vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
 
-    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="Avatar Preview" />
-    
-    <select id="style" class="select">
-      <option value="pixel-art">Pixel</option>
-      <option value="micah">Micah</option>
-      <option value="adventurer">Adventurer</option>
-      <option value="bottts">Bottts</option>
-      <option value="fun-emoji">Emoji</option>
-    </select>
-
-    <select id="gender" class="select">
-      <option value="neutral">Neutral</option>
-      <option value="male">Male</option>
-      <option value="female">Female</option>
-    </select>
+    <div id="avatarGrid"></div>
 
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
@@ -128,26 +127,28 @@
     const db = getFirestore(app);
 
     let currentWallet = "";
+    let selectedAvatar = "";
 
-    const pfpPreview = document.getElementById("pfpPreview");
-    const usernameInput = document.getElementById("username");
-    const styleSelect = document.getElementById("style");
-    const genderSelect = document.getElementById("gender");
+    const avatarGrid = document.getElementById("avatarGrid");
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
 
-    // Avatar preview update
-    const updateAvatar = () => {
-      const seed = usernameInput.value.trim() || "anon";
-      const style = styleSelect.value;
-      const gender = genderSelect.value;
-      const url = `https://api.dicebear.com/6.x/${style}/svg?seed=${seed}-${gender}`;
-      pfpPreview.src = url;
-    };
+    const seedList = Array.from({ length: 12 }, (_, i) => `quantum-${i + 1}`);
+    const avatarThumbs = [];
 
-    usernameInput.addEventListener("input", updateAvatar);
-    styleSelect.addEventListener("change", updateAvatar);
-    genderSelect.addEventListener("change", updateAvatar);
+    seedList.forEach(seed => {
+      const url = `https://api.dicebear.com/6.x/micah/svg?seed=${seed}`;
+      const img = document.createElement("img");
+      img.src = url;
+      img.className = "avatar-thumb";
+      img.addEventListener("click", () => {
+        avatarThumbs.forEach(i => i.classList.remove("selected"));
+        img.classList.add("selected");
+        selectedAvatar = url;
+      });
+      avatarGrid.appendChild(img);
+      avatarThumbs.push(img);
+    });
 
     connectBtn.addEventListener("click", async () => {
       try {
@@ -158,11 +159,9 @@
         const signer = provider.getSigner();
         currentWallet = (await signer.getAddress()).toLowerCase();
 
-        const docRef = doc(db, "users", currentWallet);
-        const snap = await getDoc(docRef);
-
+        const snap = await getDoc(doc(db, "users", currentWallet));
         if (snap.exists()) {
-          alert("Welcome back! Redirecting to the Vault...");
+          alert("Profile already exists. Redirecting...");
           window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
         } else {
           alert("Wallet connected. Please create your profile.");
@@ -171,29 +170,22 @@
         }
       } catch (err) {
         alert("Connection error");
-        console.error(err);
       }
     });
 
     createBtn.addEventListener("click", async () => {
-      const username = usernameInput.value.trim();
+      const username = document.getElementById("username").value.trim();
       const xHandle = document.getElementById("xHandle").value.trim();
-      const style = styleSelect.value;
-      const gender = genderSelect.value;
-      const seed = username || "anon";
-      const pfpUrl = `https://api.dicebear.com/6.x/${style}/svg?seed=${seed}-${gender}`;
 
-      if (!currentWallet || !username) {
-        alert("Username required.");
+      if (!currentWallet || !username || !selectedAvatar) {
+        alert("Please enter username and select an avatar.");
         return;
       }
 
       const userData = {
         username,
         xHandle,
-        pfpUrl,
-        avatarStyle: style,
-        avatarGender: gender,
+        pfpUrl: selectedAvatar,
         wallet: currentWallet,
         profileCreated: true,
         createdAt: Date.now()
@@ -205,7 +197,6 @@
         window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
       } catch (e) {
         alert("Failed to save profile.");
-        console.error(e);
       }
     });
   </script>
