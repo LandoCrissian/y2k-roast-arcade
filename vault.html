@@ -180,6 +180,7 @@
           console.log("Uploaded profile image:", pfpUrl);
         } catch (e) {
           console.warn("Image upload failed:", e);
+          alert("Image upload failed. Using fallback avatar.");
         }
       }
 
@@ -195,9 +196,8 @@
       try {
         await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
         console.log("Profile saved to Firestore:", userData);
-        alert("Profile created!");
+        alert("Profile created! Redirecting...");
 
-        // Redirect to the Quantum Vault
         window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
       } catch (e) {
         console.error("Firestore error:", e);
