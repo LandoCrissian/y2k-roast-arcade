@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
   <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Create your profile in the Quantum Vault. Sign with wallet, upload profile image, and step into the arcade." />
+  <meta name="description" content="Create your profile in the Quantum Vault. Sign with wallet, customize avatar, and step into the arcade." />
   <title>Quantum Vault – Create Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -46,7 +46,7 @@
       margin-bottom: 24px;
       color: #ccc;
     }
-    .input, .upload-label {
+    .input, .select {
       display: block;
       width: 100%;
       margin-bottom: 12px;
@@ -57,13 +57,6 @@
       color: var(--accent);
       font-size: 14px;
     }
-    .upload-label {
-      text-align: center;
-      border: 1px solid var(--accent);
-      cursor: pointer;
-      background: #181818;
-    }
-    .upload-label:hover { background: #222; }
     #pfpPreview {
       width: 80px;
       height: 80px;
@@ -93,23 +86,34 @@
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Welcome to the Quantum Vault. Sign in and create your player profile.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Choose a style, enter your name, and connect to the Vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
 
-    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="Profile Preview" />
-    <label class="upload-label" for="pfpUpload">Upload Profile Picture</label>
-    <input id="pfpUpload" type="file" accept="image/*" class="hidden" />
+    <img id="pfpPreview" src="https://api.dicebear.com/6.x/pixel-art/svg?seed=anon" alt="Avatar Preview" />
+    
+    <select id="style" class="select">
+      <option value="pixel-art">Pixel</option>
+      <option value="micah">Micah</option>
+      <option value="adventurer">Adventurer</option>
+      <option value="bottts">Bottts</option>
+      <option value="fun-emoji">Emoji</option>
+    </select>
+
+    <select id="gender" class="select">
+      <option value="neutral">Neutral</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
 
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
 
-    <button id="connectBtn" class="btn">Connect Wallet & Sign</button>
+    <button id="connectBtn" class="btn">Connect Wallet</button>
     <button id="createBtn" class="btn hidden">Create Profile</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
@@ -122,23 +126,28 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
 
     let currentWallet = "";
-    let selectedFile = null;
 
     const pfpPreview = document.getElementById("pfpPreview");
+    const usernameInput = document.getElementById("username");
+    const styleSelect = document.getElementById("style");
+    const genderSelect = document.getElementById("gender");
     const connectBtn = document.getElementById("connectBtn");
     const createBtn = document.getElementById("createBtn");
 
-    document.getElementById("pfpUpload").addEventListener("change", e => {
-      selectedFile = e.target.files[0];
-      if (selectedFile) {
-        const reader = new FileReader();
-        reader.onload = () => pfpPreview.src = reader.result;
-        reader.readAsDataURL(selectedFile);
-      }
-    });
+    // Avatar preview update
+    const updateAvatar = () => {
+      const seed = usernameInput.value.trim() || "anon";
+      const style = styleSelect.value;
+      const gender = genderSelect.value;
+      const url = `https://api.dicebear.com/6.x/${style}/svg?seed=${seed}-${gender}`;
+      pfpPreview.src = url;
+    };
+
+    usernameInput.addEventListener("input", updateAvatar);
+    styleSelect.addEventListener("change", updateAvatar);
+    genderSelect.addEventListener("change", updateAvatar);
 
     connectBtn.addEventListener("click", async () => {
       try {
@@ -149,89 +158,56 @@
         const signer = provider.getSigner();
         currentWallet = (await signer.getAddress()).toLowerCase();
 
-        const message = "By signing this, I acknowledge the risks of gambling in the Quantum Vault.";
-        await signer.signMessage(message);
+        const docRef = doc(db, "users", currentWallet);
+        const snap = await getDoc(docRef);
 
-        console.log("Wallet connected:", currentWallet);
-        connectBtn.classList.add("hidden");
-        createBtn.classList.remove("hidden");
+        if (snap.exists()) {
+          alert("Welcome back! Redirecting to the Vault...");
+          window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+        } else {
+          alert("Wallet connected. Please create your profile.");
+          connectBtn.classList.add("hidden");
+          createBtn.classList.remove("hidden");
+        }
       } catch (err) {
-        console.error("Connection error:", err);
-        alert("Could not connect wallet.");
+        alert("Connection error");
+        console.error(err);
       }
     });
 
     createBtn.addEventListener("click", async () => {
-  alert("Step 1: Clicked Create Profile");
+      const username = usernameInput.value.trim();
+      const xHandle = document.getElementById("xHandle").value.trim();
+      const style = styleSelect.value;
+      const gender = genderSelect.value;
+      const seed = username || "anon";
+      const pfpUrl = `https://api.dicebear.com/6.x/${style}/svg?seed=${seed}-${gender}`;
 
-  const username = document.getElementById("username").value.trim();
-  const xHandle = document.getElementById("xHandle").value.trim();
-  const fallbackPfp = pfpPreview.src;
+      if (!currentWallet || !username) {
+        alert("Username required.");
+        return;
+      }
 
-  if (!currentWallet) {
-    alert("Step 2: Wallet not connected");
-    return;
-  }
+      const userData = {
+        username,
+        xHandle,
+        pfpUrl,
+        avatarStyle: style,
+        avatarGender: gender,
+        wallet: currentWallet,
+        profileCreated: true,
+        createdAt: Date.now()
+      };
 
-  if (!username) {
-    alert("Step 3: Username is required");
-    return;
-  }
-
-  alert("Step 4: Preparing profile data...");
-
-  let pfpUrl = fallbackPfp;
-
-  if (selectedFile) {
-  try {
-    const validTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!validTypes.includes(selectedFile.type)) {
-      alert("Invalid file type. Please upload JPG, PNG, or WEBP.");
-      return;
-    }
-
-    alert("Step 5: Uploading PFP to storage...");
-
-    const storageRef = ref(storage, `pfps/${currentWallet}`);
-    const snapshot = await uploadBytes(storageRef, selectedFile);
-
-    if (!snapshot || !snapshot.metadata) {
-      alert("Upload failed. No metadata returned.");
-      return;
-    }
-
-    alert("Step 6: Getting download URL...");
-    pfpUrl = await getDownloadURL(snapshot.ref);
-
-    alert("Step 7: PFP uploaded!");
-  } catch (e) {
-    console.error("❌ Upload failed:", e);
-    alert("Upload failed: " + e.message);
-    return;
-  }
-} else {
-  alert("Step 6B: No file selected. Using fallback image.");
-}
-
-  const userData = {
-    username,
-    xHandle,
-    pfpUrl,
-    wallet: currentWallet,
-    profileCreated: true,
-    createdAt: Date.now()
-  };
-
-  alert("Step 7: Saving profile to Firestore...");
-
-  try {
-    await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-    alert("Step 8: Profile created! Redirecting...");
-    window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-  } catch (e) {
-    alert("Step 9: Firestore write failed!");
-  }
-});
+      try {
+        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
+        alert("Profile created! Entering the Vault...");
+        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+      } catch (e) {
+        alert("Failed to save profile.");
+        console.error(e);
+      }
+    });
   </script>
 </body>
 </html>
