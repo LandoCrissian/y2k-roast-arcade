@@ -183,18 +183,35 @@
   let pfpUrl = fallbackPfp;
 
   if (selectedFile) {
-    try {
-      alert("Step 5: Uploading PFP to storage...");
-      const storageRef = ref(storage, `pfps/${currentWallet}`);
-      await uploadBytes(storageRef, selectedFile);
-      pfpUrl = await getDownloadURL(storageRef);
-      alert("Step 6: PFP uploaded!");
-    } catch (e) {
-      alert("Step 6A: Upload failed. Using fallback image.");
+  try {
+    const validTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!validTypes.includes(selectedFile.type)) {
+      alert("Invalid file type. Please upload JPG, PNG, or WEBP.");
+      return;
     }
-  } else {
-    alert("Step 6B: No file selected. Using default image.");
+
+    alert("Step 5: Uploading PFP to storage...");
+
+    const storageRef = ref(storage, `pfps/${currentWallet}`);
+    const snapshot = await uploadBytes(storageRef, selectedFile);
+
+    if (!snapshot || !snapshot.metadata) {
+      alert("Upload failed. No metadata returned.");
+      return;
+    }
+
+    alert("Step 6: Getting download URL...");
+    pfpUrl = await getDownloadURL(snapshot.ref);
+
+    alert("Step 7: PFP uploaded!");
+  } catch (e) {
+    console.error("❌ Upload failed:", e);
+    alert("Upload failed: " + e.message);
+    return;
   }
+} else {
+  alert("Step 6B: No file selected. Using fallback image.");
+}
 
   const userData = {
     username,
