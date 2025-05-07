@@ -156,8 +156,7 @@ connectBtn.addEventListener("click", async () => {
 });
 
 createBtn.addEventListener("click", async () => {
-  console.log("CREATE CLICKED:", currentWallet);
-
+  console.log("CREATE BUTTON CLICKED");
   const username = document.getElementById("username").value.trim();
   const xHandle = document.getElementById("xHandle").value.trim();
 
@@ -166,30 +165,36 @@ createBtn.addEventListener("click", async () => {
     return;
   }
 
-  try {
-    let pfpUrl = "";
-    if (selectedFile) {
+  let pfpUrl = "";
+  if (selectedFile) {
+    try {
+      console.log("Uploading PFP...");
       const storageRef = ref(storage, `pfps/${currentWallet}`);
-      const snapshot = await uploadBytes(storageRef, selectedFile);
+      await uploadBytes(storageRef, selectedFile);
       pfpUrl = await getDownloadURL(storageRef);
-      console.log("PFP Uploaded:", pfpUrl);
+      console.log("Uploaded to Firebase:", pfpUrl);
+    } catch (uploadErr) {
+      console.error("UPLOAD ERROR:", uploadErr);
     }
+  } else {
+    console.log("No file selected.");
+  }
 
-    const userData = {
-      username,
-      xHandle,
-      pfpUrl,
-      profileCreated: true
-    };
+  const userData = {
+    username,
+    xHandle,
+    pfpUrl,
+    profileCreated: true
+  };
 
-    console.log("Saving user data:", userData);
+  try {
+    console.log("Saving user data to Firestore:", userData);
     await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-
     enterBtn.style.display = "inline-block";
     createBtn.style.display = "none";
     alert("Profile created!");
-  } catch (err) {
-    console.error("Create failed:", err);
+  } catch (firestoreErr) {
+    console.error("FIRESTORE SAVE ERROR:", firestoreErr);
     alert("Error saving profile.");
   }
 });
