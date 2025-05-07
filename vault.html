@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space+Grotesk', sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body {
       background: #000;
       color: #fff;
@@ -101,9 +101,9 @@
     <button id="enterVaultBtn" class="btn">Enter Vault</button>
   </div>
 
-    <script type="module">
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-storage.js";
 
     const firebaseConfig = {
@@ -191,46 +191,6 @@
     enterBtn.addEventListener("click", () => {
       window.location.href = "/vault.html";
     });
-
-      import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
-  authDomain: "y2k-arcade.firebaseapp.com",
-  projectId: "y2k-arcade",
-  storageBucket: "y2k-arcade.appspot.com",
-  messagingSenderId: "1063043176357",
-  appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-window.addEventListener("DOMContentLoaded", async () => {
-  if (!window.ethereum) {
-    alert("Please install MetaMask");
-    return;
-  }
-
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-  await provider.send("eth_requestAccounts", []);
-  const signer = provider.getSigner();
-  const wallet = (await signer.getAddress()).toLowerCase();
-
-  const userRef = doc(db, "users", wallet);
-  const docSnap = await getDoc(userRef);
-
-  if (!docSnap.exists() || !docSnap.data().profileCreated) {
-    alert("You must create a profile before accessing the Vault.");
-    window.location.href = "/"; // or wherever your create-profile page is hosted
-  } else {
-    // Allow Vault functionality to continue
-    console.log("Verified user profile.");
-  }
-});
-      
   </script>
 </body>
 </html>
