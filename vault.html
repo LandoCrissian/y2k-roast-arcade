@@ -156,18 +156,21 @@ document.getElementById("confirmSignBtn").addEventListener("click", () => {
   }
 
   async function saveProfile() {
-    const usernameInput = document.getElementById("username");
-const xHandleInput = document.getElementById("xHandle");
-    if (!currentWallet || !username || !selectedAvatar) return alert("Username and avatar required.");
+    const username = usernameInput.value.trim();
+    const xHandle = xHandleInput.value.trim();
 
-    const data = {
-      username,
-      xHandle,
-      pfpUrl: selectedAvatar,
-      wallet: currentWallet,
-      profileCreated: true,
-      createdAt: Date.now()
-    };
+if (!currentWallet || !username || !selectedAvatar) {
+  return alert("Username and avatar required.");
+}
+
+const data = {
+  username,
+  xHandle,
+  pfpUrl: selectedAvatar,
+  wallet: currentWallet,
+  profileCreated: true,
+  createdAt: Date.now()
+};
 
     await setDoc(doc(db, "users", currentWallet), data, { merge: true });
     alert("Profile created. Entering Vault...");
