@@ -162,48 +162,59 @@
     });
 
     createBtn.addEventListener("click", async () => {
-      const username = document.getElementById("username").value.trim();
-      const xHandle = document.getElementById("xHandle").value.trim();
+  alert("Step 1: Clicked Create Profile");
 
-      if (!currentWallet || !username) {
-        alert("Username is required.");
-        return;
-      }
+  const username = document.getElementById("username").value.trim();
+  const xHandle = document.getElementById("xHandle").value.trim();
+  const fallbackPfp = pfpPreview.src;
 
-      let pfpUrl = pfpPreview.src;
+  if (!currentWallet) {
+    alert("Step 2: Wallet not connected");
+    return;
+  }
 
-      if (selectedFile) {
-        try {
-          const storageRef = ref(storage, `pfps/${currentWallet}`);
-          const snapshot = await uploadBytes(storageRef, selectedFile);
-          pfpUrl = await getDownloadURL(snapshot.ref);
-          console.log("Uploaded profile image:", pfpUrl);
-        } catch (e) {
-          console.warn("Image upload failed:", e);
-          alert("Image upload failed. Using fallback avatar.");
-        }
-      }
+  if (!username) {
+    alert("Step 3: Username is required");
+    return;
+  }
 
-      const userData = {
-        username,
-        xHandle,
-        pfpUrl,
-        wallet: currentWallet,
-        profileCreated: true,
-        createdAt: Date.now()
-      };
+  alert("Step 4: Preparing profile data...");
 
-      try {
-        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-        console.log("Profile saved to Firestore:", userData);
-        alert("Profile created! Redirecting...");
+  let pfpUrl = fallbackPfp;
 
-        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-      } catch (e) {
-        console.error("Firestore error:", e);
-        alert("Error saving profile. Please try again.");
-      }
-    });
+  if (selectedFile) {
+    try {
+      alert("Step 5: Uploading PFP to storage...");
+      const storageRef = ref(storage, `pfps/${currentWallet}`);
+      await uploadBytes(storageRef, selectedFile);
+      pfpUrl = await getDownloadURL(storageRef);
+      alert("Step 6: PFP uploaded!");
+    } catch (e) {
+      alert("Step 6A: Upload failed. Using fallback image.");
+    }
+  } else {
+    alert("Step 6B: No file selected. Using default image.");
+  }
+
+  const userData = {
+    username,
+    xHandle,
+    pfpUrl,
+    wallet: currentWallet,
+    profileCreated: true,
+    createdAt: Date.now()
+  };
+
+  alert("Step 7: Saving profile to Firestore...");
+
+  try {
+    await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
+    alert("Step 8: Profile created! Redirecting...");
+    window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+  } catch (e) {
+    alert("Step 9: Firestore write failed!");
+  }
+});
   </script>
 </body>
 </html>
