@@ -191,6 +191,46 @@
     enterBtn.addEventListener("click", () => {
       window.location.href = "/vault.html";
     });
+
+      import { getDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
+  authDomain: "y2k-arcade.firebaseapp.com",
+  projectId: "y2k-arcade",
+  storageBucket: "y2k-arcade.appspot.com",
+  messagingSenderId: "1063043176357",
+  appId: "1:1063043176357:web:20bc22e9cbf269ff40fa4c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window.addEventListener("DOMContentLoaded", async () => {
+  if (!window.ethereum) {
+    alert("Please install MetaMask");
+    return;
+  }
+
+  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  await provider.send("eth_requestAccounts", []);
+  const signer = provider.getSigner();
+  const wallet = (await signer.getAddress()).toLowerCase();
+
+  const userRef = doc(db, "users", wallet);
+  const docSnap = await getDoc(userRef);
+
+  if (!docSnap.exists() || !docSnap.data().profileCreated) {
+    alert("You must create a profile before accessing the Vault.");
+    window.location.href = "/"; // or wherever your create-profile page is hosted
+  } else {
+    // Allow Vault functionality to continue
+    console.log("Verified user profile.");
+  }
+});
+      
   </script>
 </body>
 </html>
