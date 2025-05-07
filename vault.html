@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#000000" />
-  <meta name="description" content="Create your Quantum Vault profile. Connect, sign, and select your robot avatar." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0" />
+  <meta name="theme-color" content="#000" />
   <title>Quantum Vault – Create Profile</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
   <style>
     :root {
       --bg: #000; --text: #fff; --accent: #00ffe1; --input-bg: #111;
@@ -14,19 +15,22 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Space Grotesk', sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 24px; text-align: center; }
     .panel {
-      max-width: 400px; margin: 60px auto; padding: 32px;
+      max-width: 420px; margin: 60px auto; padding: 32px;
       border-radius: 20px; background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(16px);
     }
-    .title { font-size: 24px; margin-bottom: 12px; color: var(--accent); }
+    .title { font-size: 24px; margin-bottom: 16px; color: var(--accent); }
     .desc { font-size: 14px; margin-bottom: 24px; color: #ccc; }
-    .avatars { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+    .avatars {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px;
+    }
     .avatar {
-      width: 60px; height: 60px; border-radius: 10px;
-      border: 2px solid transparent; cursor: pointer; transition: 0.2s;
+      width: 64px; height: 64px; border-radius: 10px;
+      border: 2px solid transparent; cursor: pointer; transition: 0.2s ease;
     }
     .avatar.selected { border-color: var(--accent); transform: scale(1.1); }
-    .input { width: 100%; margin-bottom: 12px; padding: 10px;
+    .input {
+      width: 100%; margin-bottom: 12px; padding: 10px;
       border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
       background: var(--input-bg); color: var(--accent); font-size: 14px;
     }
@@ -44,31 +48,19 @@
 <body>
   <div class="panel">
     <div class="title">Create Your Quantum Profile</div>
-    <div class="desc">Pick your robot avatar, connect & sign, and enter the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
+    <div class="desc">Connect, sign, select your robot. Then enter the vault.<br><br><strong>DYOR. Gambling carries risk.</strong></div>
 
-    <div class="avatars" id="avatarList"></div>
+    <div class="avatars" id="avatarGrid"></div>
 
     <input id="username" class="input" type="text" placeholder="Username (required)" />
     <input id="xHandle" class="input" type="text" placeholder="𝕏 Handle (optional)" />
-    <button id="connectBtn" class="btn">Connect Wallet</button>
+    <button id="walletBtn" class="btn">Connect Wallet</button>
     <button id="createBtn" class="btn hidden">Create Profile</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
-    import { ethers } from "https://cdn.jsdelivr.net/npm/ethers@5.7.2/+esm";
-    import { Core } from "https://cdn.jsdelivr.net/npm/@walletconnect/core@2.13.0/+esm";
-    import { WalletKit } from "https://cdn.jsdelivr.net/npm/@reown/walletkit@latest/+esm";
-
-    const core = new Core({ projectId: "1782a3efdd6e9a91eba1133b12f52fa0" });
-    const metadata = {
-      name: "Quantum Vault",
-      description: "Web3 Arcade Profile Creator",
-      url: "https://quantum-vault-y2kxroast.netlify.app/",
-      icons: ["https://source.unsplash.com/random/100x100?cyberpunk"]
-    };
-    const walletKit = await WalletKit.init({ core, metadata });
 
     const firebaseConfig = {
       apiKey: "AIzaSyCJwqDFZtf1PkZwAalOaf2_7eWtej5HIfA",
@@ -82,85 +74,87 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    const connectBtn = document.getElementById("connectBtn");
+    const avatarGrid = document.getElementById("avatarGrid");
+    const walletBtn = document.getElementById("walletBtn");
     const createBtn = document.getElementById("createBtn");
     const usernameInput = document.getElementById("username");
     const xHandleInput = document.getElementById("xHandle");
-    const avatarList = document.getElementById("avatarList");
 
     let currentWallet = "";
-    let selectedPfp = "";
+    let selectedAvatar = "";
 
-    const avatarSeeds = Array.from({ length: 20 }, (_, i) => `quantum-robot-${i}`);
-    avatarSeeds.forEach((seed, i) => {
+    const avatarSeeds = Array.from({ length: 20 }, (_, i) => `quantumBot-${i}`);
+    avatarSeeds.forEach(seed => {
       const img = document.createElement("img");
       img.src = `https://api.dicebear.com/6.x/bottts/svg?seed=${seed}`;
       img.className = "avatar";
-      img.onclick = () => {
+      img.addEventListener("click", () => {
         document.querySelectorAll(".avatar").forEach(a => a.classList.remove("selected"));
         img.classList.add("selected");
-        selectedPfp = img.src;
-      };
-      if (i === 0) {
-        img.classList.add("selected");
-        selectedPfp = img.src;
-      }
-      avatarList.appendChild(img);
+        selectedAvatar = img.src;
+      });
+      avatarGrid.appendChild(img);
     });
 
-    connectBtn.addEventListener("click", async () => {
-      try {
-        await walletKit.connect();
-        const wcProvider = walletKit.getProvider();
-        const provider = new ethers.providers.Web3Provider(wcProvider);
-        const signer = provider.getSigner();
-        currentWallet = (await signer.getAddress()).toLowerCase();
-
-        const signed = await signer.signMessage(
-          "Sign to enter the Quantum Vault. You acknowledge risk and consent to gameplay."
+    // Use WalletConnect if available
+    async function connectWallet() {
+      let provider;
+      if (window.ethereum) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+      } else {
+        const WalletConnectProvider = window.WalletConnectProvider.default;
+        provider = new ethers.providers.Web3Provider(
+          new WalletConnectProvider({ infuraId: "1c1576e7c7994b16909b121e8a261ee0" })
         );
-
-        const docRef = doc(db, "users", currentWallet);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          alert("Welcome back. Redirecting...");
-          window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
-        } else {
-          connectBtn.classList.add("hidden");
-          createBtn.classList.remove("hidden");
-        }
-      } catch (e) {
-        alert("Failed to connect or sign.");
-        console.error(e);
+        await provider.provider.enable();
       }
-    });
 
-    createBtn.addEventListener("click", async () => {
+      const signer = provider.getSigner();
+      currentWallet = (await signer.getAddress()).toLowerCase();
+
+      const signedMsg = await signer.signMessage("Sign to enter the Quantum Vault.");
+      const userRef = doc(db, "users", currentWallet);
+      const existing = await getDoc(userRef);
+      if (existing.exists()) {
+        alert("Welcome back! Redirecting...");
+        window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
+      } else {
+        alert("Wallet connected. Proceed to create profile.");
+        walletBtn.classList.add("hidden");
+        createBtn.classList.remove("hidden");
+      }
+    }
+
+    async function saveProfile() {
       const username = usernameInput.value.trim();
       const xHandle = xHandleInput.value.trim();
-      if (!currentWallet || !username || !selectedPfp) {
-        alert("Username and avatar required.");
+      if (!currentWallet || !username || !selectedAvatar) {
+        alert("Fill all required fields.");
         return;
       }
 
       const userData = {
         username,
         xHandle,
-        pfpUrl: selectedPfp,
+        pfpUrl: selectedAvatar,
         wallet: currentWallet,
-        profileCreated: true,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        profileCreated: true
       };
 
       try {
-        await setDoc(doc(db, "users", currentWallet), userData, { merge: true });
-        alert("Profile created. Entering Vault...");
+        await setDoc(doc(db, "users", currentWallet), userData);
+        alert("Profile saved. Entering Vault...");
         window.location.href = "https://quantum-vault-y2kxroast.netlify.app/";
       } catch (e) {
-        alert("Failed to save profile.");
+        alert("Profile creation failed.");
         console.error(e);
       }
-    });
+    }
+
+    walletBtn.onclick = connectWallet;
+    createBtn.onclick = saveProfile;
   </script>
 </body>
 </html>
